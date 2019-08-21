@@ -2,6 +2,7 @@ import sys
 import pygame
 from pygame import Color, Surface
 from pygame.locals import *
+from extensions.menus.main_menu import MainMenuExtension
 
 
 class Player:
@@ -12,18 +13,11 @@ class TicTacToeLogic:
     pass
 
 
-class TicTacToeScene:
-    def __init__(self):
-        pass
-
-
-class MenuScene:
-    pass
 
 
 class App:
     def __init__(self):
-        self._scene = 1
+        self.extension = MainMenuExtension()
         self.running = True
         self.screen = None
         self.size = self.weight, self.height = 1280, 720
@@ -41,16 +35,14 @@ class App:
         if event.type == pygame.QUIT:
             self.running = False
 
+        self.extension.handle_event(event)
+
+
     def loop(self):
         pass
 
     def render(self):
-        print(pygame.display.get_surface().get_size())
-        background = pygame.Surface(self.screen.get_size())
-        background.fill(self.background_color)
-        self.screen.blit(background, (0, 0))
-
-        pygame.display.flip()
+        self.extension.render(self.screen)
 
     def cleanup(self):
         pygame.quit()
@@ -63,6 +55,7 @@ class App:
 
             for event in pygame.event.get():
                 self.handle_event(event)
+
             self.loop()
 
             self.render()
