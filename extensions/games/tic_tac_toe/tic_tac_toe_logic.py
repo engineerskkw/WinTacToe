@@ -23,7 +23,7 @@ class Board:
 	def __init__(self, size, marks_required):
 		self.size = size
 		self.marks_required = marks_required
-		self.board = np.full((size, size), -1)
+		self.board = np.full((size, size), -1) # -1 - puste miejsce
 
 	def place_mark(self, x, y, mark):
 		self.board[x][y] = mark
@@ -83,7 +83,7 @@ class Board:
 		if not np.any(line == -1) and np.all(line == line[0]):
 			return True
 		
-		
+
 class TicTacToeLogic(AbstractLogic):
 	def __init__(self, players, size, marks_required):
 		self.players = players
@@ -103,3 +103,15 @@ class TicTacToeLogic(AbstractLogic):
 	def get_current_state(self):
 		return self.board.board
 
+	def main_loop(self):
+		current_winnings = []
+
+		while not current_winnings:
+			x, y = input(str(self.current_player.name) "'s turn... enter coordinates (e.g 1, 2):")
+			self.place_mark(x, y)
+			current_winnings = list(gather_winnings())
+
+		winning_mark = current_winnings[0].mark
+		winning_player = filter(lambda player: player.mark = winning_mark, self.players)[0]
+
+		print(str(winning_player.name) + "won!")
