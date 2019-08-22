@@ -1,4 +1,4 @@
-import abstract_logic
+# import abstract_logic
 import numpy as np
 from itertools import chain, cycle
 
@@ -29,14 +29,14 @@ class Board:
 		self.board[x][y] = mark
 
 	def gather_winnings(self):
-	winnings = []
+		winnings = []
 
-	for i in range(size - marks_required + 1):
-		for j in range(size - marks_required + 1):
-			subboard = board[i:i+marks_required, j:j+marks_required]
-			winnings += _check_subboard(subboard, (i, j))
+		for i in range(size - marks_required + 1):
+			for j in range(size - marks_required + 1):
+				subboard = self.board[i:i+marks_required, j:j+marks_required]
+				winnings += self._check_subboard(subboard, (i, j))
 
-	return chain.from_iterable(winnings)
+		return chain.from_iterable(winnings)
 
 	# private methods
 	def _check_subboard(self, subboard, top_left):
@@ -45,7 +45,7 @@ class Board:
 
 		#rows
 		for i in range(shape):
-			if _check_line(subboard[i]):
+			if self._check_line(subboard[i]):
 				mark = subboard[i][0]
 				starting_point = (top_left[0] + i, top_left[1])
 				ending_point = (top_left[0] + i, top_left[1] + shape - 1)
@@ -54,7 +54,7 @@ class Board:
 
 		#columns
 		for j in range(shape):
-			if _check_line(subboard[:, j]):
+			if self._check_line(subboard[:, j]):
 				mark = subboard[:, j][0]
 				starting_point = (top_left[0], top_left[1] + j)
 				ending_point = (top_left[0] + shape - 1, top_left[1] + j)
@@ -63,7 +63,7 @@ class Board:
 
 		#main_diagonal
 		main_diag = np.diag(subboard)
-		if _check_line(main_diag):
+		if self._check_line(main_diag):
 			mark = main_diag[0]
 			starting_point = (top_left[0], top_left[1])
 			ending_point = (top_left[0] + shape - 1, top_left[1] + shape - 1)
@@ -72,30 +72,30 @@ class Board:
 
 		#second_diagonal
 		second_diag = np.diag(np.flip(subboard, 1))
-		if _check_line(second_diag):
+		if self._check_line(second_diag):
 			mark = second_diag[0]
 			starting_point = (top_left[0], top_left[1] + shape - 1)
 			ending_point = (top_left[0] + shape - 1, top_left[1])
 
 			yield Winning(mark, starting_point, ending_point)
 
-	def _check_line(line):
+	def _check_line(self, line):
 		if not np.any(line == -1) and np.all(line == line[0]):
 			return True
 		
 
-class TicTacToeLogic(AbstractLogic):
+class TicTacToeLogic():
 	def __init__(self, players, size, marks_required):
 		self.players = players
 		self.player_generator = cycle(players)
-		self.current_player = players[0]
+		self.current_player = next(self.player_generator)
 
-		self.board_size = board_size
-		self.board = Board(board_size, marks_required)
+		self.board_size = size
+		self.board = Board(size, marks_required)
 
 	def place_mark(self, x, y):
 		self.board.place_mark(x, y, self.current_player.mark)
-		self.current_player = next(player_generator)
+		self.current_player = next(self.player_generator)
 
 	def gather_winnings(self):
 		return self.board.gather_winnings()
@@ -107,11 +107,23 @@ class TicTacToeLogic(AbstractLogic):
 		current_winnings = []
 
 		while not current_winnings:
-			x, y = input(str(self.current_player.name) "'s turn... enter coordinates (e.g 1, 2):")
-			self.place_mark(x, y)
-			current_winnings = list(gather_winnings())
+			print(self.board.board)
+			x, y = input(str(self.current_player.name) + "'s turn... enter coordinates (e.g 1, 2):")
+			self.place_mark(int(x), int(y))
+			# print(list(self.gather_winnings()))
+			current_winnings = list(self.gather_winnings())
 
 		winning_mark = current_winnings[0].mark
-		winning_player = filter(lambda player: player.mark = winning_mark, self.players)[0]
+		winning_player = filter(lambda player: player.mark == winning_mark, self.players)[0]
 
 		print(str(winning_player.name) + "won!")
+
+
+
+# players = [Player('Wuju', 0), Player('Kapala', 1)]
+# size = 3
+# marks_required = 3
+
+# tic_tac_toe = TicTacToeLogic(players, size, marks_required)
+
+# tic_tac_toe.main_loop()
