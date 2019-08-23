@@ -1,6 +1,6 @@
 # import abstract_logic
 import numpy as np
-from itertools import chain, cycle
+from itertools import cycle
 from ..abstract_logic import AbstractLogic
 
 
@@ -12,14 +12,14 @@ class Player:
     name : str
         A player's name.
     mark: int
-        A number coresponding to a player's mark.
+        A number corresponding to a player's mark.
 
     Attributes
     ----------
     name : str
         A player's name.
     mark: int
-        A number coresponding to a player's mark.
+        A number corresponding to a player's mark.
         
     """
 
@@ -34,7 +34,7 @@ class Winning:
     Parameters
     ----------
     mark : int
-        A number coresponding to a player's mark.
+        A number corresponding to a player's mark.
     starting_point: (int, int)
         A tuple with coordinates of the starting point of the winning line.
     ending_point: (int, int)
@@ -43,7 +43,7 @@ class Winning:
     Attributes
     ----------
     mark : int
-        A number coresponding to a player's mark.
+        A number corresponding to a player's mark.
     starting_point: (int, int)
         A tuple with coordinates of the starting point of the winning line.
     ending_point: (int, int)
@@ -103,6 +103,8 @@ class Board:
             The x coordinate.
         y : int
             The y coordinate.
+        mark: int
+                A number corresponding to a player's mark.
 
         Returns
         -------
@@ -127,9 +129,9 @@ class Board:
         """
         winnings = []
 
-        for i in range(size - marks_required + 1):
-            for j in range(size - marks_required + 1):
-                subboard = self.board[i:i + marks_required, j:j + marks_required]
+        for i in range(self.size - self.marks_required + 1):
+            for j in range(self.size - self.marks_required + 1):
+                subboard = self.board[i:i + self.marks_required, j:j + self.marks_required]
                 winnings += self._check_subboard(subboard, (i, j))
 
         return winnings
@@ -260,13 +262,13 @@ class TicTacToeLogic(AbstractLogic):
         return self.board.gather_winnings()
 
     def get_current_state(self):
-        """Shares a numpy board represnting a current state of the board. 
+        """Shares a numpy board representing a current state of the board.
         Used only by the AI playing the game.
 
         Returns
         -------
         np.array(dtype=int)
-            A numpy array represnting the current board.
+            A numpy array representing the current board.
         """
         return self.board.board
 
@@ -299,7 +301,7 @@ class TicTacToeLogic(AbstractLogic):
         print(str(winning_player.name) + " won!")
 
 
-# Exmaple initialization of the game
+Exmaple initialization of the game
 players = [Player('Wuju', 0), Player('Kapala', 1)]
 size = 5
 marks_required = 3
