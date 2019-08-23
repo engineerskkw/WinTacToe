@@ -276,20 +276,31 @@ class TicTacToeLogic():
         # Early version, needs polishing, maybe it should be implemented in one of the GUI classes
         while not current_winnings:
             print(self.board.board)
+            print()
+
             x, y = input(str(self.current_player.name) + "'s turn... enter coordinates (e.g 1, 2):")
-            self.place_mark(int(x), int(y))
+
+            try:
+                if not self.place_mark(int(x), int(y)):
+                    print("These coordinates are already taken...\n")
+
+            except IndexError as error:
+                print("These are not valid coordinates...\n")
+
             current_winnings = self.gather_winnings()
 
         winning_mark = current_winnings[0].mark
         winning_player = list(filter(lambda player: player.mark == winning_mark, self.players))[0]
 
+        print(self.board.board)
+        print()
         print(str(winning_player.name) + " won!")
 
 
 
 # Exmaple initialization of the game
 players = [Player('Wuju', 0), Player('Kapala', 1)]
-size = 3
+size = 5
 marks_required = 3
 
 tic_tac_toe = TicTacToeLogic(players, size, marks_required)
