@@ -3,6 +3,7 @@ import pygame
 from pygame import Color, Surface
 from pygame.locals import *
 from extensions.menus.main_menu import MainMenuExtension
+from extensions.games.tic_tac_toe import tic_tac_toe_logic
 
 
 class Player:
@@ -70,4 +71,5 @@ def main():
 
 if __name__ == "__main__":
     print("1")
+    tic_tac_toe_logic.TicTacToeLogic()
     main()

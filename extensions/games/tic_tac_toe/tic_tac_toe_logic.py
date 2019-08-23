@@ -1,6 +1,7 @@
 # import abstract_logic
 import numpy as np
 from itertools import chain, cycle
+from ..abstract_logic import AbstractLogic
 
 
 class Player:
@@ -21,6 +22,7 @@ class Player:
         A number coresponding to a player's mark.
         
     """
+
     def __init__(self, name, mark):
         self.name = name
         self.mark = mark
@@ -48,6 +50,7 @@ class Winning:
         A tuple with coordinates of the ending point of the winning line.
 
     """
+
     def __init__(self, mark, starting_point, ending_point):
         self.mark = mark
         self.starting_point = starting_point
@@ -85,6 +88,7 @@ class Board:
         Gathers all the winning lines and marks along with their coordinates.
 
     """
+
     def __init__(self, size, marks_required):
         self.size = size
         self.marks_required = marks_required
@@ -125,11 +129,10 @@ class Board:
 
         for i in range(size - marks_required + 1):
             for j in range(size - marks_required + 1):
-                subboard = self.board[i:i+marks_required, j:j+marks_required]
+                subboard = self.board[i:i + marks_required, j:j + marks_required]
                 winnings += self._check_subboard(subboard, (i, j))
 
         return winnings
-
 
     def _check_subboard(self, subboard, top_left):
         winnings = []
@@ -176,10 +179,9 @@ class Board:
     def _check_line(self, line):
         if not np.any(line == -1) and np.all(line == line[0]):
             return True
-        
 
-# TODO: It should inherit from the abstract logic class somewhere.
-class TicTacToeLogic():
+
+class TicTacToeLogic(AbstractLogic):
     """Class containing a Tic Tac Toe logic.
 
     It contains all the necessary methods to run a single instance of the game
@@ -295,7 +297,6 @@ class TicTacToeLogic():
         print(self.board.board)
         print()
         print(str(winning_player.name) + " won!")
-
 
 
 # Exmaple initialization of the game
