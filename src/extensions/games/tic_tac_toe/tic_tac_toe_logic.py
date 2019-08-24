@@ -1,7 +1,7 @@
 # import abstract_logic
 import numpy as np
 from itertools import cycle
-from ..abstract_logic import AbstractLogic
+# from ..abstract_logic import AbstractLogic
 
 
 class Player:
@@ -183,7 +183,7 @@ class Board:
             return True
 
 
-class TicTacToeLogic(AbstractLogic):
+class TicTacToeLogic():
     """Class containing a Tic Tac Toe logic.
 
     It contains all the necessary methods to run a single instance of the game
