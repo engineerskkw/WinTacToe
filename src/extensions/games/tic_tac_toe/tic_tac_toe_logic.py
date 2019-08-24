@@ -301,11 +301,11 @@ class TicTacToeLogic(AbstractLogic):
         print(str(winning_player.name) + " won!")
 
 
-Exmaple initialization of the game
-players = [Player('Wuju', 0), Player('Kapala', 1)]
-size = 5
-marks_required = 3
-
-tic_tac_toe = TicTacToeLogic(players, size, marks_required)
-
-tic_tac_toe.main_loop()
+# Exmaple initialization of the game
+# players = [Player('Wuju', 0), Player('Kapala', 1)]
+# size = 5
+# marks_required = 3
+#
+# tic_tac_toe = TicTacToeLogic(players, size, marks_required)
+#
+# tic_tac_toe.main_loop()
