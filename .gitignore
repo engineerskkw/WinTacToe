@@ -1,2 +1,3 @@
 .idea
 __pycache__/
+src/extensions/games/tic_tac_toe/tic_tac_toe.egg-info/
