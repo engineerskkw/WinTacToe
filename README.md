@@ -36,7 +36,7 @@ and open file:
 Monte_Carlo_agent_alpha_draft.Rmd:
 ```
 
-6.1 If the are import problems or notebook is ineditable run command from first code cell (without preceding "!") in console
+6.1 If there are import problems or notebook is ineditable run this command in console:
 ```console
 python -m ipykernel install --user --name=Python3.7-WinTacToe
 ```
@@ -48,4 +48,5 @@ Python3.7-WinTacToe
 ### Using
 Run all cells in opened jupyter notebook to load all necessary classes and to train an agent.
 Display agent's last_episode, returns, policy, action_value, model and MDP to analyse it's behaviour.
-Try varous values of i.e. epsilon or gamma parameters or different board sizes of tic-tac-toe game. Have fun ;)
+Try various values of i.e. epsilon or gamma learning parameters or different board sizes of tic-tac-toe game.
+Have fun ;)
