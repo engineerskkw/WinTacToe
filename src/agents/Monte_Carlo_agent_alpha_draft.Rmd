@@ -7,9 +7,9 @@ jupyter:
       format_version: '1.1'
       jupytext_version: 1.2.1
   kernelspec:
-    display_name: Python 3
+    display_name: Python3.7-WinTacToe
     language: python
-    name: python3
+    name: python3.7-wintactoe
 ---
 
 # WIN-TAC-TOE ALPHA DRAFT
@@ -22,7 +22,7 @@ import numpy as np
 import gym
 
 import sys
-sys.path.append('/home/jan/WinTacToe/src/extensions/games/tic_tac_toe')
+sys.path.append('../extensions/games/tic_tac_toe')
 from tic_tac_toe_logic import *
 from tic_tac_toe import *
 
@@ -668,7 +668,7 @@ mces = MonteCarloES(agent1, agent2)
 
 ```{python}
 # Train
-mces.train(10000, initial_epsilon=0.3)
+mces.train(100, initial_epsilon=0.3)
 
 # Plot 
 x = list(range(len(mces.agent2_G)))

@@ -9,21 +9,19 @@ verify_ssl = true
 # Scientific libraries
 numpy = "*"
 tensorflow = "==2.0.0-rc0"
-
 # Game library
 pygame = "*"
-
 # OpenAI gym environments
 gym = "*"
-
 # Jupyter notebook for fast invent -> test -> fix cycle
 jupyter = "*"
 # For easy maitaining jupyter notebooks in git repository:
 jupytext = "*"
-
+ipykernel = "*"
 # Visualization tools
 matplotlib = "*"
 graphviz = "*"
+
 
 [requires]
 python_version = "3.7"
