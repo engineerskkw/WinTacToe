@@ -9,6 +9,8 @@ verify_ssl = true
 tensorflow = "==2.0.0-beta1"
 gym = "*"
 pygame = "*"
+jupytext = "*"
+jupyter = "*"
 
 [requires]
 python_version = "3.7"
