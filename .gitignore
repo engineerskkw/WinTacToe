@@ -1,1 +1,5 @@
-agents/.ipynb_checkpoints/
+src/agents/.ipynb_checkpoints/
+src/extensions/games/tic_tac_toe/tic_tac_toe.egg-info/
+src/extensions/games/tic_tac_toe/__pycache__/
+src/extensions/games/tic_tac_toe/tic_tac_toe/__pycache__
+src/extensions/games/tic_tac_toe/tic_tac_toe/__init__.pyc
