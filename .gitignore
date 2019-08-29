@@ -4,3 +4,4 @@ src/extensions/games/tic_tac_toe/__pycache__/
 src/extensions/games/tic_tac_toe/tic_tac_toe/__pycache__
 src/extensions/games/tic_tac_toe/tic_tac_toe/__init__.pyc
 src/extensions/games/tic_tac_toe/tic_tac_toe/envs/__pycache__/
+src/agents/Monte_Carlo_agent_alpha_draft.ipynb
