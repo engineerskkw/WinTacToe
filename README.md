@@ -61,4 +61,5 @@ in human-friendly graph form to analyse agent's behaviour.
 
 ##### Adjust and improve
 Try various values of i.e. **epsilon** or **gamma** learning parameters or different board sizes of tic-tac-toe game.
-Have fun ;)
+
+**_Have fun ;)_**
