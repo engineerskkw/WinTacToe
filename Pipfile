@@ -9,6 +9,9 @@ verify_ssl = true
 numpy = "*"
 pygame = "*"
 tensorflow = "==2.0.0-rc0"
+graphviz = "*"
+jupyter = "*"
+matplotlib = "*"
 
 [requires]
 python_version = "3.7"
