@@ -1,5 +1,5 @@
 # WinTacToe
-WinTacToe is system for training **reinforcement learning agents** to play tic-tac-toe-related games.
+WinTacToe is a system for training **reinforcement learning agents** to play tic-tac-toe-related games.
 It consist of the following elements:
 * Multiple, diverse game environments (compatibile with **OpenAI Gym**)
 * RL agents of various architectures and levels of advancement
@@ -41,7 +41,7 @@ Monte_Carlo_agent_alpha_draft.Rmd:
 python -m ipykernel install --user --name=Python3.7-WinTacToe
 ```
 
-6.2 and change kernel to:
+6.2 and change jupyter kernel to:
 ```
 Python3.7-WinTacToe
 ```
