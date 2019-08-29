@@ -667,7 +667,7 @@ mces = MonteCarloES(agent1, agent2)
 
 ```{python}
 # Train
-mces.train(100, initial_epsilon=0.3)
+mces.train(1, initial_epsilon=0.3)
 
 x = list(range(len(mces.agent2_G)))
 y = mces.agent2_G
@@ -751,7 +751,7 @@ agent1.model
 - [ ] Zaimplementować Human Player Agent
 - [X] zmienić episode na last_episode w klasie Agent
 - [ ] Rozegrać gry ze standardowym stanem początkowym
-- [X] Dodać 
+- [X] Dodać MDP
 
 ```{python}
 
