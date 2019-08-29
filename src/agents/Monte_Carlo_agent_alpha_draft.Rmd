@@ -14,7 +14,11 @@ jupyter:
 
 # WIN-TAC-TOE ALPHA DRAFT
 
+
+### WARRING: Read before run
+
 ```{python}
+# If there will be import errors run this cell and next choose Kernel-> Change kernel -> Python3.7-WinTacToe
 # !python -m ipykernel install --user --name=Python3.7-WinTacToe
 ```
 
