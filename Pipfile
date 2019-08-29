@@ -6,12 +6,24 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
+# Scientific libraries
 numpy = "*"
-pygame = "*"
 tensorflow = "==2.0.0-rc0"
-graphviz = "*"
+
+# Game library
+pygame = "*"
+
+# OpenAI gym environments
+gym = "*"
+
+# Jupyter notebook for fast invent -> test -> fix cycle
 jupyter = "*"
+# For easy maitaining jupyter notebooks in git repository:
+jupytext = "*"
+
+# Visualization tools
 matplotlib = "*"
+graphviz = "*"
 
 [requires]
 python_version = "3.7"
