@@ -154,7 +154,7 @@ s3 = State([[0,1],[1,-1]])
 a3 = Action([1,1])
 p[s3] = a3
 
-p
+p[s3]
 ```
 
 ```{python}
@@ -658,8 +658,9 @@ class MonteCarloES:
 ### Training
 
 ```{python}
-env = gym.make('tic_tac_toe:tictactoe-v0')
+# Initialization
 
+env = gym.make('tic_tac_toe:tictactoe-v0')
 agent1 = Agent(env, players[0])
 agent2 = Agent(env, players[1])
 mces = MonteCarloES(agent1, agent2)
@@ -667,8 +668,9 @@ mces = MonteCarloES(agent1, agent2)
 
 ```{python}
 # Train
-mces.train(1, initial_epsilon=0.3)
+mces.train(10000, initial_epsilon=0.3)
 
+# Plot 
 x = list(range(len(mces.agent2_G)))
 y = mces.agent2_G
 plt.scatter(x, y)
@@ -686,13 +688,16 @@ plt.grid(True)
 plt.show()
 
 plt.plot(mces.epsilons)
-plt.ylabel('some numbers')
+plt.ylabel('Epsilon value')
+plt.ylabel('Epsilon value')
 print("Epsilones vs episodes")
 plt.show()
 ```
 
 ```{python}
-agent1.get_MDP()
+mdp = agent1.get_MDP()
+mdp.mdp_graph.view()
+# mdp
 ```
 
 ```{python}
