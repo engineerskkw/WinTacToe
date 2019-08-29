@@ -17,8 +17,14 @@ jupyter:
 
 ### WARRING: Read before run
 
+
+# WARRING: Read before run
+In case of import errors:
+1. Make sure you have executed "pipenv install --skip-lock" command in project root directory
+2. Make sure you have started project shell with "pipenv shell" BEFORE launching "jupyter notebook"
+3. Run cell below and next choose Kernel-> Change kernel -> Python3.7-WinTacToe
+
 ```{python}
-# If there will be import errors run this cell and next choose Kernel-> Change kernel -> Python3.7-WinTacToe
 # !python -m ipykernel install --user --name=Python3.7-WinTacToe
 ```
 
