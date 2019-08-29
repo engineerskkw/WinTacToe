@@ -1,3 +1,5 @@
+.idea
+__pycache__/
 src/agents/.ipynb_checkpoints/
 src/extensions/games/tic_tac_toe/tic_tac_toe.egg-info/
 src/extensions/games/tic_tac_toe/__pycache__/
