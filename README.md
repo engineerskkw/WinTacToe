@@ -36,7 +36,7 @@ and open file:
 Monte_Carlo_agent_alpha_draft.Rmd:
 ```
 
-6.1 If there are import problems or notebook is ineditable run this command in console:
+6.1 If there are import problems or notebook is ineditable run this command in pipenv shell:
 ```console
 python -m ipykernel install --user --name=Python3.7-WinTacToe
 ```
