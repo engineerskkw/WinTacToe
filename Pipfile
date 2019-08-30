@@ -21,7 +21,7 @@ ipykernel = "*"
 # Visualization tools
 matplotlib = "*"
 graphviz = "*"
-
+parse = "*"
 
 [requires]
 python_version = "3.7"
