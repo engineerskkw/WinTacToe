@@ -41,6 +41,25 @@ import random
 from graphviz import Graph, Digraph
 import matplotlib.pyplot as plt
 import uuid
+from parse import parse
+```
+
+### Utilities
+
+```{python}
+def linear_map(value, low, high, values):
+    original_high = max(values)
+    original_low = min(values)
+    if original_high == original_low:
+        return high
+    original_midpoint = (original_high + original_low)/2
+    original_halfrange = original_midpoint - original_low
+    value = (value - original_midpoint)/original_halfrange
+    
+    midpoint = (high + low)/2
+    halfrange = midpoint - low
+    value = midpoint + value * halfrange
+    return value
 ```
 
 ### Basic RL Agent building blocks
@@ -59,7 +78,6 @@ class State:
         return hash(self) == hash(other)
     
     def __str__(self):
-#         return str(self.array)
         representation = ''
         height, width = self.array.shape
         
@@ -107,12 +125,13 @@ class Action:
 class Policy:
     def __init__(self, env):
         self.policy_dict = {}
+        self.env = env
     
     # Lazy initialization
     def __getitem__(self, state):
         if self.policy_dict.get(state) is None:
-            if env.possible_actions:
-                self.policy_dict[state] = Action(random.choice(env.possible_actions))
+            if self.env.possible_actions:
+                self.policy_dict[state] = Action(random.choice(self.env.possible_actions))
             else:
                 self.policy_dict[state] = Action([])
         return self.policy_dict[state]
@@ -165,11 +184,14 @@ s3 = State([[0,1],[1,-1]])
 a3 = Action([1,1])
 p[s3] = a3
 
-p[s3]
+p
 ```
 
 ```{python}
 class ActionValue:
+    MIN_PEN_WIDTH = 1
+    MAX_PEN_WIDTH = 4
+    
     def __init__(self):
         self.action_value_dict = {}
             
@@ -201,13 +223,16 @@ class ActionValue:
     def argmax_a(self, state):
         max_value = float('-inf')
         max_value_actions = []
-        for action, value in self.action_value_dict[state].items():
+        for action, value in self.action_value_dict.get(state, {}).items():
             if value > max_value:
                 max_value = value
                 max_value_actions = [action]
             elif value == max_value:
                 max_value_actions.append(action)
-        return random.choice(max_value_actions)
+        if max_value_actions:
+            return random.choice(max_value_actions)
+        else:
+            return Action([])
     
     def __str__(self):
         return str(self.action_value_dict)
@@ -218,10 +243,16 @@ class ActionValue:
     def _repr_svg_(self):
         graph = Digraph()
         for state, actions in self.action_value_dict.items():
+            # Calculate sum of all actions' values from this state
+      
             graph.node(str(hash(state)), str(state))
             for action, value in actions.items():
                 graph.node(str(hash(action)), str(action))
-                graph.edge(str(hash(state)), str(hash(action)), label=str(value))
+                red = int(linear_map(value, 0, 255, actions.values()))
+                color = '#%02x%02x%02x' % (red, 0, 0)
+                penwidth = str(linear_map(value, self.MIN_PEN_WIDTH, self.MAX_PEN_WIDTH, actions.values()))
+                graph.edge(str(hash(state)), str(hash(action)), label=str(value),
+                           color=color, penwidth=penwidth)
         return graph._repr_svg_()       
 ```
 
@@ -237,10 +268,61 @@ a2 = Action([0,1])
 a3 = Action([1,0])
 
 av[s,a1]=6
-av[s,a2]=2.9
+av[s,a2]=0.8
 av[s,a3]=-10
 
 av
+```
+
+```{python}
+class EpsilonGreedyPolicy:
+    def __init__(self, env, action_value, epsilon):
+        self.action_value = action_value
+        self.env = env
+        self.epsilon = epsilon
+        
+    # Action-value and epsilon based action choosing
+    def __getitem__(self, state):
+        if random.random() >= self.epsilon:
+            action =  self.action_value.argmax_a(state)
+            if action != Action([]):
+                return action
+        if self.env.possible_actions:
+            return Action(random.choice(self.env.possible_actions))
+        return Action([])
+    
+    def __str__(self):
+        return self.action_value.__str__()
+        
+    def __repr__(self):
+        return self.__str__()
+    
+    def _repr_svg_(self):
+        return self.action_value._repr_svg_()
+```
+
+```{python}
+players = [Player('A', 0), Player('B', 1)]
+size = 3
+marks_required = 3
+env = gym.make('tic_tac_toe:tictactoe-v0')
+env.initialize(players, size, marks_required)
+s = env.random_initial_state()
+
+av = ActionValue()
+
+s = State([[-1,-1],[-1,1]])
+
+a1 = Action([0,0])
+a2 = Action([0,1])
+a3 = Action([1,0])
+
+av[s,a1]=6
+av[s,a2]=2.9
+av[s,a3]=-10
+
+egp = EpsilonGreedyPolicy(env, av, 0.3)
+egp
 ```
 
 ```{python}
@@ -470,42 +552,156 @@ m
 ```
 
 ```{python}
+class StochasticModel:
+    MIN_PEN_WIDTH = 1
+    MAX_PEN_WIDTH = 4
+    def __init__(self):
+        self.model_dict = {}
+    
+    # Lazy initialization
+    def __getitem__(self, key):
+        state, action = key
+        return self.model_dict.get(state, {}).get(action, {})
+    
+    def __setitem__(self, key, next_state):
+        state, action = key
+        if self.model_dict.get(state) is None:
+            self.model_dict[state] = {}
+        if self.model_dict[state].get(action) is None: 
+            self.model_dict[state][action] = {}
+        if self.model_dict[state][action].get(next_state) is None:
+            self.model_dict[state][action][next_state] = 0
+        self.model_dict[state][action][next_state] += 1
+    
+    def _repr_svg_(self):
+        graph = Digraph()
+        for state, actions in self.model_dict.items():
+            # State node
+            graph.attr('node', shape='doublecircle')
+            graph.attr('node', style='', color='', fontcolor = 'black')
+            state_hash = str(hash(state))
+            graph.node(state_hash, str(state))
+            for action, next_states in actions.items():
+                # Action node
+                graph.attr('node', shape='circle')
+                graph.attr('node', style='filled', color='black', fontcolor = 'white')
+                action_hash = str(hash(action))+state_hash
+                graph.node(action_hash, str(action))
+                graph.edge(state_hash, action_hash)
+                
+                # Calculate sum of all visits numbers
+                all_visits_no = sum(next_states.values())
+
+                for next_state, visits_number in next_states.items():
+                    # Next state node
+                    graph.attr('node', shape='doublecircle')
+                    graph.attr('node', style='', fontcolor = 'black')
+                    next_state_hash = str(hash(next_state))
+                    graph.node(next_state_hash, str(next_state))
+                    visits_percentage = np.round(visits_number/all_visits_no*100, 2)
+                    label = f"{visits_number} ({visits_percentage}%)"
+                    blue = int(linear_map(visits_number, 0, 255, next_states.values()))
+                    color = '#%02x%02x%02x' % (0, 0, blue)
+                    penwidth = str(linear_map(visits_number, self.MIN_PEN_WIDTH,
+                                              self.MAX_PEN_WIDTH, next_states.values()))
+                    graph.edge(action_hash, next_state_hash, label=label,
+                               color=color, penwidth=penwidth)
+        return graph._repr_svg_()
+```
+
+```{python}
+# Model test
+
+m = StochasticModel()
+
+s1 = State([[-1,0],[-1,-1]])
+a1 = Action([1,0])
+s2 = State([[-1,0],[0,-1]])
+s3 = State([[-1,0],[-1,0]])
+m[s1,a1] = s2
+m[s1,a1] = s3
+m[s1,a1] = s3
+m[s1,a1] = s3
+m[s1,a1] = s3
+
+a2 = Action([0,0])
+s4 = State([[0,0],[0,-1]])
+m[s2,a2] = s4
+
+a4 = Action([1,1])
+s5 = State([[-1,0],[0,0]])
+s6 = State([[-1,0],[-1,0]])
+s7 = State([[-1,-1],[-1,-1]])
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s5
+m[s2,a4] = s6
+m[s2,a4] = s6
+m[s2,a4] = s6
+m[s2,a4] = s6
+m[s2,a4] = s6
+m[s2,a4] = s7
+m[s2,a4] = s7
+m[s2,a4] = s7
+
+m
+```
+
+```{python}
 class MDP:
+    MIN_PEN_WIDTH = 1
+    MAX_PEN_WIDTH = 4
     def __init__(self, model, action_value, policy):
         self.model = model
         self.action_value = action_value
-        self.policy = policy
         
         mdp_graph = Digraph()
         
         model_dict = self.model.model_dict
         for state, actions in model_dict.items():
-            for action, next_state in actions.items():
-                # State node
-                mdp_graph.attr('node', shape='doublecircle', style='', fontcolor = 'black')
-                state_hash = str(hash(state))
-                mdp_graph.node(state_hash, str(state))
-                
+            # State node
+            mdp_graph.attr('node', shape='doublecircle', style='', fontcolor = 'black')
+            state_hash = str(hash(state))
+            mdp_graph.node(state_hash, str(state))
+            for action, next_states in actions.items():
                 # Action node
                 mdp_graph.attr('node', shape='circle', style='filled', color='black',
                                fontcolor = 'white')
                 action_hash = str(hash(action))+state_hash
                 mdp_graph.node(action_hash, str(action))
-                this_action_value = self.action_value[state, action]
-                if self.policy[state] == action:
-                    this_action_color = 'red'
-                else:
-                    this_action_color = 'black'
+                
+                this_action_value = np.round(self.action_value[state, action],2)
+                action_values = self.action_value.action_value_dict[state].values()
+                red = int(linear_map(this_action_value, 0, 255, action_values))
+                color = '#%02x%02x%02x' % (red, 0, 0)
+                penwidth = str(linear_map(this_action_value, self.MIN_PEN_WIDTH,
+                               self.MAX_PEN_WIDTH, action_values))
                 mdp_graph.edge(state_hash,
                                action_hash,
                                label=str(this_action_value),
-                               color = this_action_color)
+                               color = color, penwidth=penwidth)
                 
-                # Next state node
-                mdp_graph.attr('node', shape='doublecircle', style='', fontcolor = 'black')
-                next_state_hash = str(hash(next_state))
-                mdp_graph.node(next_state_hash, str(next_state))
-                mdp_graph.edge(action_hash, next_state_hash)
+                # Calculate sum of all visits numbers
+                all_visits_no = sum(next_states.values())
+                for next_state, visits_number in next_states.items():
+                    # Next state node
+                    mdp_graph.attr('node', shape='doublecircle', style='', fontcolor = 'black')
+                    next_state_hash = str(hash(next_state))
+                    mdp_graph.node(next_state_hash, str(next_state))
+                    
+                    visits_percentage = np.round(visits_number/all_visits_no*100, 2)
+                    label = f"{visits_number} ({visits_percentage}%)"
+                    blue = int(linear_map(visits_number, 0, 255, next_states.values()))
+                    color = '#%02x%02x%02x' % (0, 0, blue)
+                    penwidth = str(linear_map(visits_number, self.MIN_PEN_WIDTH, self.MAX_PEN_WIDTH,
+                                   next_states.values()))
+                    mdp_graph.edge(action_hash, next_state_hash, label=label,
+                                   color=color, penwidth=penwidth)
         
         self.mdp_graph = mdp_graph
     
@@ -521,11 +717,12 @@ class Agent:
         self.player = player
         self.env = environment
         
-        self.policy = Policy(self.env)
+
         self.action_value = ActionValue()
+        self.policy = EpsilonGreedyPolicy(self.env, self.action_value, 0.3)
         self.returns = Returns()
         self.last_episode = Episode()
-        self.model = Model()
+        self.model = StochasticModel()
         self.last_state = None
         self.last_action = None
         self.last_MDP = None
@@ -533,15 +730,8 @@ class Agent:
     def step(self, state, epsilon):
 
         # Choose action in epsilon-greedy way
-        if np.random.rand() >= epsilon:
-            action = self.policy[state]
-        else:
-            if self.env.possible_actions:
-                action = Action(random.choice(self.env.possible_actions))
-                self.policy[state] = action
-            else:
-                action = Action([])
-                
+        self.policy.epsilon = epsilon
+        action = self.policy[state]
         self.last_episode.append((state, action)) # Register state and action
         raw_state, reward, done, _ = env.step(action.array, self.player) # Take action
         
@@ -630,13 +820,14 @@ class MonteCarloES:
 
         # Initialize environment
         env = agent1.env
-        players = [Player('A', 0), Player('B', 1)]
+        players = [agent1.player, agent1.player]
         size = 3
         marks_required = 3
         env.initialize(players, size, marks_required)
 
         # Generate episode
         done = False
+#         initial_state = State(env.get_current_state())
         initial_state = State(env.random_initial_state()) # Random state due to Exploring Starts approach
         state, done = current_agent.random_step(initial_state) # Random action due to Exploring Starts approach
         while not done:
@@ -660,9 +851,11 @@ class MonteCarloES:
             if not (S,A) in episode[0:2*t]:
                 # Policy evaluation
                 agent.returns[S,A].append(G)
-                agent.action_value[S,A] = np.mean(agent.returns[S,A])
-                # Greedy policy improvement
-                agent.policy[S] = agent.action_value.argmax_a(S)
+                # Improve only policy of the first agent
+                if agent.player.name == agent1.player.name:
+                    agent.action_value[S,A] = np.mean(agent.returns[S,A])
+                # Greedy policy improvement in the background (as a consequence of action_value change)
+#                 agent.policy[S] = agent.action_value.argmax_a(S)
         return G
 ```
 
@@ -670,29 +863,30 @@ class MonteCarloES:
 
 ```{python}
 # Initialization
-
 env = gym.make('tic_tac_toe:tictactoe-v0')
+players = [Player('A', 0), Player('B', 1)]
 agent1 = Agent(env, players[0])
 agent2 = Agent(env, players[1])
+agent2.policy = Policy(env) # Fixed, random policy
 mces = MonteCarloES(agent1, agent2)
 ```
 
 ```{python}
 # Train
-mces.train(100, initial_epsilon=0.3)
+mces.train(10000, initial_epsilon=0.3)
 
 # Plot 
-x = list(range(len(mces.agent2_G)))
-y = mces.agent2_G
+x = list(range(len(mces.agent1_G)))
+y = mces.agent1_G
 plt.scatter(x, y)
 plt.ylabel('Obtained Return')
 plt.xlabel('Episodes')
 print("Returns vs episodes:")
 plt.show()
 
-x = np.array(mces.agent2_G)[-1000:-1]
+x = np.array(mces.agent1_G)[-1000:-1]
 n, bins, patches = plt.hist(x, bins='auto', density=True, facecolor='orange', alpha=1)
-plt.xlabel('Returns')
+plt.xlabel('Return value')
 plt.ylabel('Number of returns')
 plt.title('Histogram of Returns')
 plt.grid(True)
@@ -762,12 +956,68 @@ agent1.model
 # State(s)
 ```
 
+```{python}
+class HumanPlayer():
+    def __init__(self, environment, player):
+        self.env = environment
+        self.player = player
+        
+    def step(self, state, epsilon=0):
+        print("Your opponent move:")
+        print(state)
+        
+        input_string = input("\nType move's coordinates in order y, x (i.e 1,2): ")
+        print("\n")
+        result = parse("{},{}", input_string)
+        y = int(result[0])
+        x = int(result[1])
+        action = Action([y, x])
+        
+        raw_state, reward, done, _ = env.step(action.array, self.player) # Take action
+        state = State(raw_state)
+        print(state)
+        
+        if reward == 10:
+            print("Wygrałeś!!!")
+        elif reward == -10:
+            print("Przegrałeś!")
+        else:
+            if done:
+                print("Remis!")
+
+        return State(raw_state), done
+    
+    def reset_episode(self):
+        pass
+```
+
+```{python}
+env = gym.make('tic_tac_toe:tictactoe-v0')
+players = [Player('A', 0), Player('B', 1)]
+size = 3
+marks_required = 3
+env.initialize(players, size, marks_required)
+# agent1 = Agent(env, players[0])
+me = HumanPlayer(env, players[0])
+mces = MonteCarloES(agent1, me)
+mces.gen_episode(agent1, me, 0)
+```
+
+# Wnioski
+
+Nauka agenta przy pomocy podstawowej metody monte carlo jest efektywna tylko gdy drugi gracz ma stałą taktykę (nie uczy się). Za stałą taktykę uważamy również taktykę w pełni losową.
+
+
 # TODO
-- [ ] Zagrać przeciwko randomowemu graczowi
-- [ ] Zaimplementować Human Player Agent
+- [X] Zagrać przeciwko randomowemu graczowi
+- [X] Zaimplementować Human Player Agent
 - [X] zmienić episode na last_episode w klasie Agent
-- [ ] Rozegrać gry ze standardowym stanem początkowym
+- [X] Rozegrać gry ze standardowym stanem początkowym
 - [X] Dodać MDP
+- [X] Stochastic Policy
+- [X] Random Policy
+- [X] Stochastic Model
+- [ ] Dopracować rozgrywkę
 
 ```{python}
 
