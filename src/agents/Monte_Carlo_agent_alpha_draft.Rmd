@@ -5,11 +5,11 @@ jupyter:
       extension: .Rmd
       format_name: rmarkdown
       format_version: '1.1'
-      jupytext_version: 1.2.1
+      jupytext_version: 1.2.2
   kernelspec:
-    display_name: Python3.7-WinTacToe
+    display_name: Python 3
     language: python
-    name: python3.7-wintactoe
+    name: python3
 ---
 
 # WIN-TAC-TOE ALPHA DRAFT
@@ -21,6 +21,7 @@ In case of import errors or unable-of-editing-this-notebook:
 1. Make sure you have executed "pipenv install --skip-lock" command in project root directory
 2. Make sure you have started project shell with "pipenv shell" BEFORE launching "jupyter notebook"
 3. Run cell below and next choose Kernel-> Change kernel -> Python3.7-WinTacToe
+4. Refresh jupyter notebook page in your browser
 
 ```{python}
 # !python -m ipykernel install --user --name=Python3.7-WinTacToe
