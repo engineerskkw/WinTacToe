@@ -820,15 +820,15 @@ class MonteCarloES:
 
         # Initialize environment
         env = agent1.env
-        players = [agent1.player, agent1.player]
+        players = [agent1.player, agent2.player]
         size = 3
         marks_required = 3
         env.initialize(players, size, marks_required)
 
         # Generate episode
         done = False
-#         initial_state = State(env.get_current_state())
-        initial_state = State(env.random_initial_state()) # Random state due to Exploring Starts approach
+        initial_state = State(env.get_current_state())
+#         initial_state = State(env.random_initial_state()) # Random state due to Exploring Starts approach
         state, done = current_agent.random_step(initial_state) # Random action due to Exploring Starts approach
         while not done:
             current_agent = next(agents)
@@ -851,9 +851,10 @@ class MonteCarloES:
             if not (S,A) in episode[0:2*t]:
                 # Policy evaluation
                 agent.returns[S,A].append(G)
-                # Improve only policy of the first agent
-                if agent.player.name == agent1.player.name:
-                    agent.action_value[S,A] = np.mean(agent.returns[S,A])
+#                 # Improve only policy of the first agent
+#                 if agent.player.name == agent1.player.name:
+#                     agent.action_value[S,A] = np.mean(agent.returns[S,A])
+                agent.action_value[S,A] = np.mean(agent.returns[S,A]) # Improve policy of both agents
                 # Greedy policy improvement in the background (as a consequence of action_value change)
 #                 agent.policy[S] = agent.action_value.argmax_a(S)
         return G
@@ -867,28 +868,37 @@ env = gym.make('tic_tac_toe:tictactoe-v0')
 players = [Player('A', 0), Player('B', 1)]
 agent1 = Agent(env, players[0])
 agent2 = Agent(env, players[1])
-agent2.policy = Policy(env) # Fixed, random policy
+# agent2.policy = Policy(env) # Fixed, random policy
 mces = MonteCarloES(agent1, agent2)
 ```
 
 ```{python}
 # Train
-mces.train(10000, initial_epsilon=0.3)
+mces.train(150000, initial_epsilon=0.3)
+```
 
+```{python}
 # Plot 
-x = list(range(len(mces.agent1_G)))
-y = mces.agent1_G
+agent_data = mces.agent1_G
+
+bin_size = 100
+bins_number = int(np.floor(len(agent_data)/bin_size))
+mean_returns = [np.mean(agent_data[i*bin_size:(i+1)*bin_size]) for i in range(bins_number)]
+mean_returns.append(np.mean(agent_data[bins_number*bin_size:]))
+
+x = list(range(len(mean_returns)))
+y = mean_returns
 plt.scatter(x, y)
-plt.ylabel('Obtained Return')
-plt.xlabel('Episodes')
-print("Returns vs episodes:")
+plt.ylabel(f'Mean Returns')
+plt.xlabel('Episode bins (bin size: {bin_size})')
+print("Mean Returns vs episodes:")
 plt.show()
 
-x = np.array(mces.agent1_G)[-1000:-1]
+x = np.array(agent_data)[-1000:-1]
 n, bins, patches = plt.hist(x, bins='auto', density=True, facecolor='orange', alpha=1)
 plt.xlabel('Return value')
 plt.ylabel('Number of returns')
-plt.title('Histogram of Returns')
+plt.title('Histogram of last 1000 Returns')
 plt.grid(True)
 plt.show()
 
@@ -901,8 +911,8 @@ plt.show()
 
 ```{python}
 mdp = agent1.get_MDP()
-mdp.mdp_graph.view()
-# mdp
+# mdp.mdp_graph.view()
+mdp
 ```
 
 ```{python}
@@ -1005,7 +1015,7 @@ mces.gen_episode(agent1, me, 0)
 
 # Wnioski
 
-Nauka agenta przy pomocy podstawowej metody monte carlo jest efektywna tylko gdy drugi gracz ma stałą taktykę (nie uczy się). Za stałą taktykę uważamy również taktykę w pełni losową.
+Nauka agenta przy pomocy podstawowej metody monte carlo gdy drugi gracz ma stałą taktykę (nie uczy się) w kołko i krzyżyk 3x3 wymaga około 2000 epizodów Za stałą taktykę uważamy również taktykę w pełni losową. Gdy drugi agent również się uczy trening wymaga około 150 000 epizodów i skutkuje permanentnym remisem, co oznacza, że gra kółko i krzyżyk 3x3 została "rozwiązana". Warto zwrócić uwagę, że ten agent ani metoda treningu nie są szczególnie wyrafinowane, dlatego można się spodziewać wyższej efektywności po odpowiednich ulepszeniach
 
 
 # TODO
