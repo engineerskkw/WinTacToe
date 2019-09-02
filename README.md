@@ -41,10 +41,12 @@ Monte_Carlo_agent_alpha_draft.Rmd:
 python -m ipykernel install --user --name=Python3.7-WinTacToe
 ```
 
-6.2 and change jupyter kernel to:
+6.2 change jupyter kernel to:
 ```
 Python3.7-WinTacToe
 ```
+6.3 refresh jupyter notebook page in your browser
+
 ### Using
 ##### Train
 Run all cells in opened jupyter notebook to load all necessary classes and to train an agent.
