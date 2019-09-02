@@ -1028,6 +1028,16 @@ Nauka agenta przy pomocy podstawowej metody monte carlo gdy drugi gracz ma stał
 - [X] Random Policy
 - [X] Stochastic Model
 - [ ] Dopracować rozgrywkę
+- [ ] RL building blocks models
+- [ ] General agent model
+- [ ] Project model
+- [ ] PyCharm IDE integration
+- [ ] Policy merging
+- [ ] parallelism support (GPU)
+- [ ] Better plotting (3D, animations, interactive, blender)
+- [ ] Distributed computing
+- [ ] Prometheus integration
+- [ ] Lookahead and more advanced RL methods
 
 ```{python}
 
