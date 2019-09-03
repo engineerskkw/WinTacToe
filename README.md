@@ -1,6 +1,6 @@
 # WinTacToe
 WinTacToe is a system for training **reinforcement learning agents** to play tic-tac-toe-related games.
-It consist of the following elements:
+It consists of the following elements:
 * Multiple, diverse game environments (compatibile with **OpenAI Gym**)
 * RL agents of various architectures and levels of advancement
 * **Human player interface** which allow to play game with the chosen agent(s)
@@ -8,11 +8,15 @@ It consist of the following elements:
 Futhermore WinTacToe allows to analyse agents, including **blackbox analysis of neural-networks-based agents**
 
 ### Installation and launching basic experimental RL Agent jupyter notebook
+0. Install system dependencies:
+```console
+sudo apt install git pipenv graphviz
+```
 1. Clone this project:
 ```console
 git clone https://github.com/engineerskkw/WinTacToe.git
 ```
-2. In project's root run (without this flag it fails):
+2. In project's root directory run (without this flag it fails):
 ```console
 cd WinTacToe/
 pipenv install --skip-lock
