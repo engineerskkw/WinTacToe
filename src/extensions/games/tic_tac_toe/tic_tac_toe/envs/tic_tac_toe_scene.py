@@ -8,6 +8,7 @@ symbols = {
     2: 'A',
 }
 
+
 class TicTacToeScene:
     def __init__(self, env):
         self._env = env
@@ -35,13 +36,15 @@ class TicTacToeScene:
             buttons = sum(self.buttons, [])
             [button.set_disabled() for button in buttons]
             for winning in self._env.current_winnings:
-                if winning.starting_point[0] == winning.ending_point[0]:
-                    for i in range(winning.starting_point[1], winning.ending_point[1] + 1):
-                        self.buttons[winning.starting_point[0]][i].set_winning()
-                else:
-                    for i in range(winning.starting_point[0], winning.ending_point[0] + 1):
-                        self.buttons[i][winning.starting_point[1]].set_winning()
-
+                xs = list(range(winning.starting_point[0], winning.ending_point[0] + 1)) \
+                    if winning.starting_point[0] < winning.ending_point[0] \
+                    else list(range(winning.starting_point[0], winning.ending_point[0] - 1, -1))
+                ys = list(range(winning.starting_point[1], winning.ending_point[1] + 1)) \
+                    if winning.starting_point[1] < winning.ending_point[1] \
+                    else list(range(winning.starting_point[1], winning.ending_point[1] - 1, -1))
+                xs = xs * len(ys) if len(xs) == 1 else xs
+                ys = ys * len(xs) if len(ys) == 1 else ys
+                [self.buttons[i][j].set_winning() for i, j in zip(xs, ys)]
             self._winner = symbols[self._env.current_winnings[0].mark]
             self._finished = True
 
@@ -114,18 +117,13 @@ class SquareTextButton(RectangularTextButton):
         self._is_winning = False
         self._disabled_color = (150, 0, 0)
         self._winning_color = (255, 100, 100)
-        self._symbols = {
-            0: 'X',
-            1: 'O',
-            2: 'A',
-        }
 
     def on_pressed(self):
         if self._is_disabled:
             return
         _, reward, _, _, player = self._env.step(self.game_position, None)
         font = pygame.font.Font(None, self._size[0])
-        self.text = font.render(self._symbols[player.mark], True, (0, 0, 0))
+        self.text = font.render(symbols[player.mark], True, (0, 0, 0))
         self.set_disabled()
 
     def get_color(self, mouse_position, is_mouse_pressed):
