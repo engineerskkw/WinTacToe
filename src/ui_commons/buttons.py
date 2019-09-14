@@ -13,10 +13,8 @@ class RectangularButton:
         self._pressed_color = (0, 0, 255)
 
     def contains_point(self, point):
-        if self._position[0] < point[0] < self._position[0] + self._size[0] \
-                and self._position[1] < point[1] < self._position[1] + self._size[1]:
-            return True
-        return False
+        return self._position[0] < point[0] < self._position[0] + self._size[0] \
+               and self._position[1] < point[1] < self._position[1] + self._size[1]
 
     def get_figure(self):
         return Rect(self._position, self._size)

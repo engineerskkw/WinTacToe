@@ -1,6 +1,7 @@
 import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
+from pygame.locals import *
 import random
 
 
@@ -8,23 +9,21 @@ import random
 import sys
 sys.path.insert(1, '../../..')
 from tic_tac_toe_logic import *
+from .tic_tac_toe_scene import TicTacToeScene
+from .rewards import *
 
-EVERY_ACTION_REWARD = -1
-WIN_REWARD = 10
-LOOSE_REWARD = -10
-TIE_REWARD = 0
 
 NOT_END = 0
 END_BY_WIN = 1
 END_BY_DRAW = 2
 
 class TicTacToeBasicEnv(gym.Env):
-	metadata = {'render.modes':['human']}
+	metadata = {'render.modes': ['human', 'app']}
 
 	def __init__(self):
 		pass
 
-	def initialize(self, players, size, marks_required):
+	def initialize(self, players, size, marks_required, screen=None):
 		self.env = TicTacToeLogic(players, size, marks_required)
 		self.current_winnings = []
 
@@ -36,6 +35,9 @@ class TicTacToeBasicEnv(gym.Env):
 
 		self.next_step_done = NOT_END
 
+		self._default_screen = None # TODO create default screen
+		self._scene = TicTacToeScene(self)
+
 	def step(self, action, player):
 		# End game case
 		if self.next_step_done:
@@ -44,17 +46,17 @@ class TicTacToeBasicEnv(gym.Env):
 				reward = LOOSE_REWARD
 			if self.next_step_done == END_BY_DRAW:
 				reward = TIE_REWARD
-			return state, reward, True, {"metadata"}
+			return state, reward, True, {"metadata"}, None
 
 		# Move
-		x,y = action
+		x, y = action
 		try:
+			ple = self.env.current_player
 			self.env.place_mark(x, y)
 			state = self.env.board.board
 		except IndexError as error:
 			print("These are not valid coordinates...\n")
 		self._regenerate_possible_actions()
-
 		
 		self.current_winnings = self.env.gather_winnings()
 		# Win/loose case
@@ -68,21 +70,28 @@ class TicTacToeBasicEnv(gym.Env):
 		else:
 			reward = EVERY_ACTION_REWARD
 
-		
-		return state, reward, False, {"metadata"}
+		return state, reward, False, {"metadata"}, ple
 
 	def reset(self):
 		self.env = TicTacToeLogic(players, size, marks_required)
 
-	def render(self, mode='human'):
+	def render(self, mode='human', screen=None):
 		if mode == 'human':
 			print(self.env.board.board)
+		if mode == 'app':
+			self._scene.render(screen if screen else self._default_screen)
+
+	def handle_event(self, event):
+		if event.type == MOUSEBUTTONUP:
+			buttons = sum(self._scene.buttons, [])
+			for button in filter(lambda butt: butt.contains_point(event.pos), buttons):
+				button.on_pressed()
 
 	def get_current_state(self):
 		return self.env.board.board
 
 	def random_initial_state(self):
-		### Uniform random initialization, but without
+		# Uniform random initialization, but without
 		# Game-endind or illegal(win of both players) states
 
 		# All possible players' marks and empty mark
@@ -95,32 +104,32 @@ class TicTacToeBasicEnv(gym.Env):
 		size = self.env.board.size
 		for v in range(size):
 			for h in range(size):
-				coords.append((v,h))
+				coords.append((v, h))
 
 		random.shuffle(coords)
-		n = random.randint(0,len(coords)) # Number of fields to fill
+		n = random.randint(0, len(coords))  # Number of fields to fill
 
 		# Random fields value
 		for i in range(n):
-			v,h = coords[i]
+			v, h = coords[i]
 			random_mark = random.choice(players_marks)
-			self.env.board.place_mark(v,h,random_mark)
+			self.env.board.place_mark(v, h, random_mark)
 			if self.env.gather_winnings():
-				self.env.board.board[v,h] = -1
+				self.env.board.board[v, h] = -1
 
 		# Check all fields filled
 		# if so, then randomly unmark one of them
 		all_filled = True
 		for v in range(size):
 			for h in range(size):
-				if self.env.board.board[v,h] == -1:
+				if self.env.board.board[v, h] == -1:
 					all_filled = False
 					break
 
 		if all_filled:
-			v = random.randint(0,size-1)
-			h = random.randint(0,size-1)
-			self.env.board.board[v,h] = -1
+			v = random.randint(0, size-1)
+			h = random.randint(0, size-1)
+			self.env.board.board[v, h] = -1
 
 		self._regenerate_possible_actions()
 
@@ -132,7 +141,7 @@ class TicTacToeBasicEnv(gym.Env):
 		height, width = board.shape
 		for h in range(height):
 			for v in range(width):
-				if board[h,v] == -1:
+				if board[h, v] == -1:
 					self.possible_actions.append([h, v])
 
 	# def close(self):
@@ -151,4 +160,3 @@ class TicTacToeBasicEnv(gym.Env):
 # env.render()
 
 # s, r, d, m = env.step(env.action_space.sample(), players[0])
-

@@ -1,2 +1,2 @@
-from .main import App
+from .app import App
 from .extensions_enum import Extensions
