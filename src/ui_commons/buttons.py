@@ -36,9 +36,6 @@ class RectangularTextButton(RectangularButton):
         font = pygame.font.Font(None, 50)
         self.text = font.render(text, True, (0, 128, 0))
 
-    def get_figure(self):
-        return Rect(self._position, self._size)
-
     def get_text_position(self):
         x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
         y = self._position[1] + self._size[1] // 2 - self.text.get_height() // 2

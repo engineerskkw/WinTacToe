@@ -25,11 +25,10 @@ class TicTacToeScene:
         for row in range(self.board_size):
             self.buttons.append([])
             for column in range(self.board_size):
-                self.buttons[row].append(SquareTextButton("",
-                                                          self._env,
-                                                          (280 + column * self.square_size, row * self.square_size),
-                                                          self.square_size,
-                                                          (row, column)))
+                self.buttons[row].append(TicTacToeButton(self._env,
+                                                         (280 + column * self.square_size, row * self.square_size),
+                                                         self.square_size,
+                                                         (row, column)))
 
     def render(self, screen):
         if not self._finished and self._env.current_winnings:
@@ -91,28 +90,13 @@ class RectangularButton:
         return self._pressed_color if is_mouse_pressed else self._hovered_color
 
 
-class RectangularTextButton(RectangularButton):
-    def __init__(self, text, position, size):
-        super().__init__(position, size)
-
+class TicTacToeButton(RectangularButton):
+    def __init__(self, env, position, size, game_position):
+        super().__init__(position, (size, size))
         pygame.font.init()
-        font = pygame.font.Font(None, 50)
-        self.text = font.render(text, True, (0, 128, 0))
-
-    def get_figure(self):
-        return Rect(self._position, self._size)
-
-    def get_text_position(self):
-        x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
-        y = self._position[1] + self._size[1] // 2 - self.text.get_height() // 2
-        return x, y
-
-
-class SquareTextButton(RectangularTextButton):
-    def __init__(self, text, env, position, size, game_position):
-        super().__init__(text, position, (size, size))
+        self.set_text("")
         self._env = env
-        self.game_position = game_position
+        self._game_position = game_position
         self._is_disabled = False
         self._is_winning = False
         self._disabled_color = (150, 0, 0)
@@ -121,10 +105,18 @@ class SquareTextButton(RectangularTextButton):
     def on_pressed(self):
         if self._is_disabled:
             return
-        _, reward, _, _, player = self._env.step(self.game_position, None)
-        font = pygame.font.Font(None, self._size[0])
-        self.text = font.render(symbols[player.mark], True, (0, 0, 0))
+        _, reward, _, _, player = self._env.step(self._game_position, None)
+        self.set_text(symbols[player.mark])
         self.set_disabled()
+
+    def set_text(self, text):
+        font = pygame.font.Font(None, self._size[0])
+        self.text = font.render(text, True, (0, 0, 0))
+
+    def get_text_position(self):
+        x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
+        y = self._position[1] + self._size[1] // 2 - self.text.get_height() // 2
+        return x, y
 
     def get_color(self, mouse_position, is_mouse_pressed):
         if self._is_winning:

@@ -1,30 +1,34 @@
 import pygame
+from pygame.mixer import Sound
 from .extensions import MainMenuExtension
 from .extensions import TicTacToeExtension
-from .extensions_enum import Extensions
+from .common_helper import Extensions
 
 
 class App:
     def __init__(self):
         self._extensions = {
-            Extensions.MAIN_MENU: MainMenuExtension(self),
-
-            Extensions.TIC_TAC_TOE: TicTacToeExtension(self),
+            Extensions.MAIN_MENU: MainMenuExtension,
+            Extensions.TIC_TAC_TOE: TicTacToeExtension,
         }
-        self._current_extension = self._extensions[Extensions.MAIN_MENU]
-        self._running = True
+        self._current_extension = None
+        self._running = False
         self._screen = None
         self._size = 1280, 720
-
         self._block_events = False
 
     def _launch(self):
         pygame.init()
+        pygame.mixer.init()
+        # xd = Sound("resources/sounds/tic_tac_toe/hitsound.wav")
+        # xd.play()
+
         # logo = pygame.image.load("../resources/images/common/logo.png")
         # pygame.display.set_icon(logo)
         pygame.display.set_caption("WinTacToe")
         self._screen = pygame.display.set_mode(self._size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._running = True
+        self._current_extension = MainMenuExtension(self)
 
     def _handle_event(self, event):
         if event.type == pygame.QUIT:
@@ -44,7 +48,7 @@ class App:
 
     def switch_extension(self, extension):
         self._block_events = True
-        self._current_extension = self._extensions[extension]
+        self._current_extension = self._extensions[extension](self)
         pygame.event.clear()
         self._block_events = False
 
