@@ -14,7 +14,6 @@ class TicTacToeExtension(AbstractExtension):
         marks_required = 3
         size = 5
         self._env.initialize(players, size, marks_required, app)
-        # pygame.mixer.init()
         MusicSwitcher("resources/sounds/common/SneakyAdventure.mp3").start()
 
     def render(self, screen):

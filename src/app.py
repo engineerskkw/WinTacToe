@@ -23,8 +23,9 @@ class App:
         # xd = Sound("resources/sounds/tic_tac_toe/hitsound.wav")
         # xd.play()
 
-        # logo = pygame.image.load("../resources/images/common/logo.png")
-        # pygame.display.set_icon(logo)
+        logo = pygame.image.load("resources/images/common/logo.png")
+        pygame.display.set_icon(logo)
+
         pygame.display.set_caption("WinTacToe")
         self._screen = pygame.display.set_mode(self._size, pygame.HWSURFACE | pygame.DOUBLEBUF)
         self._running = True
