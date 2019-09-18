@@ -10,7 +10,7 @@ class RectangularButton:
 
         self._base_color = (200, 0, 0)
         self._hovered_color = (255, 0, 0)
-        self._pressed_color = (0, 0, 255)
+        self._pressed_color = (150, 0, 0)
 
     def contains_point(self, point):
         return self._position[0] < point[0] < self._position[0] + self._size[0] \
@@ -34,7 +34,7 @@ class RectangularTextButton(RectangularButton):
 
         pygame.font.init()
         font = pygame.font.Font(None, 50)
-        self.text = font.render(text, True, (0, 128, 0))
+        self.text = font.render(text, True, (255, 255, 255))
 
     def get_text_position(self):
         x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2

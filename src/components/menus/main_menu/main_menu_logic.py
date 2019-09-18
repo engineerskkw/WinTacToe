@@ -1,7 +1,6 @@
 from ....common_helper import Components
 from ..menus_scene_commons import RectangularTextButton
 from pygame.locals import *
-import pygame
 
 
 class MainMenuLogic:

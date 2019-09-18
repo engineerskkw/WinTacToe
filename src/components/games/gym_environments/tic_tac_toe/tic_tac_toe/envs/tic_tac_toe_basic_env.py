@@ -1,15 +1,10 @@
-import gym
-from gym import spaces
+from ..scenes.tic_tac_toe_scene import TicTacToeScene
+from ..util.tic_tac_toe_rewards import *
+from ..logics.tic_tac_toe_logic import *
 from pygame.locals import *
+from gym import spaces
 import random
-
-
-# Workaround import
-import sys
-sys.path.insert(1, '../../..')
-from tic_tac_toe.logics.tic_tac_toe_logic import *
-from tic_tac_toe.scenes.tic_tac_toe_scene import TicTacToeScene
-from tic_tac_toe.util.tic_tac_toe_rewards import *
+import gym
 
 
 NOT_END = 0
@@ -22,7 +17,8 @@ class TicTacToeBasicEnv(gym.Env):
 	def __init__(self):
 		pass
 
-	def initialize(self, players, size, marks_required, screen=None):
+	def initialize(self, players, size, marks_required, app):
+		self._params = (players, size, marks_required)
 		self.env = TicTacToeLogic(players, size, marks_required)
 		self.current_winnings = []
 
@@ -36,6 +32,7 @@ class TicTacToeBasicEnv(gym.Env):
 
 		self._default_screen = None # TODO create default screen
 		self._scene = TicTacToeScene(self)
+		self.app = app
 
 	def step(self, action, player):
 		# End game case
@@ -72,7 +69,13 @@ class TicTacToeBasicEnv(gym.Env):
 		return state, reward, False, {"metadata"}, ple
 
 	def reset(self):
-		self.env = TicTacToeLogic(players, size, marks_required)
+		self.env = TicTacToeLogic(*self._params)
+		self.current_winnings = []
+
+		self.possible_actions = []
+		self._regenerate_possible_actions()
+		self.next_step_done = NOT_END
+		self._scene = TicTacToeScene(self)
 
 	def render(self, mode='human', screen=None):
 		if mode == 'human':
@@ -82,9 +85,14 @@ class TicTacToeBasicEnv(gym.Env):
 
 	def handle_event(self, event):
 		if event.type == MOUSEBUTTONUP:
-			buttons = sum(self._scene.buttons, [])
-			for button in filter(lambda butt: butt.contains_point(event.pos), buttons):
-				button.on_pressed()
+			if self._scene.restart_button.contains_point(event.pos):
+				self._scene.restart_button.on_pressed()
+			elif self._scene.main_menu_button.contains_point(event.pos):
+				self._scene.main_menu_button.on_pressed()
+			else:
+				buttons = sum(self._scene.buttons, [])
+				for button in filter(lambda butt: butt.contains_point(event.pos), buttons):
+					button.on_pressed()
 
 	def get_current_state(self):
 		return self.env.board.board

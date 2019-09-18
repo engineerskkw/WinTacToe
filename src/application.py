@@ -17,11 +17,8 @@ class Application:
         self._block_events = False
 
     def _launch(self):
+        pygame.mixer.init(buffer=256)
         pygame.init()
-        pygame.mixer.init()
-
-        # testSound = Sound("resources/sounds/tic_tac_toe/hitsound.wav")
-        # testSound.play()
 
         logo = pygame.image.load("resources/images/common/logo.png")
         pygame.display.set_icon(logo)
@@ -47,9 +44,9 @@ class Application:
     def _cleanup(self):
         pygame.quit()
 
-    def switch_component(self, extension):
+    def switch_component(self, component):
         self._block_events = True
-        self._current_component = self._components[extension](self)
+        self._current_component = self._components[component](self)
         pygame.event.clear()
         self._block_events = False
 
