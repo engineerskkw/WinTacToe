@@ -1,6 +1,8 @@
 # import abstract_logic
 import numpy as np
 from itertools import cycle
+
+
 # from ..abstract_logic import AbstractLogic
 
 
@@ -61,6 +63,7 @@ class Winning:
 
     def __repr__(self):
         return self.__str__()
+
 
 class Board:
     """Class representing a Tic Tac Toe board.
@@ -134,17 +137,20 @@ class Board:
         for i in range(self.size - self.marks_required + 1):
             for j in range(self.size - self.marks_required + 1):
                 subboard = self.board[i:i + self.marks_required, j:j + self.marks_required]
-                winnings += self._check_subboard(subboard, (i, j))
+                winnings += Board._check_subboard(subboard, (i, j))
 
         return winnings
 
-    def _check_subboard(self, subboard, top_left):
+    @staticmethod
+    def _check_subboard(subboard, top_left):
         winnings = []
         subboard_size = subboard.shape[0]
 
+        def check_line(line): not np.any(line == -1) and np.all(line == line[0])
+
         # Check for the winning line in rows
         for i in range(subboard_size):
-            if self._check_line(subboard[i]):
+            if check_line(subboard[i]):
                 mark = subboard[i][0]
                 starting_point = (top_left[0] + i, top_left[1])
                 ending_point = (top_left[0] + i, top_left[1] + subboard_size - 1)
@@ -153,7 +159,7 @@ class Board:
 
         # Check for the winning line in columns
         for j in range(subboard_size):
-            if self._check_line(subboard[:, j]):
+            if check_line(subboard[:, j]):
                 mark = subboard[:, j][0]
                 starting_point = (top_left[0], top_left[1] + j)
                 ending_point = (top_left[0] + subboard_size - 1, top_left[1] + j)
@@ -162,7 +168,7 @@ class Board:
 
         # Check for the winning line on the main diagonal
         main_diag = np.diag(subboard)
-        if self._check_line(main_diag):
+        if check_line(main_diag):
             mark = main_diag[0]
             starting_point = (top_left[0], top_left[1])
             ending_point = (top_left[0] + subboard_size - 1, top_left[1] + subboard_size - 1)
@@ -171,7 +177,7 @@ class Board:
 
         # Check for the winning line on the second diagonal
         second_diag = np.diag(np.flip(subboard, 1))
-        if self._check_line(second_diag):
+        if check_line(second_diag):
             mark = second_diag[0]
             starting_point = (top_left[0], top_left[1] + subboard_size - 1)
             ending_point = (top_left[0] + subboard_size - 1, top_left[1])
@@ -180,17 +186,13 @@ class Board:
 
         return winnings
 
-    def _check_line(self, line):
-        if not np.any(line == -1) and np.all(line == line[0]):
-            return True
 
-
-class TicTacToeLogic():
+class TicTacToeLogic:
     """Class containing a Tic Tac Toe logic.
 
     It contains all the necessary methods to run a single instance of the game
     between arbitrary number of players and an arbitrary size of the board 
-    (though not inifite). 
+    (though not infinite).
 
 
     Parameters
@@ -218,7 +220,7 @@ class TicTacToeLogic():
     gather_winnings()
         Gathers all the winning lines and marks along with their coordinates.
     get_current_state()
-        Shares a numpy board represnting a current state of the board. 
+        Shares a numpy board representing a current state of the board.
         Used only by the AI playing the game.
     main_loop()
         Runs a single instance of the game ending with a single player winning.
@@ -273,41 +275,3 @@ class TicTacToeLogic():
             A numpy array representing the current board.
         """
         return self.board.board
-
-    # TODO: Improve or move or replace.
-    def main_loop(self):
-        """Runs a single instance of the game ending with a single player winning."""
-        current_winnings = []
-
-        # Early version, needs polishing, maybe it should be implemented in one of the GUI classes
-        while not current_winnings:
-            print(self.board.board)
-            print()
-
-            x, y = input(str(self.current_player.name) + "'s turn... enter coordinates (e.g 1, 2):")
-
-            try:
-                if not self.place_mark(int(x), int(y)):
-                    print("These coordinates are already taken...\n")
-
-            except IndexError as error:
-                print("These are not valid coordinates...\n")
-
-            current_winnings = self.gather_winnings()
-
-        winning_mark = current_winnings[0].mark
-        winning_player = list(filter(lambda player: player.mark == winning_mark, self.players))[0]
-
-        print(self.board.board)
-        print()
-        print(str(winning_player.name) + " won!")
-
-
-# Exmaple initialization of the game
-# players = [Player('Wuju', 0), Player('Kapala', 1)]
-# size = 5
-# marks_required = 3
-#
-# tic_tac_toe = TicTacToeLogic(players, size, marks_required)
-#
-# tic_tac_toe.main_loop()
