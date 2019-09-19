@@ -1,9 +1,5 @@
-# import abstract_logic
 import numpy as np
 from itertools import cycle
-
-
-# from ..abstract_logic import AbstractLogic
 
 
 class Player:
