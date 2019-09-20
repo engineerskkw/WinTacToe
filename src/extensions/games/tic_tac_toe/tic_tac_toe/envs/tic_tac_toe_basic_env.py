@@ -7,7 +7,7 @@ import random
 # Workaround import
 import sys
 sys.path.insert(1, '../../..')
-from tic_tac_toe_logic import *
+from src.extensions.games.tic_tac_toe.tic_tac_toe_logic import *
 
 EVERY_ACTION_REWARD = -1
 WIN_REWARD = 10
@@ -19,12 +19,16 @@ END_BY_WIN = 1
 END_BY_DRAW = 2
 
 class TicTacToeBasicEnv(gym.Env):
-	metadata = {'render.modes':['human']}
+	metadata = {'render.modes': ['human']}
 
 	def __init__(self):
 		pass
 
 	def initialize(self, players, size, marks_required):
+		self.players = players
+		self.size = size
+		self.marks_required = marks_required
+
 		self.env = TicTacToeLogic(players, size, marks_required)
 		self.current_winnings = []
 
@@ -55,7 +59,6 @@ class TicTacToeBasicEnv(gym.Env):
 			print("These are not valid coordinates...\n")
 		self._regenerate_possible_actions()
 
-		
 		self.current_winnings = self.env.gather_winnings()
 		# Win/loose case
 		if self.current_winnings:
@@ -72,7 +75,7 @@ class TicTacToeBasicEnv(gym.Env):
 		return state, reward, False, {"metadata"}
 
 	def reset(self):
-		self.env = TicTacToeLogic(players, size, marks_required)
+		self.env = TicTacToeLogic(self.players, self.size, self.marks_required)
 
 	def render(self, mode='human'):
 		if mode == 'human':
