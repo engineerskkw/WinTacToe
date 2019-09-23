@@ -1,7 +1,3 @@
-import numpy as np
-import random
-
-
 class Player:
     """Class representing a Tic Tac Toe player.
 

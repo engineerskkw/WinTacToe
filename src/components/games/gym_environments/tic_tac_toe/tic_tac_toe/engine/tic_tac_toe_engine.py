@@ -1,21 +1,23 @@
-from .tic_tac_toe_logic_components import *
-from .end_game_strategies import *
+from .gather_winnings_strategies import *
 from itertools import cycle
+import random
 
 
 class _Board:
-    def __init__(self, height, width, marks, marks_required, end_game_strategy):
+    def __init__(self, height, width, marks, marks_required, gather_winnings_strategy):
         self.height = height
         self.width = width
         self.marks = marks
         self.marks_required = marks_required
-        self.end_game_strategy = end_game_strategy
+        self.gather_winnings_strategy = gather_winnings_strategy
+        self.last_move = None
 
         self.board = np.full((height, width), -1)
 
     def place_mark(self, x, y, mark):
         if self.board[x][y] == -1 and mark in self.marks:
             self.board[x][y] = mark
+            self.last_move = (x, y)
             return True
 
         return False
@@ -30,8 +32,11 @@ class _Board:
 
         return unoccupied_fields
 
-    def gather_winnings(self):
-        return self.end_game_strategy.gather_winnings(self)
+    def gather_winnings(self, alternate_gather_winnings_strategy=None):
+        if alternate_gather_winnings_strategy is not None:
+            return alternate_gather_winnings_strategy.gather_winnings(self)
+
+        return self.gather_winnings_strategy.gather_winnings(self)
 
     def randomize(self):
         possible_marks = self.marks + [-1]
@@ -48,7 +53,7 @@ class _Board:
             i, j = coords[k]
             random_mark = random.choice(possible_marks)
             self.place_mark(i, j, random_mark)
-            if self.gather_winnings():
+            if self.gather_winnings(AlternateGatherWinningsStrategy()):
                 self.board[i, j] = -1
 
         # Check all fields filled
@@ -84,7 +89,7 @@ class TicTacToeEngine:
         Height of the tic tac toe board.
     marks_required: int
         Number of marks required to form a winning line.
-    end_game_strategy: EndGameStrategy
+    gather_winnings_strategy: EndGameStrategy
         An algorithm to check for the winner. Default is a BasicEndGameStrategy
 
     Attributes
@@ -109,7 +114,8 @@ class TicTacToeEngine:
         Runs a single instance of the game ending with a single player winning.
     """
 
-    def __init__(self, players, height, width, marks_required, end_game_strategy=BasicEndGameStrategy()):
+    def __init__(self, players, height, width, marks_required,
+                 gather_winnings_strategy=StandardGatherWinningsStrategy()):
         self.players = players
         self._player_generator = cycle(players)
         self.current_player = next(self._player_generator)
@@ -119,7 +125,7 @@ class TicTacToeEngine:
             width=width,
             marks=map(lambda player: player.mark, players),
             marks_required=marks_required,
-            end_game_strategy=end_game_strategy
+            gather_winnings_strategy=gather_winnings_strategy
         )
 
     def place_mark(self, x, y):
@@ -163,11 +169,11 @@ class TicTacToeEngine:
         list[(x, y)]
             A list of coordinates.
         """
-        return self.board.get_unoccupied_fields()
+        return self._board.get_unoccupied_fields()
 
     def randomize_board(self):
         """Randomly and uniformly initialize board, without a game-ending scenario or illegal states."""
-        self.board.randomize()
+        self._board.randomize()
 
     def get_current_state(self):
         """Shares a numpy board representing a current state of the board.
@@ -177,6 +183,4 @@ class TicTacToeEngine:
         np.array(dtype=int)
             A numpy array representing the current board.
         """
-        return self.board.board, self.current_player
-
-
+        return self._board.board, self.current_player

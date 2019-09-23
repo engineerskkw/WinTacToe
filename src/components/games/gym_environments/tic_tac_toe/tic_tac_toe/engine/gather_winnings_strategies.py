@@ -1,9 +1,9 @@
 from .tic_tac_toe_logic_components import *
 from abc import ABC, abstractmethod
-from threading import Thread
+import numpy as np
 
 
-class EndGameStrategy(ABC):
+class GatherWinningsStrategy(ABC):
     @abstractmethod
     def gather_winnings(self, board):
         pass
@@ -55,9 +55,12 @@ class EndGameStrategy(ABC):
         return winnings
 
 
-class BasicEndGameStrategy(EndGameStrategy):
+class AlternateGatherWinningsStrategy(GatherWinningsStrategy):
     def gather_winnings(self, board):
         """Gathers winnings from the current state of the board, by checking the whole board for the winner.
+
+        There can be multiple winners in this scenario. It is useful when game doesn't end when a single player
+        forms a first winning line.
 
         Returns
         -------
@@ -74,51 +77,46 @@ class BasicEndGameStrategy(EndGameStrategy):
         return winnings
 
 
-class AdvancedEndGameStrategy(EndGameStrategy):
+class StandardGatherWinningsStrategy(GatherWinningsStrategy):
+    """Gathers winnings from the current state of the board, by checking the surrounding of the last move made.
+
+    There should be only one winner in this scenario.
+
+    Returns
+    -------
+    Winning
+        A list of the current winnings on the board.
+    """
     def gather_winnings(self, board):
         winnings = []
-
         x, y = board.last_move
 
-        first_subboard = board.board[x:x + board.marks_required, y:y + board.marks_required]
+        # Change the coordinates of the last move if it is in one of the corners
+        if x - board.marks_required < 0:
+            x = board.marks_required
+        elif x + board.marks_required >= board.height:
+            x = board.height - board.marks_required - 1
 
-        winnings.append(self._check_subboard(first_subboard, (last_move_x, last_move_y))
+        if y - board.marks_required < 0:
+            y = board.marks_required
+        elif y + board.marks_required >= board.width:
+            y = board.width - board.marks_required - 1
 
-        second_subboard = numpy_board[
-            last_move_x - marks_required: last_move_x,
-            last_move_y: last_move_y + marks_required
-        ]
+        # Check 4 subboards surrounding last move made
+        subboard = board.board[x:x + board.marks_required, y:y + board.marks_required]
+        top_left = (x, y)
+        winnings.append(self._check_subboard(subboard, top_left))
 
-        winnings.append(self._check_subboard(second_subboard, last_move_x - marks_required, last_move_y))
+        subboard = board.board[x - board.marks_required: x, y:y + board.marks_required]
+        top_left = (x - board.marks_required, y)
+        winnings.append(self._check_subboard(subboard, top_left))
 
-        third_subboard = numpy_board[
-                          last_move_x - marks_required: last_move_x,
-                          last_move_y: last_move_y + marks_required
-                          ]
+        subboard = board.board[x: x + board.marks_required, y - board.marks_required:y]
+        top_left = (x, y - board.marks_required)
+        winnings.append(self._check_subboard(subboard, top_left))
 
+        subboard = board.board[x - board.marks_required: x, y - board.marks_required:y]
+        top_left = (x - board.marks_required, y - board.marks_required)
+        winnings.append(self._check_subboard(subboard, top_left))
 
-
-
-
-
-class ParallelEndGameStrategy(EndGameStrategy):
-
-    def gather_winnings(self, board):
-        height, width = board.height, board.width
-        marks_required = board.marks_required
-        numpy_board = board.board
-        winnings = []
-
-        threads = []
-
-        for i in range(height - marks_required + 1):
-            for j in range(width - marks_required + 1):
-                subboard = numpy_board[i:i + marks_required, j:j + marks_required]
-                threads.append(
-                    Thread(
-                        target=self._check_subboard,
-                        args=(subboard, (i, j))
-                    )
-                )
-        for thread in threads:
-            thread.start()
+        return winnings
