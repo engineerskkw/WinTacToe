@@ -18,9 +18,12 @@ class Player:
     """
 
     def __init__(self, name, mark):
+        assert name, "A player's name cannot be blank"
         self.name = name
-        self.mark = mark
 
+        assert mark >= 0, "A player's mark has to be non-negative"
+        self.mark = mark
+        
 
 class Winning:
     """Class representing a Tic Tac Toe winning line.
