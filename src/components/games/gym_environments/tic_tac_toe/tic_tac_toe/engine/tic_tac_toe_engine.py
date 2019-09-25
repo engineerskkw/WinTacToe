@@ -1,18 +1,18 @@
-from .gather_winnings_strategies import *
+from gather_winnings_strategies import *
 from itertools import cycle
 import random
+import numpy as np
 
 
 class _Board:
-    def __init__(self, height, width, marks, marks_required, gather_winnings_strategy):
-        self.height = height
-        self.width = width
+    def __init__(self, size, marks, marks_required, gather_winnings_strategy):
+        self.size = size
         self.marks = marks
         self.marks_required = marks_required
         self.gather_winnings_strategy = gather_winnings_strategy
         self.last_move = None
 
-        self.board = np.full((height, width), -1)
+        self.board = np.full((size, size), -1)
 
     def place_mark(self, x, y, mark):
         if self.board[x][y] == -1 and mark in self.marks:
@@ -25,17 +25,14 @@ class _Board:
     def get_unoccupied_fields(self):
         unoccupied_fields = []
 
-        for i in range(self.height):
-            for j in range(self.width):
+        for i in range(self.size):
+            for j in range(self.size):
                 if self.board[i, j] == -1:
                     unoccupied_fields.append((i, j))
 
         return unoccupied_fields
 
-    def gather_winnings(self, alternate_gather_winnings_strategy=None):
-        if alternate_gather_winnings_strategy is not None:
-            return alternate_gather_winnings_strategy.gather_winnings(self)
-
+    def gather_winnings(self):
         return self.gather_winnings_strategy.gather_winnings(self)
 
     def randomize(self):
@@ -53,21 +50,21 @@ class _Board:
             i, j = coords[k]
             random_mark = random.choice(possible_marks)
             self.place_mark(i, j, random_mark)
-            if self.gather_winnings(AlternateGatherWinningsStrategy()):
+            if self.gather_winnings():
                 self.board[i, j] = -1
 
         # Check all fields filled
         # if so, then randomly unmark one of them
         all_filled = True
-        for i in range(self.height):
-            for j in range(self.width):
+        for i in range(self.size):
+            for j in range(self.size):
                 if self.board[i, j] == -1:
                     all_filled = False
                     break
 
         if all_filled:
-            i = random.randint(0, self.height - 1)
-            j = random.randint(0, self.width - 1)
+            i = random.randint(0, self.size - 1)
+            j = random.randint(0, self.size - 1)
             self.board[i, j] = -1
 
 
@@ -83,14 +80,12 @@ class TicTacToeEngine:
     ----------
     players : list[Player]
         A list of participating players.
-    height: int
-        Height of the tic tac toe board.
-    width: int
-        Height of the tic tac toe board.
+    board_size: int
+        Size of the square tic tac toe board.
     marks_required: int
         Number of marks required to form a winning line.
-    gather_winnings_strategy: EndGameStrategy
-        An algorithm to check for the winner. Default is a BasicEndGameStrategy
+    gather_winnings_strategy: GatherWinningsStrategy
+        An algorithm to check for the winner. Default is a StandardGatherWinningsStrategy
 
     Attributes
     ----------
@@ -98,6 +93,12 @@ class TicTacToeEngine:
         A list of participating players.
     current_player: Player
         A player that is supposed to take the next turn.
+    board_size: int
+        Size of the square tic tac toe board.
+    marks_required: int
+        Number of marks required to form a winning line.
+    gather_winnings_strategy: GatherWinningsStrategy
+        An algorithm to check for the winner.
 
     Methods
     -------
@@ -114,16 +115,28 @@ class TicTacToeEngine:
         Runs a single instance of the game ending with a single player winning.
     """
 
-    def __init__(self, players, height, width, marks_required,
+    def __init__(self, players, board_size, marks_required,
                  gather_winnings_strategy=StandardGatherWinningsStrategy()):
+        assert (len(players) >= 2), "There should be more than 2 players in the game..."
         self.players = players
         self._player_generator = cycle(players)
         self.current_player = next(self._player_generator)
 
+        assert (board_size > 0), "Board size should be positive..."
+        self.board_size = board_size
+
+        assert (marks_required <= board_size), "Marks required should be less or equal to the board_size"
+        self.marks_required = marks_required
+
+        marks = list(map(lambda player: player.mark, players))
+        assert (len(set(marks)) == len(marks)), "Marks of all players should be unique.."
+        self.marks = marks
+
+        self.gather_winnings_strategy = gather_winnings_strategy
+        
         self._board = _Board(
-            height=height,
-            width=width,
-            marks=map(lambda player: player.mark, players),
+            size=board_size,
+            marks=marks,
             marks_required=marks_required,
             gather_winnings_strategy=gather_winnings_strategy
         )
@@ -150,7 +163,7 @@ class TicTacToeEngine:
         return False
 
     def gather_winnings(self):
-        """Gathers winnings from the current state of the board.
+        """Gathers winnings from the current state of the board according to gather winnings strategy.
 
         In some versions of the game there can be multiple winners or there can be a tie.
 
@@ -176,11 +189,11 @@ class TicTacToeEngine:
         self._board.randomize()
 
     def get_current_state(self):
-        """Shares a numpy board representing a current state of the board.
+        """Shares a numpy board representing a current state of the board and a current player object.
 
         Returns
         -------
-        np.array(dtype=int)
-            A numpy array representing the current board.
+        (np.array(dtype=int), Player)
+            A numpy array representing the current board and a current player object.
         """
         return self._board.board, self.current_player
