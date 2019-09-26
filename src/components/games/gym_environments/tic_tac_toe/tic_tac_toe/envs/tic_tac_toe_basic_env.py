@@ -1,15 +1,14 @@
 from ..scenes.tic_tac_toe_scene import TicTacToeScene
 from ..util.tic_tac_toe_rewards import *
-from ..logics.tic_tac_toe_logic import *
+from ..engine import TicTacToeEngine
 from pygame.locals import *
 from gym import spaces
-import random
 import gym
-
 
 NOT_END = 0
 END_BY_WIN = 1
 END_BY_DRAW = 2
+
 
 class TicTacToeBasicEnv(gym.Env):
 	metadata = {'render.modes': ['human', 'app']}
@@ -19,14 +18,13 @@ class TicTacToeBasicEnv(gym.Env):
 
 	def initialize(self, players, size, marks_required, app):
 		self._params = (players, size, marks_required)
-		self.env = TicTacToeLogic(players, size, marks_required)
+		self.env = TicTacToeEngine(players, size, marks_required)
 		self.current_winnings = []
 
 		self.observation_space = spaces.MultiDiscrete([size, size])
 		self.action_space = spaces.MultiDiscrete([size, size])
 
-		self.possible_actions = []
-		self._regenerate_possible_actions()
+		self.possible_actions = self.env.get_unoccupied_fields()
 
 		self.next_step_done = NOT_END
 
@@ -69,7 +67,7 @@ class TicTacToeBasicEnv(gym.Env):
 		return state, reward, False, {"metadata"}, ple
 
 	def reset(self):
-		self.env = TicTacToeLogic(*self._params)
+		self.env = TicTacToeEngine(*self._params)
 		self.current_winnings = []
 
 		self.possible_actions = []
@@ -94,76 +92,5 @@ class TicTacToeBasicEnv(gym.Env):
 				for button in filter(lambda butt: butt.contains_point(event.pos), buttons):
 					button.on_pressed()
 
-	def get_current_state(self):
-		return self.env.board.board
-
-	def random_initial_state(self):
-		# Uniform random initialization, but without
-		# Game-endind or illegal(win of both players) states
-
-		# All possible players' marks and empty mark
-		players_marks = [-1]
-		for p in self.env.players:
-			players_marks.append(p.mark)
-
-		# Random fields filling order
-		coords = []
-		size = self.env.board.size
-		for v in range(size):
-			for h in range(size):
-				coords.append((v, h))
-
-		random.shuffle(coords)
-		n = random.randint(0, len(coords))  # Number of fields to fill
-
-		# Random fields value
-		for i in range(n):
-			v, h = coords[i]
-			random_mark = random.choice(players_marks)
-			self.env.board.place_mark(v, h, random_mark)
-			if self.env.gather_winnings():
-				self.env.board.board[v, h] = -1
-
-		# Check all fields filled
-		# if so, then randomly unmark one of them
-		all_filled = True
-		for v in range(size):
-			for h in range(size):
-				if self.env.board.board[v, h] == -1:
-					all_filled = False
-					break
-
-		if all_filled:
-			v = random.randint(0, size-1)
-			h = random.randint(0, size-1)
-			self.env.board.board[v, h] = -1
-
-		self._regenerate_possible_actions()
-
-		return self.env.board.board
-
-	def _regenerate_possible_actions(self):
-		self.possible_actions = []
-		board = self.env.board.board
-		height, width = board.shape
-		for h in range(height):
-			for v in range(width):
-				if board[h, v] == -1:
-					self.possible_actions.append([h, v])
-
-	# def close(self):
-	# 	pass
-
-# Example
-
-# import gym
-# from tic_tac_toe_logic import *
-
-# env = gym.make('tic_tac_toe:tictactoe-v0')
-# players = [Player('A', 0), Player('B', 1)]
-# marks_required = 3
-# size = 5
-# env.initialize(players, size, marks_required)
-# env.render()
-
-# s, r, d, m = env.step(env.action_space.sample(), players[0])
+	def regenerate_possible_actions(self):
+		self.possible_actions = self.env.get_unoccupied_fields()

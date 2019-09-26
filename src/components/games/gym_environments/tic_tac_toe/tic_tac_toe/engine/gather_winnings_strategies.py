@@ -1,4 +1,4 @@
-from tic_tac_toe_logic_components import *
+from tic_tac_toe_engine_components import *
 from abc import ABC, abstractmethod
 import numpy as np
 
