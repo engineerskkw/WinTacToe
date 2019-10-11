@@ -5,5 +5,5 @@ src/components/games/gym_environments/tic_tac_toe/tic_tac_toe.egg-info/
 src/components/games/gym_environments/tic_tac_toe/__pycache__/
 src/components/games/gym_environments/tic_tac_toe/tic_tac_toe/__pycache__
 src/components/games/gym_environments/tic_tac_toe/tic_tac_toe/__init__.pyc
-src/components/games/gym_environments/tic_tac_toe/tic_tac_toe/envs/__pycache__/
+src/components/games/tic_tac_toe/envs/__pycache__/
 src/agents/Monte_Carlo_agent_alpha_draft.ipynb

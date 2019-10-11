@@ -6,6 +6,11 @@ import gym
 
 class TicTacToeComponent(AbstractComponent):
     def __init__(self, app):
+
+        # TODO zespawnuj tutej serwer
+
+        # TODO zainstancjonuj tu klienta GUI ktory chce sie polaczyc z serwerek i zespawnuj botowego klienta
+
         self._app = app
         self._env = gym.make('tic_tac_toe:tictactoe-v0')
         players = [Player('A', 0), Player('B', 1)]
