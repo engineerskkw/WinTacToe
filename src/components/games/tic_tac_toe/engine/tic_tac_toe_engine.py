@@ -11,6 +11,7 @@ class _Board:
         self.marks_required = marks_required
         self.gather_winnings_strategy = gather_winnings_strategy
         self.last_move = None
+        self.last_mark = None
 
         self.board = np.full((size, size), -1)
 
@@ -18,6 +19,7 @@ class _Board:
         if self.board[x][y] == -1 and mark in self.marks:
             self.board[x][y] = mark
             self.last_move = (x, y)
+            self.last_mark = mark
             return True
 
         return False
@@ -99,40 +101,39 @@ class TicTacToeEngine:
         Number of marks required to form a winning line.
     gather_winnings_strategy: GatherWinningsStrategy
         An algorithm to check for the winner.
+    winnings: set[Winning]
+        A set containing current winnings.
 
     Methods
     -------
-    place_mark(x, y, mark)
-        Places a mark at the (x, y) coordinates and change the current player to the next one.
-    gather_winnings()
-        Gathers all the winning lines and marks along with their coordinates.
+    make_move(x, y, mark)
+        Places a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
     get_unoccupied_fields()
         Get a list of tuples of the coordinates of the unoccupied fields on the board.
     get_current_state()
-        Shares a numpy board representing a current state of the board.
-        Used only by the AI playing the game.
-    main_loop()
-        Runs a single instance of the game ending with a single player winning.
+        Shares vital information about the state of the game, including board, current player, current winnings etc.
     """
 
-    def __init__(self, players, board_size, marks_required,
+    def __init__(self, no_of_players, board_size, marks_required,
                  gather_winnings_strategy=StandardGatherWinningsStrategy()):
-        assert (len(players) >= 2), "There should be more than 2 players in the game..."
-        self.players = players
-        self._player_generator = cycle(players)
-        self.current_player = next(self._player_generator)
+        assert (no_of_players >= 2), "There should be more than 2 players in the game..."
+        self._players = []
+        self._init_players(no_of_players)
+        self._player_generator = cycle(self.players)
+        self._current_player = next(self._player_generator)
 
         assert (board_size > 0), "Board size should be positive..."
-        self.board_size = board_size
+        self._board_size = board_size
 
         assert (marks_required <= board_size), "Marks required should be less or equal to the board_size"
-        self.marks_required = marks_required
+        self._marks_required = marks_required
 
-        marks = list(map(lambda player: player.mark, players))
+        marks = list(map(lambda player: player.mark, self.players))
         assert (len(set(marks)) == len(marks)), "Marks of all players should be unique.."
-        self.marks = marks
+        self._marks = marks
 
-        self.gather_winnings_strategy = gather_winnings_strategy
+        self._gather_winnings_strategy = gather_winnings_strategy
+        self._winnings = set()
         
         self._board = _Board(
             size=board_size,
@@ -141,7 +142,46 @@ class TicTacToeEngine:
             gather_winnings_strategy=gather_winnings_strategy
         )
 
-    def place_mark(self, x, y):
+    @property
+    def current_player(self):
+        return self._current_player
+
+    @property
+    def players(self):
+        return self._players
+
+    @property
+    def current_board(self):
+        return self._board.board
+
+    @property
+    def winnings(self):
+        return self._winnings
+
+    @property
+    def allowed_actions(self):
+        """Get a list of tuples of the coordinates of the unoccupied fields on the board.
+
+        Returns
+        ------
+        list[(x, y)]
+            A list of coordinates.
+        """
+        return self._board.get_unoccupied_fields()
+
+    @property
+    def rewards(self):
+        if self.check_for_gameover():
+            winning_marks = map(lambda winning: winning.mark, self.winnings)
+            rewards = map(lambda player: 1 if player.mark in winning_marks else -1, self.players)
+            return {player: reward for player, reward in zip(self.players, rewards)}
+        else:
+            return {player: 0 for player in self.players}
+
+    def check_for_gameover(self):
+        return bool(self.winnings)
+
+    def make_move(self, x, y):
         """Places a mark at the (x, y) coordinates and change the current player to the next one.
 
         Parameters
@@ -157,43 +197,38 @@ class TicTacToeEngine:
             True if successful, False if the place is already taken.
         """
         if self._board.place_mark(x, y, self.current_player.mark):
-            self.current_player = next(self._player_generator)
+            self._current_player = next(self._player_generator)
+            self._gather_winnings()
             return True
 
         return False
 
-    def gather_winnings(self):
-        """Gathers winnings from the current state of the board according to gather winnings strategy.
-
-        In some versions of the game there can be multiple winners or there can be a tie.
-
-        Returns
-        -------
-        list[Winning]
-            A list of the current winnings on the board.
-        """
-        return self._board.gather_winnings()
-
-    def get_unoccupied_fields(self):
-        """Get a list of tuples of the coordinates of the unoccupied fields on the board.
-
-        Returns
-        ------
-        list[(x, y)]
-            A list of coordinates.
-        """
-        return self._board.get_unoccupied_fields()
-
     def randomize_board(self):
         """Randomly and uniformly initialize board, without a game-ending scenario or illegal states."""
+        self.reset()
         self._board.randomize()
+        last_player = list(filter(lambda player: player.mark == self._board.last_mark, self.players))[0]
 
-    def get_current_state(self):
-        """Shares a numpy board representing a current state of the board and a current player object.
+        while last_player != self.current_player:
+            self._current_player = next(self._player_generator)
 
-        Returns
-        -------
-        (np.array(dtype=int), Player)
-            A numpy array representing the current board and a current player object.
-        """
-        return self._board.board, self.current_player
+        self._current_player = next(self._player_generator)
+
+    def reset(self):
+        self._player_generator = cycle(self.players)
+        self._current_player = next(self._player_generator)
+
+        self._board = _Board(
+            size=self._board_size,
+            marks=self._marks,
+            marks_required=self._marks_required,
+            gather_winnings_strategy=self._gather_winnings_strategy
+        )
+
+    def _gather_winnings(self):
+        self._winnings |= set(self._board.gather_winnings())
+
+    def _init_players(self, no_of_players):
+        names = [f"Player {i}" for i in range(no_of_players)]
+        marks = range(no_of_players)
+        self._players = [Player(name, mark) for name, mark in zip(names, marks)]

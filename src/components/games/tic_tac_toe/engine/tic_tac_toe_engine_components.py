@@ -23,7 +23,13 @@ class Player:
 
         assert mark >= 0, "A player's mark has to be non-negative"
         self.mark = mark
-        
+
+    def __str__(self):
+        return f"{self.name}({self.mark})"
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class Winning:
     """Class representing a Tic Tac Toe winning line.
@@ -54,7 +60,19 @@ class Winning:
         self.ending_point = ending_point
 
     def __str__(self):
-        return str(self.mark) + ", start: " + str(self.starting_point) + ", end: " + str(self.ending_point)
+        return f"mark:{self.mark} start:{self.starting_point} end:{self.ending_point}"
 
     def __repr__(self):
         return self.__str__()
+
+    def __eq__(self, other):
+        return isinstance(other, Winning) and \
+               self.mark == other.mark and \
+               self.starting_point == other.starting_point and \
+               self.ending_point == other.ending_point
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __hash__(self):
+        return hash((self.mark, self.starting_point, self.ending_point))
