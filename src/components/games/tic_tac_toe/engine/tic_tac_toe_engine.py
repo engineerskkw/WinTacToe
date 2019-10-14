@@ -75,13 +75,13 @@ class TicTacToeEngine:
 
     It contains all the necessary methods to run an instance of the game
     between arbitrary number of players and an arbitrary size of the board 
-    (though not infinite).
+    (though not infinite). It also contains some helper methods for the RL agent to use.
 
 
     Parameters
     ----------
-    players : list[Player]
-        A list of participating players.
+    no_of_players : int
+        Number of participating players.
     board_size: int
         Size of the square tic tac toe board.
     marks_required: int
@@ -89,29 +89,29 @@ class TicTacToeEngine:
     gather_winnings_strategy: GatherWinningsStrategy
         An algorithm to check for the winner. Default is a StandardGatherWinningsStrategy
 
-    Attributes
-    ----------
-    players : list[Player]
-        A list of participating players.
-    current_player: Player
-        A player that is supposed to take the next turn.
-    board_size: int
-        Size of the square tic tac toe board.
-    marks_required: int
-        Number of marks required to form a winning line.
-    gather_winnings_strategy: GatherWinningsStrategy
-        An algorithm to check for the winner.
-    winnings: set[Winning]
-        A set containing current winnings.
 
     Methods
     -------
+    current_player(): player
+        A player currently supposed to make a move.
+    players(): list[Player]
+        A list of player objects representing real players.
+    current_board(): np.array(dtype=int)
+        An numpy array representing current state of the board.
+    winnings(): list[Winnings]
+        A list of current winnings.
+    allowed_actions(): list[(int, int)]
+        Get a list of tuples of the coordinates of the unoccupied fields on the board.
+    rewards(): {player: int}
+        A hash containing a reward for each player. Used by RL agent when learning.
+    check_for_gameover(): bool
+        Return true if the game is over, false otherwise.
     make_move(x, y, mark)
         Places a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
-    get_unoccupied_fields()
-        Get a list of tuples of the coordinates of the unoccupied fields on the board.
-    get_current_state()
-        Shares vital information about the state of the game, including board, current player, current winnings etc.
+    randomize_board()
+        Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
+    reset()
+        Resets the board to the starting arrangement and resets current player.
     """
 
     def __init__(self, no_of_players, board_size, marks_required,
