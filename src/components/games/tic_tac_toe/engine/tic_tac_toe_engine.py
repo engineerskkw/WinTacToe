@@ -106,7 +106,7 @@ class TicTacToeEngine:
         A hash containing a reward for each player. Used by RL agent when learning.
     check_for_gameover(): bool
         Return true if the game is over, false otherwise.
-    make_move(x, y, mark)
+    make_move(x, y)
         Places a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
     randomize_board()
         Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
