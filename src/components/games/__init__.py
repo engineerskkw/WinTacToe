@@ -1,1 +1,1 @@
-from .components import TicTacToeComponent
+from .tic_tac_toe.tic_tac_toe_component import *

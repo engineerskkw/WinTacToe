@@ -1,6 +1,6 @@
 from src.common_helper import MusicSwitcher
 from src.components.abstract_component import AbstractComponent
-from tic_tac_toe.logics.tic_tac_toe_logic import *
+from .engine import *
 import gym
 
 
