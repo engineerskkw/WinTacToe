@@ -30,6 +30,14 @@ class Player:
     def __repr__(self):
         return self.__str__()
 
+    def __hash__(self):
+        return hash((self.name, self.mark))
+
+    def __eq__(self, other):
+        if isinstance(other, Player):
+            return self.__hash__() == other.__hash__()
+        return NotImplemented
+
 
 class Winning:
     """Class representing a Tic Tac Toe winning line.
