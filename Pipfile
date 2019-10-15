@@ -24,6 +24,7 @@ ipykernel = "*"
 matplotlib = "*"
 graphviz = "*"
 parse = "*"
+bidict = "*"
 
 [requires]
 python_version = "3.7"
