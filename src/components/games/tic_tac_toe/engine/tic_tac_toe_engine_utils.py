@@ -46,29 +46,23 @@ class Winning:
     ----------
     mark : int
         A number corresponding to a player's mark.
-    starting_point: (int, int)
-        A tuple with coordinates of the starting point of the winning line.
-    ending_point: (int, int)
-        A tuple with coordinates of the ending point of the winning line.
+    points_included: list[(int, int)]
+        List of tuples with coordinates of the winning line.
 
     Attributes
     ----------
     mark : int
         A number corresponding to a player's mark.
-    starting_point: (int, int)
-        A tuple with coordinates of the starting point of the winning line.
-    ending_point: (int, int)
-        A tuple with coordinates of the ending point of the winning line.
-
+    points_included: list[(int, int)]
+        List of tuples with coordinates of the winning line.
     """
 
-    def __init__(self, mark, starting_point, ending_point):
+    def __init__(self, mark, points_included):
         self.mark = mark
-        self.starting_point = starting_point
-        self.ending_point = ending_point
+        self.points_included = points_included
 
     def __str__(self):
-        return f"mark:{self.mark} start:{self.starting_point} end:{self.ending_point}"
+        return f"mark:{self.mark} points_included:{self.points_included}"
 
     def __repr__(self):
         return self.__str__()
@@ -76,11 +70,20 @@ class Winning:
     def __eq__(self, other):
         return isinstance(other, Winning) and \
                self.mark == other.mark and \
-               self.starting_point == other.starting_point and \
-               self.ending_point == other.ending_point
+               self.points_included == other.points_included
 
     def __ne__(self, other):
         return not self == other
 
     def __hash__(self):
-        return hash((self.mark, self.starting_point, self.ending_point))
+        return hash((self.mark, *self.points_included))
+
+
+class IllegalMoveError(Exception):
+    """Raised when there is an illegal move made"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return str(self.message)
