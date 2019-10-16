@@ -69,7 +69,7 @@ class GameManager(Actor):
             x, y = msg.move
             self.environment.make_move(x, y)  # It implicitly makes next player current player
 
-            if self.environment.check_for_gameover():
+            if self.environment.ended:
                 for player, client in self.players_clients.items():
                     if not self.before_first_move[player]:
                         self.send(client, RewardMsg(self.environment.rewards[player]))
