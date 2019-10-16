@@ -35,7 +35,7 @@ class Player:
 
     def __eq__(self, other):
         if isinstance(other, Player):
-            return self.__hash__() == other.__hash__()
+            return hash(self) == hash(other)
         return NotImplemented
 
 
