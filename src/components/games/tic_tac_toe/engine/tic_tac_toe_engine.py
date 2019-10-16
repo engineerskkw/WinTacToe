@@ -59,7 +59,7 @@ class _Board:
         elif mark not in self._marks:
             raise IllegalMoveError("This is an illegal mark...")
 
-    def undo_last_mark(self):
+    def remove_last_mark(self):
         if self._points_placed:
             last_x, last_y = self._points_placed.pop()
             self._board[last_x][last_y] = -1
@@ -72,6 +72,8 @@ class TicTacToeEngine:
     It contains all the necessary methods to run an instance of the game
     between arbitrary number of players and an arbitrary size of the board 
     (though not infinite). It also contains some helper methods for the RL agent to use.
+
+    In this version of the game there can only be one winner. The first one to mark a winning line wins.]
 
 
     Parameters
@@ -107,14 +109,14 @@ class TicTacToeEngine:
     reset()
         Resets the board to the starting arrangement and resets current player.
     run()
-        Runs the main loop of the game.
+        Runs the main loop of the game using the user keyboard input.
     """
 
     def __init__(self, no_of_players, board_size, marks_required):
         assert (no_of_players >= 2), "There should be more than 2 players in the game..."
         self._players = []
         self._init_players(no_of_players)
-        self._player_generator = cycle(self.players)
+        self._player_generator = cycle(self._players)
         self._current_player = next(self._player_generator)
 
         assert (board_size > 0), "Board size should be positive..."
@@ -123,7 +125,7 @@ class TicTacToeEngine:
         assert (marks_required <= board_size), "Marks required should be less or equal to the board_size"
         self._marks_required = marks_required
 
-        marks = list(map(lambda player: player.mark, self.players))
+        marks = list(map(lambda player: player.mark, self._players))
         assert (len(set(marks)) == len(marks)), "Marks of all players should be unique.."
         self._marks = marks
 
@@ -230,7 +232,7 @@ class TicTacToeEngine:
             If there are invalid coordinates.
 
         """
-        self._board.place_mark(x, y, self.current_player.mark)
+        self._board.place_mark(x, y, self._current_player.mark)
         self._current_player = next(self._player_generator)
         self._gather_winnings()
 
@@ -259,7 +261,7 @@ class TicTacToeEngine:
 
     def reset(self):
         """Resets the board to the starting arrangement, resets current player and winnings."""
-        self._player_generator = cycle(self.players)
+        self._player_generator = cycle(self._players)
         self._current_player = next(self._player_generator)
         self._winnings = set()
 
@@ -270,10 +272,10 @@ class TicTacToeEngine:
         )
 
     def run(self):
-        """Runs the main loop of the game."""
+        """Runs the main loop of the game using the user keyboard input."""
         while not self.ended:
-            print(self.current_board)
-            print(f"{self.current_player}")
+            print(self._board.raw_board)
+            print(f"{self._current_player}")
 
             while True:
                 try:
@@ -295,7 +297,7 @@ class TicTacToeEngine:
             print("There is a draw!")
 
     def _gather_winnings(self):
-        self._winnings |= set(self._gather_winnings_strategy.gather_winnings(self._board))
+        self._winnings |= set(self._gather_winnings_strategy.run(self._board))
 
     def _init_players(self, no_of_players):
         names = [f"Player {i}" for i in range(no_of_players)]
@@ -305,7 +307,7 @@ class TicTacToeEngine:
     def _undo_last_move(self):
         last_mark = self._board.last_mark
         last_point = self._board.last_point
-        self._board.undo_last_mark()
+        self._board.remove_last_mark()
 
         try:
             last_winning = next(filter(lambda winning: winning.mark == last_mark and

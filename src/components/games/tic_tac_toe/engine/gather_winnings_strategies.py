@@ -5,7 +5,7 @@ import numpy as np
 
 class GatherWinningsStrategy(ABC):
     @abstractmethod
-    def gather_winnings(self, board):
+    def run(self, board):
         pass
 
     @staticmethod
@@ -64,7 +64,7 @@ class GatherWinningsStrategy(ABC):
 
 
 class AlternateGatherWinningsStrategy(GatherWinningsStrategy):
-    def gather_winnings(self, board):
+    def run(self, board):
         """Gathers winnings from the current state of the board, by checking the whole board for the winner.
 
         There can be multiple winners in this scenario. It is useful when game doesn't end when a single player
@@ -95,12 +95,12 @@ class StandardGatherWinningsStrategy(GatherWinningsStrategy):
     list[Winning]
         A list of the current winnings on the board in the neighbourhood of the last move made.
     """
-    def gather_winnings(self, board):
+    def run(self, board):
         if not board.last_point:
             return []
 
         if board.size // 2 < board.marks_required:
-            return AlternateGatherWinningsStrategy().gather_winnings(board)
+            return AlternateGatherWinningsStrategy().run(board)
 
         winnings = []
         x, y = board.last_point
