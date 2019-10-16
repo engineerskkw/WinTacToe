@@ -1,73 +1,69 @@
-from gather_winnings_strategies import *
-from itertools import cycle
 import random
-import numpy as np
+from itertools import cycle
+
+from gather_winnings_strategies import *
+from tic_tac_toe_engine_utils import *
 
 
 class _Board:
-    def __init__(self, size, marks, marks_required, gather_winnings_strategy):
-        self.size = size
-        self.marks = marks
-        self.marks_required = marks_required
-        self.gather_winnings_strategy = gather_winnings_strategy
-        self.last_move = None
-        self.last_mark = None
+    def __init__(self, size, marks, marks_required):
+        self._size = size
+        self._marks = marks
+        self._marks_required = marks_required
 
-        self.board = np.full((size, size), -1)
+        self._points_placed = []
+        self._marks_placed = []
 
-    def place_mark(self, x, y, mark):
-        if self.board[x][y] == -1 and mark in self.marks:
-            self.board[x][y] = mark
-            self.last_move = (x, y)
-            self.last_mark = mark
-            return True
+        self._board = np.full((size, size), -1)
 
-        return False
+    @property
+    def size(self):
+        return self._size
 
-    def get_unoccupied_fields(self):
+    @property
+    def marks_required(self):
+        return self._marks_required
+
+    @property
+    def last_point(self):
+        return self._points_placed[-1] if self._points_placed else None
+
+    @property
+    def last_mark(self):
+        return self._marks_placed[-1] if self._marks_placed else None
+
+    @property
+    def raw_board(self):
+        return self._board
+
+    @property
+    def unoccupied_fields(self):
         unoccupied_fields = []
 
         for i in range(self.size):
             for j in range(self.size):
-                if self.board[i, j] == -1:
+                if self._board[i, j] == -1:
                     unoccupied_fields.append((i, j))
 
         return unoccupied_fields
 
-    def gather_winnings(self):
-        return self.gather_winnings_strategy.gather_winnings(self)
+    def place_mark(self, x, y, mark):
+        if self._board[x][y] == -1 and mark in self._marks:
+            self._board[x][y] = mark
+            self._points_placed.append((x, y))
+            self._marks_placed.append(mark)
 
-    def randomize(self):
-        possible_marks = self.marks + [-1]
+        elif self._board[x][y] != -1:
+            raise IllegalMoveError("These coordinates are already taken...")
 
-        # Random filling order
-        coords = self.get_unoccupied_fields()
-        random.shuffle(coords)
+        elif mark not in self._marks:
+            raise IllegalMoveError("This is an illegal mark...")
 
-        # Random number of fields to fill
-        n = random.randint(0, len(coords))
-
-        # Random field values
-        for k in range(n):
-            i, j = coords[k]
-            random_mark = random.choice(possible_marks)
-            self.place_mark(i, j, random_mark)
-            if self.gather_winnings():
-                self.board[i, j] = -1
-
-        # Check all fields filled
-        # if so, then randomly unmark one of them
-        all_filled = True
-        for i in range(self.size):
-            for j in range(self.size):
-                if self.board[i, j] == -1:
-                    all_filled = False
-                    break
-
-        if all_filled:
-            i = random.randint(0, self.size - 1)
-            j = random.randint(0, self.size - 1)
-            self.board[i, j] = -1
+    def undo_last_mark(self):
+        if self._points_placed:
+            last_x, last_y = self._points_placed.pop()
+            self._board[last_x][last_y] = -1
+            self._marks_placed.pop()
 
 
 class TicTacToeEngine:
@@ -85,37 +81,36 @@ class TicTacToeEngine:
     board_size: int
         Size of the square tic tac toe board.
     marks_required: int
-        Number of marks required to form a winning line.
-    gather_winnings_strategy: GatherWinningsStrategy
-        An algorithm to check for the winner. Default is a StandardGatherWinningsStrategy
+        Number of marks required to form a winning line.=
 
 
     Methods
     -------
-    current_player(): player
-        A player currently supposed to make a move.
-    players(): list[Player]
+    current_player()
+        A player that is currently supposed to make a move.
+    players()
         A list of player objects representing real players.
-    current_board(): np.array(dtype=int)
+    current_board()
         An numpy array representing current state of the board.
-    winnings(): list[Winnings]
+    winnings()
         A list of current winnings.
-    allowed_actions(): list[(int, int)]
+    allowed_actions()
         Get a list of tuples of the coordinates of the unoccupied fields on the board.
     rewards(): {player: int}
         A hash containing a reward for each player. Used by RL agent when learning.
-    check_for_gameover(): bool
+    ended()
         Return true if the game is over, false otherwise.
     make_move(x, y, mark)
         Places a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
-    randomize_board()
+    randomize_board(seed)
         Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
     reset()
         Resets the board to the starting arrangement and resets current player.
+    run()
+        Runs the main loop of the game.
     """
 
-    def __init__(self, no_of_players, board_size, marks_required,
-                 gather_winnings_strategy=StandardGatherWinningsStrategy()):
+    def __init__(self, no_of_players, board_size, marks_required):
         assert (no_of_players >= 2), "There should be more than 2 players in the game..."
         self._players = []
         self._init_players(no_of_players)
@@ -132,54 +127,90 @@ class TicTacToeEngine:
         assert (len(set(marks)) == len(marks)), "Marks of all players should be unique.."
         self._marks = marks
 
-        self._gather_winnings_strategy = gather_winnings_strategy
+        self._gather_winnings_strategy = StandardGatherWinningsStrategy()
         self._winnings = set()
-        
+
         self._board = _Board(
             size=board_size,
             marks=marks,
-            marks_required=marks_required,
-            gather_winnings_strategy=gather_winnings_strategy
+            marks_required=marks_required
         )
 
     @property
     def current_player(self):
+        """
+        Returns
+        -------
+        Player
+            A player that is currently supposed to make a move.
+        """
         return self._current_player
 
     @property
     def players(self):
+        """
+        Returns
+        -------
+        list[Player]
+            A list of player objects representing real players.
+        """
         return self._players
 
     @property
     def current_board(self):
-        return self._board.board
+        """
+        Returns
+        -------
+        np.array(dtype=int)
+            An numpy array representing current state of the board.
+        """
+        return self._board.raw_board
 
     @property
     def winnings(self):
+        """
+        Returns
+        -------
+        list[Winnings]
+            A list of current winnings.
+        """
         return self._winnings
 
     @property
     def allowed_actions(self):
-        """Get a list of tuples of the coordinates of the unoccupied fields on the board.
-
-        Returns
-        ------
-        list[(x, y)]
-            A list of coordinates.
         """
-        return self._board.get_unoccupied_fields()
+        Returns
+        -------
+        list[(int, int)]
+            "A list of tuples of the coordinates of the unoccupied fields on the board.
+        """
+        return self._board.unoccupied_fields
 
     @property
     def rewards(self):
-        if self.check_for_gameover():
-            winning_marks = map(lambda winning: winning.mark, self.winnings)
-            rewards = map(lambda player: 1 if player.mark in winning_marks else -1, self.players)
-            return {player: reward for player, reward in zip(self.players, rewards)}
+        """
+        Returns
+        -------
+        hash{player: int}
+                A hash containing a reward for each player. Used by RL agent when learning.
+        """
+        if self.ended:
+            winning_marks = map(lambda winning: winning.mark, self._winnings)
+            rewards = map(lambda player: 1 if player.mark in winning_marks else -1, self._players)
+            return {player: reward for player, reward in zip(self._players, rewards)}
         else:
-            return {player: 0 for player in self.players}
+            return {player: 0 for player in self._players}
 
-    def check_for_gameover(self):
-        return bool(self.winnings)
+    @property
+    def ended(self):
+        """ Check if the game has ended.
+
+        Returns
+        -------
+        bool
+            True is the game has ended, False otherwise.
+        """
+        return bool(self._winnings) or not bool(self.allowed_actions)
 
     def make_move(self, x, y):
         """Places a mark at the (x, y) coordinates and change the current player to the next one.
@@ -191,44 +222,97 @@ class TicTacToeEngine:
         y : int
             The y coordinate.
 
-        Returns
-        -------
-        bool
-            True if successful, False if the place is already taken.
+        Raises
+        ------
+        IllegalMoveError
+            If there is an illegal move made, that is coordinates x, y are already taken or there is an illegal mark.
+        IndexError
+            If there are invalid coordinates.
+
         """
-        if self._board.place_mark(x, y, self.current_player.mark):
-            self._current_player = next(self._player_generator)
-            self._gather_winnings()
-            return True
-
-        return False
-
-    def randomize_board(self):
-        """Randomly and uniformly initialize board, without a game-ending scenario or illegal states."""
-        self.reset()
-        self._board.randomize()
-        last_player = list(filter(lambda player: player.mark == self._board.last_mark, self.players))[0]
-
-        while last_player != self.current_player:
-            self._current_player = next(self._player_generator)
-
+        self._board.place_mark(x, y, self.current_player.mark)
         self._current_player = next(self._player_generator)
+        self._gather_winnings()
+
+    def randomize_board(self, seed=None):
+        """Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
+
+        Parameters
+        ----------
+        seed : int
+            Seed for the randomization algorithm.
+        """
+        self.reset()
+        random.seed(seed)
+
+        move_space = self.allowed_actions
+        no_of_moves = random.randint(1, len(move_space) - 1)
+
+        for _ in range(no_of_moves):
+            x, y = random.choice(move_space)
+            try:
+                self.make_move(x, y)
+                if self.ended:
+                    self._undo_last_move()
+            except (IndexError, IllegalMoveError):
+                continue
 
     def reset(self):
+        """Resets the board to the starting arrangement, resets current player and winnings."""
         self._player_generator = cycle(self.players)
         self._current_player = next(self._player_generator)
+        self._winnings = set()
 
         self._board = _Board(
             size=self._board_size,
             marks=self._marks,
-            marks_required=self._marks_required,
-            gather_winnings_strategy=self._gather_winnings_strategy
+            marks_required=self._marks_required
         )
 
+    def run(self):
+        """Runs the main loop of the game."""
+        while not self.ended:
+            print(self.current_board)
+            print(f"{self.current_player}")
+
+            while True:
+                try:
+                    x, y = input("Input coordinates: ")
+                    self.make_move(int(x), int(y))
+                    break
+                except IndexError:
+                    print("These are not valid coordinates, try again...")
+                    continue
+                except IllegalMoveError as error:
+                    print(error)
+                    continue
+
+        try:
+            winning_mark = list(self._winnings)[0].mark
+            winner = next(filter(lambda player: player.mark == winning_mark, self._players))
+            print(f"{winner} won!")
+        except (IndexError, StopIteration):
+            print("There is a draw!")
+
     def _gather_winnings(self):
-        self._winnings |= set(self._board.gather_winnings())
+        self._winnings |= set(self._gather_winnings_strategy.gather_winnings(self._board))
 
     def _init_players(self, no_of_players):
         names = [f"Player {i}" for i in range(no_of_players)]
         marks = range(no_of_players)
         self._players = [Player(name, mark) for name, mark in zip(names, marks)]
+
+    def _undo_last_move(self):
+        last_mark = self._board.last_mark
+        last_point = self._board.last_point
+        self._board.undo_last_mark()
+
+        try:
+            last_winning = next(filter(lambda winning: winning.mark == last_mark and
+                                       last_point in winning.points_included, self._winnings))
+            self._winnings.remove(last_winning)
+        except StopIteration:
+            pass
+
+        while self.current_player.mark != self._board.last_mark:
+            self._current_player = next(self._player_generator)

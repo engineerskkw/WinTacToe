@@ -1,4 +1,4 @@
-from tic_tac_toe_engine_components import *
+from tic_tac_toe_engine_utils import *
 from abc import ABC, abstractmethod
 import numpy as np
 
@@ -20,37 +20,45 @@ class GatherWinningsStrategy(ABC):
         for i in range(size):
             if check_line(subboard[i]):
                 mark = subboard[i][0]
-                starting_point = (top_left[0] + i, top_left[1])
-                ending_point = (top_left[0] + i, top_left[1] + size - 1)
 
-                winnings.append(Winning(mark, starting_point, ending_point))
+                points_included = []
+                for k in range(size):
+                    points_included.append((top_left[0] + i, top_left[1] + k))
+
+                winnings.append(Winning(mark, points_included))
 
         # Check for the winning line in columns
         for j in range(size):
             if check_line(subboard[:, j]):
                 mark = subboard[:, j][0]
-                starting_point = (top_left[0], top_left[1] + j)
-                ending_point = (top_left[0] + size - 1, top_left[1] + j)
 
-                winnings.append(Winning(mark, starting_point, ending_point))
+                points_included = []
+                for k in range(size):
+                    points_included.append((top_left[0] + k, top_left[1] + j))
+
+                winnings.append(Winning(mark, points_included))
 
         # Check for the winning line on the main diagonal
         main_diag = np.diag(subboard)
         if check_line(main_diag):
             mark = main_diag[0]
-            starting_point = (top_left[0], top_left[1])
-            ending_point = (top_left[0] + size - 1, top_left[1] + size - 1)
 
-            winnings.append(Winning(mark, starting_point, ending_point))
+            points_included = []
+            for k in range(size):
+                points_included.append((top_left[0] + k, top_left[1] + k))
+
+            winnings.append(Winning(mark, points_included))
 
         # Check for the winning line on the second diagonal
         second_diag = np.diag(np.flip(subboard, 1))
         if check_line(second_diag):
             mark = second_diag[0]
-            starting_point = (top_left[0], top_left[1] + size - 1)
-            ending_point = (top_left[0] + size - 1, top_left[1])
 
-            winnings.append(Winning(mark, starting_point, ending_point))
+            points_included = []
+            for k in range(size):
+                points_included.append((top_left[0] + k, top_left[1] + size - 1 - k))
+
+            winnings.append(Winning(mark, points_included))
 
         return winnings
 
@@ -71,7 +79,7 @@ class AlternateGatherWinningsStrategy(GatherWinningsStrategy):
 
         for i in range(board.size - board.marks_required + 1):
             for j in range(board.size - board.marks_required + 1):
-                subboard = board.board[i:i + board.marks_required, j:j + board.marks_required]
+                subboard = board.raw_board[i:i + board.marks_required, j:j + board.marks_required]
                 winnings += self._check_subboard(subboard, (i, j))
 
         return winnings
@@ -85,17 +93,17 @@ class StandardGatherWinningsStrategy(GatherWinningsStrategy):
     Returns
     -------
     list[Winning]
-        A list of the current winnings on the board. There should be only one winning.
+        A list of the current winnings on the board in the neighbourhood of the last move made.
     """
     def gather_winnings(self, board):
-        if board.last_move is None:
+        if not board.last_point:
             return []
 
         if board.size // 2 < board.marks_required:
             return AlternateGatherWinningsStrategy().gather_winnings(board)
 
         winnings = []
-        x, y = board.last_move
+        x, y = board.last_point
 
         # Change the coordinates of the last move if it is in one of the corners
         if x - board.marks_required < 0:
@@ -109,19 +117,19 @@ class StandardGatherWinningsStrategy(GatherWinningsStrategy):
             y = board.size - board.marks_required
 
         # Check 4 subboards surrounding last move made
-        subboard = board.board[x:x + board.marks_required, y:y + board.marks_required]
+        subboard = board.raw_board[x:x + board.marks_required, y:y + board.marks_required]
         top_left = (x, y)
         winnings += self._check_subboard(subboard, top_left)
 
-        subboard = board.board[x - board.marks_required + 1: x + 1, y:y + board.marks_required]
+        subboard = board.raw_board[x - board.marks_required + 1: x + 1, y:y + board.marks_required]
         top_left = (x - board.marks_required, y)
         winnings += self._check_subboard(subboard, top_left)
 
-        subboard = board.board[x: x + board.marks_required, y - board.marks_required + 1:y + 1]
+        subboard = board.raw_board[x: x + board.marks_required, y - board.marks_required + 1:y + 1]
         top_left = (x, y - board.marks_required)
         winnings += self._check_subboard(subboard, top_left)
 
-        subboard = board.board[x - board.marks_required + 1: x + 1, y - board.marks_required + 1:y + 1]
+        subboard = board.raw_board[x - board.marks_required + 1: x + 1, y - board.marks_required + 1:y + 1]
         top_left = (x - board.marks_required, y - board.marks_required)
         winnings += self._check_subboard(subboard, top_left)
 
