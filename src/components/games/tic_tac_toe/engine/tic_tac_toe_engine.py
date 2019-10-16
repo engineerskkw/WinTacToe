@@ -82,7 +82,7 @@ class TicTacToeEngine:
     board_size: int
         Size of the square tic tac toe board.
     marks_required: int
-        Number of marks required to form a winning line.=
+        Number of marks required to form a winning line.
 
 
     Methods
