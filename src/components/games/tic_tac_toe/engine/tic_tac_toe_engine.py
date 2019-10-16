@@ -70,11 +70,10 @@ class TicTacToeEngine:
     """Class containing a Tic Tac Toe logic.
 
     It contains all the necessary methods to run an instance of the game
-    between arbitrary number of players and an arbitrary size of the board 
-    (though not infinite). It also contains some helper methods for the RL agent to use.
+    between arbitrary number of players and an arbitrary size of the board (though not infinite).
+    It also contains some helper methods for the RL agent to use.
 
-    In this version of the game there can only be one winner. The first one to mark a winning line wins.]
-
+    In this version of the game there can only be one winner. The first one to score a winning line wins.
 
     Parameters
     ----------
@@ -89,27 +88,27 @@ class TicTacToeEngine:
     Methods
     -------
     current_player()
-        A player that is currently supposed to make a move.
+        Get a player that is currently supposed to make a move.
     players()
-        A list of player objects representing real players.
+        Get a list of player objects representing players.
     current_board()
-        An numpy array representing current state of the board.
+        Get an numpy array representing current state of the board.
     winnings()
-        A list of current winnings.
+        Get a list of current winnings.
     allowed_actions()
         Get a list of tuples of the coordinates of the unoccupied fields on the board.
     rewards(): {player: int}
-        A hash containing a reward for each player. Used by RL agent when learning.
+        Get a hash containing a reward for each player. Used by RL agent when learning.
     ended()
-        Return true if the game is over, false otherwise.
+        Check if the game has ended.
     make_move(x, y, mark)
-        Places a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
+        Place a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
     randomize_board(seed)
         Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
     reset()
-        Resets the board to the starting arrangement and resets current player.
+        Reset the board to the starting arrangement and resets current player.
     run()
-        Runs the main loop of the game using the user keyboard input.
+        Run the main loop of the game using the user keyboard input.
     """
 
     def __init__(self, no_of_players, board_size, marks_required):
@@ -140,7 +139,8 @@ class TicTacToeEngine:
 
     @property
     def current_player(self):
-        """
+        """Get a player that is currently supposed to make a move.
+
         Returns
         -------
         Player
@@ -150,17 +150,19 @@ class TicTacToeEngine:
 
     @property
     def players(self):
-        """
+        """Get a list of player objects representing players.
+
         Returns
         -------
         list[Player]
-            A list of player objects representing real players.
+            A list of player objects representing players.
         """
         return self._players
 
     @property
     def current_board(self):
-        """
+        """Get an numpy array representing current state of the board.
+
         Returns
         -------
         np.array(dtype=int)
@@ -170,7 +172,9 @@ class TicTacToeEngine:
 
     @property
     def winnings(self):
-        """
+        """Get a list of current winning objects. It contains all the necessary information about the winners and
+        positions of their winning marks.
+
         Returns
         -------
         list[Winnings]
@@ -180,7 +184,9 @@ class TicTacToeEngine:
 
     @property
     def allowed_actions(self):
-        """
+        """Get a list of tuples of the coordinates of the unoccupied fields on the board. This is a whole current
+        allowed move space.
+
         Returns
         -------
         list[(int, int)]
@@ -190,11 +196,13 @@ class TicTacToeEngine:
 
     @property
     def rewards(self):
-        """
+        """Get a hash containing a reward for each player. Used by RL agent when learning. When nobody has won yet,
+        everybody get a reward of 0, if there is a winner he gets a reward of 1 and other players get -1.
+
         Returns
         -------
         hash{player: int}
-                A hash containing a reward for each player. Used by RL agent when learning.
+                A hash containing a reward for each player.
         """
         if self.ended:
             winning_marks = map(lambda winning: winning.mark, self._winnings)
@@ -205,7 +213,8 @@ class TicTacToeEngine:
 
     @property
     def ended(self):
-        """ Check if the game has ended.
+        """Check if the game has ended. In this version of the game, the game ends when there is at most 1 winning
+        or there are no other allowed moves.
 
         Returns
         -------
