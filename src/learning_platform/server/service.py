@@ -16,16 +16,16 @@ class GameManager(Actor):
             self.match_maker_addr = self.createActor(MatchMaker, globalName="MatchMaker")
             self.logger_addr = self.createActor(Logger, globalName="Logger")
             self.send(self.match_maker_addr, InitMatchMakerMsg(self.environment.players))
-            self.log("cos sie stalo")
+            self.log("Initialization done")
 
         elif isinstance(msg, LaunchGameMsg):
             self.players_clients = msg.players_clients
             if not msg.relaunch:
                 for player in self.players_clients.keys():
                     self.before_first_move[player] = True
-                print(f"[GameManager]: Launched game with following players and clients: {self.players_clients}")
+                self.log(f"Launched game with following players and clients: {self.players_clients}")
             else:
-                print(f"[GameManager]: Relaunched game with following players and clients: {self.players_clients}")
+                self.log(f"Relaunched game with following players and clients: {self.players_clients}")
 
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
@@ -67,21 +67,18 @@ class MatchMaker(Actor):
             for player in msg.players:
                 self.players_clients[player] = "available"
 
-            print("[MatchMaker]: initial self.player_clients")
-            print(self.players_clients)
-            self.log("cos sie stalo")
+            self.log(f"Initial players <-> clients mapping: {self.players_clients}")
 
         elif isinstance(msg, JoinMsg):
             if self.game_manager_addr == None:
-                print("[MatchMaker]: cannot join client, because service hasn't been launched")
+                self.log("Can not join client, because service hasn't been launched")
                 self.send(sender, ServiceNotLaunchedMsg())
                 return
 
             if self.players_clients.get(msg.player) == "available":
                 self.players_clients[msg.player] = sender
                 self.send(sender, JoinAcknowledgementsMsg())
-                print("[MatchMaker]: initial self.player_clients")
-                print(self.players_clients)
+                self.log(f"Current players <-> clients mapping: {self.players_clients}")
 
                 # Check if all players have been allocated for clients
                 for value in self.players_clients.values():
@@ -89,14 +86,13 @@ class MatchMaker(Actor):
                         return
 
                 # Launch a game
-                print("[MatchMaker]: Launching game!")
+                self.log("Launching the game!")
                 self.send(self.game_manager_addr, LaunchGameMsg(self.players_clients))
 
             elif self.players_clients.get(msg.player) == "replaceable":
                 self.players_clients[msg.player] = sender
                 self.send(sender, JoinAcknowledgementsMsg())
-                print("[MatchMaker]: updated self.player_clients")
-                print(self.players_clients)
+                self.log(f"Current players <-> clients mapping: {self.players_clients}")
 
                 # Check if all players have been allocated for clients
                 for value in self.players_clients.values():
@@ -104,11 +100,11 @@ class MatchMaker(Actor):
                         return
 
                 # Relaunch a game
-                print("[MatchMaker]: Relaunching game!")
+                self.log("Relaunching the game!")
                 self.send(self.game_manager_addr, LaunchGameMsg(self.players_clients, True))
 
             else:
-                print("Invalid player received during joining client handling")
+                self.log("Invalid player received during joining client handling")
                 available_or_replaceable_players = []
                 for player, client in self.players_clients.items():
                     if client == "available" or client == "replaceable":
@@ -118,13 +114,12 @@ class MatchMaker(Actor):
 
 
         elif isinstance(msg, DetachMsg):
-            print(f"Detaching client: {sender}")
+            self.log(f"Detaching client: {sender}")
 
             for player, client in self.players_clients.items():
                 if client == sender:
                     self.players_clients[player] = "replaceable"
-                    print("[MatchMaker]: current self.player_clients")
-                    print(self.players_clients)
+                    self.log(f"Current players <-> clients mapping: {self.players_clients}")
 
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, "MatchMaker"))

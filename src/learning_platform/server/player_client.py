@@ -37,7 +37,7 @@ if __name__ == '__main__':
 
     # Server joining
     asys.tell(match_maker_addr, JoinMsg(player))
-    log("parampam pam")
+    log("Attempt of server joining")
 
     # Messages dispatcher
     while(True):
@@ -53,10 +53,12 @@ if __name__ == '__main__':
             exit()
 
         elif isinstance(msg, ServiceNotLaunchedMsg):
+            log("Attempt of using not launched service")
             _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
             asys.tell(match_maker_addr, JoinMsg(player))
 
         elif isinstance(msg, InvalidPlayerMsg):
+            log("Invalid player received during joining client handling")
             print("Invalid player received during joining client handling, try one of below:")
 
             for i in range(len(msg.available_or_replaceable_players)):
@@ -69,8 +71,9 @@ if __name__ == '__main__':
 
             # Server rejoining
             asys.tell(match_maker_addr, JoinMsg(player))
-            
+
         elif isinstance(msg, JoinAcknowledgementsMsg):
+            log("Succesfully joined server!")
             print("Succesfully joined server!")
             print("Waiting for your turn...")
 
