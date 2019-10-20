@@ -39,6 +39,7 @@ class GameManager(Actor):
                     if not self.before_first_move[player]:
                         self.send(client, RewardMsg(self.environment.rewards[player]))
                     self.send(client, GameOverMsg(self.environment.current_board))
+                
             else:
                 current_player = self.environment.current_player
                 current_client = self.players_clients[current_player]

@@ -44,6 +44,7 @@ if __name__ == '__main__':
         msg = asys.listen()
         if isinstance(msg, YourTurnMsg):
             asys.tell(game_manager_addr, MakeMoveMsg(agent.step(msg.state, msg.allowed_actions)))
+            print("Waiting for your turn...")
 
         elif isinstance(msg, RewardMsg):
             agent.reward(msg.reward)
