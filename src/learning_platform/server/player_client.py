@@ -1,6 +1,15 @@
 from common import *
 from human_player_agent import HumanPlayerAgent
 from service import GameManager, MatchMaker
+import signal
+import sys
+
+def signal_handler(sig, frame):
+        asys.tell(match_maker_addr, DetachMsg())
+        print('\nDetached from server')
+        sys.exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
 
 if __name__ == '__main__':
     # Commandline parameters parsing
@@ -33,3 +42,6 @@ if __name__ == '__main__':
         elif isinstance(msg, GameOverMsg):
             agent.exit(msg.state)
             exit()
+        elif isinstance(msg, ServiceNotLaunchedMsg):
+            _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
+            asys.tell(match_maker_addr, JoinMsg(player))

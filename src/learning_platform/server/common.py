@@ -19,8 +19,9 @@ class InitMatchMakerMsg:
 
 
 class LaunchGameMsg:
-    def __init__(self, players_clients):
+    def __init__(self, players_clients, relaunch=False):
         self.players_clients = players_clients
+        self.relaunch = relaunch
 
 
 # player_client script <-> MatchMaker comumnication
@@ -29,9 +30,13 @@ class JoinMsg:
     def __init__(self, player):
         self.player = player
 
+class ServiceNotLaunchedMsg:
+    pass
+
 
 class DetachMsg:
-        pass
+    pass
+
 
 
 # player_client script <-> GameManager communication

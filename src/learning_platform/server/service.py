@@ -16,9 +16,12 @@ class GameManager(Actor):
 
         elif isinstance(msg, LaunchGameMsg):
             self.players_clients = msg.players_clients
-            for player in self.players_clients.keys():
-                self.before_first_move[player] = True
-            print(f"[GameManager]: Launched game with following players and clients: {self.players_clients}")
+            if not msg.relaunch:
+                for player in self.players_clients.keys():
+                    self.before_first_move[player] = True
+                print(f"[GameManager]: Launched game with following players and clients: {self.players_clients}")
+            else:
+                print(f"[GameManager]: Relaunched game with following players and clients: {self.players_clients}")
 
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
@@ -59,24 +62,55 @@ class MatchMaker(Actor):
             print(self.players_clients)
 
         elif isinstance(msg, JoinMsg):
+            if self.game_manager_addr == None:
+                print(print("[MatchMaker]: cannot join client, because service hasn't been launched"))
+                self.send(sender, ServiceNotLaunchedMsg())
+                return
+
             if self.players_clients.get(msg.player) == "available":
                 self.players_clients[msg.player] = sender
                 print("[MatchMaker]: initial self.player_clients")
                 print(self.players_clients)
+
+                # Check if all players have been allocated for clients
+                for value in self.players_clients.values():
+                    if value == "available" or value == "replaceable":
+                        return
+
+                # Launch a game
+                print("[MatchMaker]: Launching game!")
+                self.send(self.game_manager_addr, LaunchGameMsg(self.players_clients))
+
+            elif self.players_clients.get(msg.player) == "replaceable":
+                self.players_clients[msg.player] = sender
+                print("[MatchMaker]: updated self.player_clients")
+                print(self.players_clients)
+
+                # Check if all players have been allocated for clients
+                for value in self.players_clients.values():
+                    if value == "available" or value == "replaceable":
+                        return
+
+                # Relaunch a game
+                print("[MatchMaker]: Relaunching game!")
+                self.send(self.game_manager_addr, LaunchGameMsg(self.players_clients, True))
+
             else:
                 # TODO: implement better error handling with feedback message
                 print("Invalid player received during joining client handling "
                       "(or this player has been already allocated)")
 
-            # Check if all players have been allocated for clients
-            for value in self.players_clients.values():
-                if value == "available":
-                    return
 
-            # Launch a game
-            print("[MatchMaker]: Launching game!")
-            self.send(self.game_manager_addr, LaunchGameMsg(self.players_clients))
 
         elif isinstance(msg, DetachMsg):
-            # TODO
+            print(f"Detaching client: {sender}")
+            # Pause game
+
+            for player, client in self.players_clients.items():
+                if client == sender:
+                    self.players_clients[player] = "replaceable"
+                    print("[MatchMaker]: current self.player_clients")
+                    print(self.players_clients)
+
+            # return to the game
             pass
