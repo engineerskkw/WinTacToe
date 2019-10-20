@@ -34,9 +34,7 @@ class Player:
         return hash((self.name, self.mark))
 
     def __eq__(self, other):
-        if isinstance(other, Player):
-            return hash(self) == hash(other)
-        return NotImplemented
+        return hash(self) == hash(other)
 
 
 class Winning:

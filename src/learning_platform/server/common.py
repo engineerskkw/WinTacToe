@@ -1,4 +1,8 @@
-from tic_tac_toe_engine_components import *
+import sys
+sys.path.append('/home/jan/WinTacToe/')
+sys.path.append('/home/jan/WinTacToe/src/components/games/tic_tac_toe')
+sys.path.append('/home/jan/WinTacToe/src/components/games/tic_tac_toe/engine')
+from tic_tac_toe_engine_utils import *
 from src.components.games.tic_tac_toe.engine.tic_tac_toe_engine import TicTacToeEngine
 from thespian.actors import *
 from bidict import bidict
@@ -122,6 +126,11 @@ class MatchMaker(Actor):
 
         elif isinstance(msg, JoinMsg):
             # Join client
+            # print("DEBUG")
+            # print(f"type(msg.player): {type(msg.player)}")
+            # for player in self.players_clients.keys():
+            #     print(f"type(player): {type(player)}")
+            # print("END DEBUG")
             if self.players_clients.get(msg.player) == "available":
                 self.players_clients[msg.player] = sender
                 print("[MatchMaker]: initial self.player_clients")

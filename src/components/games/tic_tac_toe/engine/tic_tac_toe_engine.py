@@ -1,8 +1,8 @@
 import random
 from itertools import cycle
 
-from gather_winnings_strategies import *
-from tic_tac_toe_engine_utils import *
+from .gather_winnings_strategies import *
+from .tic_tac_toe_engine_utils import *
 
 
 class _Board:
