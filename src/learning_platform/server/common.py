@@ -3,6 +3,8 @@ import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../components/games/tic_tac_toe"))
 from engine.tic_tac_toe_engine_utils import *
 from engine.tic_tac_toe_engine import TicTacToeEngine
+import datetime
+
 
 # start_server script <-> GameManager Actor comumnication
 
@@ -29,6 +31,13 @@ class LaunchGameMsg:
 class JoinMsg:
     def __init__(self, player):
         self.player = player
+
+class InvalidPlayerMsg:
+    def __init__(self, available_or_replaceable_players):
+        self.available_or_replaceable_players = available_or_replaceable_players
+
+class JoinAcknowledgementsMsg:
+    pass
 
 class ServiceNotLaunchedMsg:
     pass
@@ -60,3 +69,22 @@ class RewardMsg:
 class GameOverMsg:
     def __init__(self, state):
         self.state = state
+
+
+# Logger
+class InitLoggerMsg:
+    pass
+
+
+class JoinMonitorMsg:
+    pass
+
+
+class LogMsg:
+    def __init__(self, text, author=None):
+        self.text = text
+        self.author = author
+        self.time = datetime.datetime.now()
+
+    def __str__(self):
+        return f"{self.time.__str__()} [{self.author}]: {self.text}"
