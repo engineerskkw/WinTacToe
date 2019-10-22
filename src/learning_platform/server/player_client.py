@@ -7,16 +7,16 @@ from logger import Logger
 from parse import parse
 
 def signal_handler(sig, frame):
-        asys.tell(match_maker_addr, DetachMsg())
-        print('\nDetached from server')
-        sys.exit(0)
-
-signal.signal(signal.SIGINT, signal_handler)
+    asys.tell(match_maker_addr, DetachMsg())
+    print('\nDetached from server')
+    sys.exit(0)
 
 def log(text):
     asys.tell(logger_addr, LogMsg(text, f"client:{player}"))
 
 if __name__ == '__main__':
+    signal.signal(signal.SIGINT, signal_handler)
+
     # Commandline parameters parsing
     argc = len(sys.argv)
     if not argc == 3:
@@ -40,7 +40,7 @@ if __name__ == '__main__':
     log("Attempt of server joining")
 
     # Messages dispatcher
-    while(True):
+    while True:
         msg = asys.listen()
         if isinstance(msg, YourTurnMsg):
             asys.tell(game_manager_addr, MakeMoveMsg(agent.step(msg.state, msg.allowed_actions)))

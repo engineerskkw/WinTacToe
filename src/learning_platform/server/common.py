@@ -71,12 +71,15 @@ class GameOverMsg:
         self.state = state
 
 
-# Logger
+# Logger & Monitor
 class InitLoggerMsg:
     pass
 
 
 class JoinMonitorMsg:
+    pass
+
+class DetachMonitorMsg:
     pass
 
 

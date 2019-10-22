@@ -22,5 +22,8 @@ class Logger(Actor):
             self.history.append(msg)
             if self.monitor_addr:
                 self.send(self.monitor_addr, self.history[-1])
+
+        elif isinstance(msg, DetachMonitorMsg):
+            self.monitor_addr = None
                 
 
