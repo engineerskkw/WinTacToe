@@ -1,5 +1,9 @@
 import random
 
+import os, sys
+sys.path.append(os.path.join(os.path.dirname(__file__), "../"))
+
+from abstract_agent import Agent
 from action import Action
 from action_value import ActionValue
 from episode import Episode
@@ -40,9 +44,8 @@ class BasicAgent(Agent):
         state = State(state)
         self.policy.allowed_actions = allowed_actions
         action = self.policy[state]
-        if not action.array in allowed_actions:
-            action = random.choice(allowed_actions)
-        action = Action(action)
+        if not tuple(action.array) in allowed_actions:
+            action = Action(random.choice(allowed_actions))
 
         # Register model transition
         if self.last_state and self.last_action:
@@ -52,20 +55,24 @@ class BasicAgent(Agent):
         # Register state and action
         self.last_episode.append((state, action))
 
-        return action.array
+        return tuple(action.array)
 
     def reward(self, reward):
         self.last_episode.append(reward)
 
     def exit(self, termination_state):
         termination_state = State(termination_state)
-        self.last_episode.append(termination_state)
+        self.last_episode.append((termination_state, Action([]))) # TODO: do something elese than empty action
+        self.last_episode.append(0) # TODO: do something else than just zero reward appending
+
         G = self.pass_episode()
         self.Gs.append(G)
+        print(f"self Gs: {self.Gs}")
 
     # RL Monte Carlo algorithm
     def pass_episode(self):
         episode = self.last_episode
+        print(f"EPISODE: {episode}")
         gamma = 0.9  # Discount factor
         G = 0  # Episode's accumulative discounted total reward/return
         steps_no = len(episode) // 2

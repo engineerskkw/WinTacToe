@@ -70,43 +70,45 @@ class StochasticModel:
     def view(self):
         return self._get_graph().view()
 
-# Model test
 
-m = StochasticModel()
+if __name__ == '__main__':
+    # Model test
 
-s1 = State([[-1, 0], [-1, -1]])
-a1 = Action([1, 0])
-s2 = State([[-1, 0], [0, -1]])
-s3 = State([[-1, 0], [-1, 0]])
-m[s1, a1] = s2
-m[s1, a1] = s3
-m[s1, a1] = s3
-m[s1, a1] = s3
-m[s1, a1] = s3
+    m = StochasticModel()
 
-a2 = Action([0, 0])
-s4 = State([[0, 0], [0, -1]])
-m[s2, a2] = s4
+    s1 = State([[-1, 0], [-1, -1]])
+    a1 = Action([1, 0])
+    s2 = State([[-1, 0], [0, -1]])
+    s3 = State([[-1, 0], [-1, 0]])
+    m[s1, a1] = s2
+    m[s1, a1] = s3
+    m[s1, a1] = s3
+    m[s1, a1] = s3
+    m[s1, a1] = s3
 
-a4 = Action([1, 1])
-s5 = State([[-1, 0], [0, 0]])
-s6 = State([[-1, 0], [-1, 0]])
-s7 = State([[-1, -1], [-1, -1]])
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s5
-m[s2, a4] = s6
-m[s2, a4] = s6
-m[s2, a4] = s6
-m[s2, a4] = s6
-m[s2, a4] = s6
-m[s2, a4] = s7
-m[s2, a4] = s7
-m[s2, a4] = s7
+    a2 = Action([0, 0])
+    s4 = State([[0, 0], [0, -1]])
+    m[s2, a2] = s4
 
-m.view()
+    a4 = Action([1, 1])
+    s5 = State([[-1, 0], [0, 0]])
+    s6 = State([[-1, 0], [-1, 0]])
+    s7 = State([[-1, -1], [-1, -1]])
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s7
+    m[s2, a4] = s7
+    m[s2, a4] = s7
+
+    m.view()

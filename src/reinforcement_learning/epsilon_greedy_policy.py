@@ -34,20 +34,20 @@ class EpsilonGreedyPolicy:
     def view(self):
         return self.action_value.view()
 
+if __name__ == '__main__':
+    av = ActionValue()
 
-av = ActionValue()
+    s = State([[-1, -1], [-1, 1]])
 
-s = State([[-1, -1], [-1, 1]])
+    a1 = Action([0, 0])
+    a2 = Action([0, 1])
+    a3 = Action([1, 0])
 
-a1 = Action([0, 0])
-a2 = Action([0, 1])
-a3 = Action([1, 0])
+    av[s, a1] = 6
+    av[s, a2] = 2.9
+    av[s, a3] = -10
 
-av[s, a1] = 6
-av[s, a2] = 2.9
-av[s, a3] = -10
+    egp = EpsilonGreedyPolicy(None, av, 0.3)
 
-egp = EpsilonGreedyPolicy(None, av, 0.3)
-
-print(egp)
-egp.view()
+    print(egp)
+    egp.view()

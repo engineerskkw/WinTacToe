@@ -52,23 +52,23 @@ class Policy:
     def view(self):
         return self._get_graph().view()
 
+if __name__ == '__main__':
+    # env = gym.make('tic_tac_toe:tictactoe-v0')
+    env = None
 
-# env = gym.make('tic_tac_toe:tictactoe-v0')
-env = None
+    p = Policy(env)
 
-p = Policy(env)
+    s1 = State([[-1, 1], [-1, 0]])
+    a1 = Action([1, 0])
+    p[s1] = a1
 
-s1 = State([[-1, 1], [-1, 0]])
-a1 = Action([1, 0])
-p[s1] = a1
+    s2 = State([[-1, 0], [1, 0]])
+    a2 = Action([0, 0])
+    p[s2] = a2
 
-s2 = State([[-1, 0], [1, 0]])
-a2 = Action([0, 0])
-p[s2] = a2
+    s3 = State([[0, 1], [1, -1]])
+    a3 = Action([1, 1])
+    p[s3] = a3
 
-s3 = State([[0, 1], [1, -1]])
-a3 = Action([1, 1])
-p[s3] = a3
-
-# print(p)
-p.view()
+    # print(p)
+    p.view()

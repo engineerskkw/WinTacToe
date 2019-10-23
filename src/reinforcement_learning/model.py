@@ -54,22 +54,22 @@ class Model:
     def view(self):
         return self._get_graph().view()
 
+if __name__ == '__main__':
+    # Model test
+    m = Model()
 
-# Model test
-m = Model()
+    s1 = State([[-1, 0], [-1, -1]])
+    a1 = Action([1, 0])
+    s2 = State([[-1, 0], [0, -1]])
+    m[s1, a1] = s2
 
-s1 = State([[-1, 0], [-1, -1]])
-a1 = Action([1, 0])
-s2 = State([[-1, 0], [0, -1]])
-m[s1, a1] = s2
+    a2 = Action([0, 0])
+    s3 = State([[0, 0], [0, -1]])
+    m[s2, a2] = s3
 
-a2 = Action([0, 0])
-s3 = State([[0, 0], [0, -1]])
-m[s2, a2] = s3
+    a3 = Action([1, 1])
+    s4 = State([[-1, 0], [0, 0]])
+    m[s2, a3] = s4
 
-a3 = Action([1, 1])
-s4 = State([[-1, 0], [0, 0]])
-m[s2, a3] = s4
-
-print(m)
-m.view()
+    print(m)
+    m.view()

@@ -68,33 +68,34 @@ class Episode(list):
     def view(self):
         return self._get_graph().view()
 
-# Episode test
+if __name__ == '__main__':
+    # Episode test
 
-e = Episode()
+    e = Episode()
 
-s1 = State([[-1, 0], [-1, -1]])
-a1 = Action([1, 0])
-e.append((s1, a1))
-r1 = -3
-e.append(r1)
+    s1 = State([[-1, 0], [-1, -1]])
+    a1 = Action([1, 0])
+    e.append((s1, a1))
+    r1 = -3
+    e.append(r1)
 
-s2 = State([[-1, 0], [0, -1]])
-a2 = Action([0, 0])
-e.append((s2, a2))
-r2 = 4
-e.append(r2)
+    s2 = State([[-1, 0], [0, -1]])
+    a2 = Action([0, 0])
+    e.append((s2, a2))
+    r2 = 4
+    e.append(r2)
 
-s3 = State([[0, 0], [0, -1]])
-a3 = Action([1, 1])
-e.append((s3, a3))
-r3 = -8
-e.append(r2)
+    s3 = State([[0, 0], [0, -1]])
+    a3 = Action([1, 1])
+    e.append((s3, a3))
+    r3 = -8
+    e.append(r2)
 
-s4 = State([[-1, 0], [0, 0]])
-a4 = Action([0, 0])
-e.append((s4, a4))
-r4 = 10
-e.append(r4)
+    s4 = State([[-1, 0], [0, 0]])
+    a4 = Action([0, 0])
+    e.append((s4, a4))
+    r4 = 10
+    e.append(r4)
 
-print(e)
-e.view()
+    print(e)
+    e.view()
