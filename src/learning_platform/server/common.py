@@ -2,7 +2,6 @@ from thespian.actors import *
 import os, sys
 sys.path.append(os.path.join(os.path.dirname(__file__), "../../components/games/tic_tac_toe"))
 from engine.tic_tac_toe_engine_utils import *
-from engine.tic_tac_toe_engine import TicTacToeEngine
 import datetime
 
 

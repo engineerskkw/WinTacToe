@@ -1,5 +1,5 @@
 from pygame.mixer import Sound
-from src.common_helper import SoundPlayer, Components
+from src.common_helper import SoundPlayer
 from pygame.rect import Rect
 import pygame
 
@@ -9,49 +9,50 @@ symbols = {
     2: 'A',
 }
 
-players_sounds = (
-    Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
-    Sound("resources/sounds/tic_tac_toe/move_sound_2.wav"),
-    Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
-)
+players_sounds = {
+    -1: pygame.mixer.init(buffer=256),  # TODO fix that
+    0: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
+    1: Sound("resources/sounds/tic_tac_toe/move_sound_2.wav"),
+    2: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
+}
 
 
 class TicTacToeScene:
-    def __init__(self, env):
-        self._env = env
-        self._background_color = (0, 0, 0)  # (200, 200, 200)
-        self._finished = False
+    def __init__(self, component, screen, board_size):
+        self._component = component
+        self._screen = screen
+        self._board_size = board_size
+
+        self._background_color = (0, 0, 0)
+        self._game_over_displayed = False
         self._winner = None
 
         self._background_displayed = False
 
-        board = self._env.env.board
-        self.board_size = board.size
-
-        self.square_size = 720 // self.board_size
+        self._square_size = 720 // self._board_size
         self.buttons = []
-        for row in range(self.board_size):
+        for row in range(self._board_size):
             self.buttons.append([])
-            for column in range(self.board_size):
-                self.buttons[row].append(TicTacToeButton(self._env,
-                                                         (280 + column * self.square_size, row * self.square_size),
-                                                         self.square_size,
+            for column in range(self._board_size):
+                self.buttons[row].append(TicTacToeButton(self._component,
+                                                         (280 + column * self._square_size, row * self._square_size),
+                                                         self._square_size,
                                                          (row, column)))
         self.restart_button = RectangularTextButton("Restart",
-                                                    lambda: self._env.reset(),
+                                                    lambda: self._component.restart(),
                                                     (1040, 20),
                                                     (200, 50))
 
         self.main_menu_button = RectangularTextButton("MainMenu",
-                                                      lambda: self._env.app.switch_component(Components.MAIN_MENU),
+                                                      lambda: self._component.back_to_menu(),
                                                       (1040, 90),
                                                       (200, 50))
 
-    def render(self, screen):
-        if not self._finished and self._env.current_winnings:
+    def render(self):
+        if not self._game_over_displayed and self._component.winnings:
             buttons = sum(self.buttons, [])
             [button.set_disabled() for button in buttons]
-            for winning in self._env.current_winnings:
+            for winning in self._component.winnings:
                 xs = list(range(winning.starting_point[0], winning.ending_point[0] + 1)) \
                     if winning.starting_point[0] < winning.ending_point[0] \
                     else list(range(winning.starting_point[0], winning.ending_point[0] - 1, -1))
@@ -61,37 +62,36 @@ class TicTacToeScene:
                 xs = xs * len(ys) if len(xs) == 1 else xs
                 ys = ys * len(xs) if len(ys) == 1 else ys
                 [self.buttons[i][j].set_winning() for i, j in zip(xs, ys)]
-            self._winner = symbols[self._env.current_winnings[0].mark]
-            self._finished = True
+            font = pygame.font.Font(None, 50)
+            self._screen.blit(font.render("The winner is: " + self._winner, True, (100, 100, 100)), (5, 5))
+            self._winner = symbols[self._component.winnings[0].mark]
+            self._game_over_displayed = True
             SoundPlayer("resources/sounds/tic_tac_toe/victory.wav", True).start()
 
-        self._display_background(screen)
+        self._display_background(self._screen)
 
-        for row in range(self.board_size):
-            for column in range(self.board_size):
+        for row in range(self._board_size):
+            for column in range(self._board_size):
                 figure = self.buttons[row][column].get_figure()
                 figures_color = self.buttons[row][column].get_color(pygame.mouse.get_pos(),
                                                                     pygame.mouse.get_pressed()[0] == 1)
-                pygame.draw.rect(screen, figures_color, figure)
-                frame_size = max(min(self.square_size // 30, 5), 1)
-                pygame.draw.rect(screen, self.buttons[row][column].get_frame_color(), figure, frame_size)
-                screen.blit(self.buttons[row][column].text, self.buttons[row][column].get_text_position())
-
-        if self._finished:
-            font = pygame.font.Font(None, 50)
-            screen.blit(font.render("The winner is: " + self._winner, True, (100, 100, 100)), (5, 5))
+                pygame.draw.rect(self._screen, figures_color, figure)
+                frame_size = max(min(self._square_size // 30, 5), 1)
+                pygame.draw.rect(self._screen, self.buttons[row][column].get_frame_color(), figure, frame_size)
+                self._screen.blit(self.buttons[row][column].text, self.buttons[row][column].get_text_position())
 
         restart_button_figure = self.restart_button.get_figure()
         restart_button_color = self.restart_button.get_color(pygame.mouse.get_pos(), pygame.mouse.get_pressed()[0] == 1)
-        pygame.draw.rect(screen, restart_button_color, restart_button_figure)
-        pygame.draw.rect(screen, self.restart_button.get_frame_color(), restart_button_figure, 3)
-        screen.blit(self.restart_button.text, self.restart_button.get_text_position())
+        pygame.draw.rect(self._screen, restart_button_color, restart_button_figure)
+        pygame.draw.rect(self._screen, self.restart_button.get_frame_color(), restart_button_figure, 3)
+        self._screen.blit(self.restart_button.text, self.restart_button.get_text_position())
 
         main_menu_button_figure = self.main_menu_button.get_figure()
-        main_menu_button_color = self.main_menu_button.get_color(pygame.mouse.get_pos(), pygame.mouse.get_pressed()[0] == 1)
-        pygame.draw.rect(screen, main_menu_button_color, main_menu_button_figure)
-        pygame.draw.rect(screen, self.main_menu_button.get_frame_color(), main_menu_button_figure, 3)
-        screen.blit(self.main_menu_button.text, self.main_menu_button.get_text_position())
+        main_menu_button_color = self.main_menu_button.get_color(pygame.mouse.get_pos(),
+                                                                 pygame.mouse.get_pressed()[0] == 1)
+        pygame.draw.rect(self._screen, main_menu_button_color, main_menu_button_figure)
+        pygame.draw.rect(self._screen, self.main_menu_button.get_frame_color(), main_menu_button_figure, 3)
+        self._screen.blit(self.main_menu_button.text, self.main_menu_button.get_text_position())
 
         pygame.display.flip()
 
@@ -101,6 +101,9 @@ class TicTacToeScene:
             background.fill(self._background_color)
             screen.blit(background, (0, 0))
             self._background_displayed = True
+
+    def handle_state_changed(self, new_game_state):
+        print(new_game_state)
 
 
 class RectangularButton:
@@ -147,25 +150,35 @@ class RectangularTextButton(RectangularButton):
 
 
 class TicTacToeButton(RectangularButton):
-    def __init__(self, env, position, size, game_position):
+    def __init__(self, component, position, size, game_position):
         super().__init__(position, (size, size))
         pygame.font.init()
-        self._env = env
+        self._component = component
         self._game_position = game_position
         self._is_disabled = False
         self._is_winning = False
-        self._disabled_color = (0, 0, 0)
+        self._disabled_color = (0, 10, 0)
         self._winning_color = (100, 100, 100)
         self._mark_color = (255, 255, 255)
-
+        self.mark = None
         self.set_text("")
 
     def on_pressed(self):
         if self._is_disabled:
+            # TODO mozna zrobic dzwiek zlego zagrania
             return
-        _, _, _, _, player = self._env.step(self._game_position, None)
-        players_sounds[player.mark].play()
-        self.set_text(symbols[player.mark])
+        players_sounds[0].play()
+        self._component.step(self._game_position)
+        self.set_text(symbols[0])
+        self.mark = 0
+        self.set_disabled()
+
+    def marked_by_enemy(self):
+        if self._is_disabled:
+            return
+        players_sounds[1].play()
+        self.set_text(symbols[1])
+        self.mark = 1
         self.set_disabled()
 
     def set_text(self, text):
