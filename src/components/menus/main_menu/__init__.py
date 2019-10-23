@@ -1,0 +1,1 @@
+from .main_menu_component import MainMenuComponent
