@@ -17,8 +17,6 @@ class Application:
         self._size = 1280, 720
         self._block_events = False
 
-        # self._events_to_post = []
-
     def _launch(self):
         pygame.mixer.init(buffer=256)
         pygame.init()
@@ -64,14 +62,5 @@ class Application:
                 self._handle_event(event)
             self._loop()
             self._render()
-            # self._post_events()
 
         self._cleanup()
-
-    # def add_event_to_post(self, event):
-    #     self._events_to_post.append(event)
-    #
-    # def _post_events(self):
-    #     for event in self._events_to_post:
-    #         pygame.event.post(event)
-    #     self._events_to_post = []
