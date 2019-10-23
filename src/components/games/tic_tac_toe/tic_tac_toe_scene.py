@@ -9,13 +9,6 @@ symbols = {
     2: 'A',
 }
 
-players_sounds = {
-    -1: pygame.mixer.init(buffer=256),  # TODO fix that
-    0: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
-    1: Sound("resources/sounds/tic_tac_toe/move_sound_2.wav"),
-    2: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
-}
-
 
 class TicTacToeScene:
     def __init__(self, component, screen, board_size):
@@ -140,6 +133,7 @@ class RectangularTextButton(RectangularButton):
         pygame.font.init()
         font = pygame.font.Font(None, 50)
         self.text = font.render(text, True, (255, 255, 255))
+        self.click_sound = Sound("resources/sounds/tic_tac_toe/move_sound_1.wav")
 
     def get_text_position(self):
         x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
@@ -147,6 +141,7 @@ class RectangularTextButton(RectangularButton):
         return x, y
 
     def on_pressed(self):
+        self.click_sound.play()
         self._action()
 
 
@@ -164,11 +159,17 @@ class TicTacToeButton(RectangularButton):
         self.mark = None
         self.set_text("")
 
+        self.players_sounds = {
+            0: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
+            1: Sound("resources/sounds/tic_tac_toe/move_sound_2.wav"),
+            2: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
+        }
+
     def on_pressed(self):
         if self._is_disabled:
             # TODO mozna zrobic dzwiek zlego zagrania
             return
-        players_sounds[0].play()
+        self.players_sounds[0].play()
         self._component.step(self._game_position)
         self.set_text(symbols[0])
         self.mark = 0
@@ -177,7 +178,7 @@ class TicTacToeButton(RectangularButton):
     def marked_by_enemy(self):
         if self._is_disabled:
             return
-        players_sounds[1].play()
+        self.players_sounds[1].play()
         self.set_text(symbols[1])
         self.mark = 1
         self.set_disabled()
