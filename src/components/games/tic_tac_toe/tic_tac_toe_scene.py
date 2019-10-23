@@ -103,6 +103,7 @@ class TicTacToeScene:
             self._background_displayed = True
 
     def handle_state_changed(self, new_game_state):
+        # TODO przeiteruj sie po wszystkich polach i odpowiednich batonach, jesli mark sie nie zgadza z tym co jest na new_game_state to wywolaj marked_by_enemy na batonie
         print(new_game_state)
 
 
