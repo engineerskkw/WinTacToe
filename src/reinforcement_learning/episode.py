@@ -9,6 +9,8 @@ class Episode(list):
     def __init__(self, the_list=[]):
         super().__init__(the_list)
 
+    # TODO better structure, getters, easy access to chosen objects (states, actions, rewards)
+
     def __str__(self):
         representation = ''
         for element in self:
