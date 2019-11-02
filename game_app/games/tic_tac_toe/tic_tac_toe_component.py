@@ -7,6 +7,7 @@ sys.path.append(os.path.join(os.path.dirname(__file__), PROJECT_ROOT_PATH))
 from thespian.actors import *
 from enum import Enum
 from pygame.locals import MOUSEBUTTONUP
+import subprocess
 
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
@@ -95,7 +96,9 @@ class TicTacToeComponent(AbstractComponent):
         self._marks_required = 3
         self._mark = 1
 
-        os.system(f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}")
+        call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
+        cwd = os.path.join("..", "training_platform", "server")
+        subprocess.call(call_string, shell=True, cwd=cwd)
         # TODO zespawnuj tutaj serwer WAZNE musisz zapamietac jego adres
         # TODO tell do aktora jaki jest adres na ktory ma wysylac wiadomosci
 
