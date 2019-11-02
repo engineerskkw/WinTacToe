@@ -14,7 +14,8 @@ import subprocess
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
-from game_app.application import pygame
+# from game_app.application import pygame
+import pygame
 from training_platform.server.common import *
 
 class TurnState(Enum):
@@ -38,14 +39,14 @@ class InitTTTClientActorMsg:
     def __init__(self, match_maker_addr,
                        game_manager_addr,
                        logger_addr):
-    self.match_maker_addr = match_maker_addr
-    self.game_manager_addr = game_manager_addr
-    self.logger_addr = logger_addr
+        self.match_maker_addr = match_maker_addr
+        self.game_manager_addr = game_manager_addr
+        self.logger_addr = logger_addr
 
 # TODO: move player making to the server or remove it completely
 class JoinServerMsg:
     def __init__(self, player):
-    self.player = player
+        self.player = player
 
 
 class GetEventsToPostMsg:
@@ -101,14 +102,17 @@ class TicTacToeClientActor(Actor):
             self._events_to_post.append(game_over_event)
 
         elif isinstance(msg, StateUpdateMsg):
+            pass
             # TODO: implement GUI-friendly state update
         # TODO: implement errors handling in GUI-friendly way
         elif isinstance(msg, ServiceNotLaunchedMsg):
+            pass
             # log("Attempt of using not launched service")
             # _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
             # asys.tell(match_maker_addr, JoinMsg(self.player))
 
         elif isinstance(msg, InvalidPlayerMsg):
+            pass
             # log("Invalid player received during joining client handling")
             # print("Invalid player received during joining client handling, try one of below:")
 
@@ -124,6 +128,7 @@ class TicTacToeClientActor(Actor):
             # asys.tell(match_maker_addr, JoinMsg(player))
 
         elif isinstance(msg, JoinAcknowledgementsMsg):
+            pass
             # log("Succesfully joined server!")
             # print("Succesfully joined server!")
             # print("Waiting for your turn...")
