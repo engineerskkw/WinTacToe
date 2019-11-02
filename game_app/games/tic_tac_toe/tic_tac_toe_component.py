@@ -17,6 +17,9 @@ from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 # from game_app.application import pygame
 import pygame
 from training_platform.server.common import *
+from training_platform.server.service import GameManager, MatchMaker
+from training_platform.server.logger import Logger
+
 
 class TurnState(Enum):
     NOT_YOUR_TURN = 0
@@ -86,7 +89,7 @@ class TicTacToeClientActor(Actor):
         elif isinstance(msg, RestartEnvMsg):
             self.send(self.game_manager_addr, msg)
 
-        elif isinstance(msg, EndMsg):
+        elif isinstance(msg, ShutdownMsg):
             call_string = f"python stop_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
             cwd = os.path.join("..", "training_platform", "server")
             subprocess.call(call_string, shell=True, cwd=cwd)
@@ -150,9 +153,9 @@ class TicTacToeComponent(AbstractComponent):
         self.asys = ActorSystem('multiprocTCPBase')
         # TicTacToeClientActor initialization
         self._client_actor_address = self.asys.createActor(TicTacToeClientActor)
-        match_maker_addr = asys.createActor(MatchMaker, globalName="MatchMaker")
-        game_manager_addr = asys.createActor(GameManager, globalName="GameManager")
-        logger_addr = asys.createActor(Logger, globalName="Logger")
+        match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
+        game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
+        logger_addr = self.asys.createActor(Logger, globalName="Logger")
         msg = InitTTTClientActorMsg(match_maker_addr, game_manager_addr, logger_addr)
         self.asys.tell(self._client_actor_address, msg)
         # TODO: move player making to the server or remove it completely

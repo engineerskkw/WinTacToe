@@ -8,7 +8,6 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from training_platform.server.common import *
 from training_platform.server.logger import Logger
-from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeClientActor, TicTacToeComponent
 import subprocess
 
 class GameManager(Actor):
@@ -46,8 +45,8 @@ class GameManager(Actor):
             # State update for GUI clients
             # TODO: make it better
             for client in self.players_clients.values():
-                if isinstance(client, TicTacToeClientActor):
-                    self.send(gui_client, StateUpdateMsg(self.environment.current_board))
+                # if isinstance(client, TicTacToeClientActor):
+                self.send(gui_client, StateUpdateMsg(self.environment.current_board))
 
             if self.environment.ended:
                 for player, client in self.players_clients.items():
