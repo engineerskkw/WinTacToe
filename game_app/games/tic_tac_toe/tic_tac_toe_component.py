@@ -85,8 +85,8 @@ class TicTacToeClientActor(Actor):
             self.send(self.game_manager_addr, MakeMoveMsg(msg.position))
 
         elif isinstance(msg, RestartEnvMsg):
-            print("restart button pressed")
-            # TODO wyslij msg ze chcesz restart
+            self.send(self.game_manager_addr, msg)
+            
         elif isinstance(msg, EndMsg):
             print("back to menu button pressed")
             # TODO wyslij msg ze chcesz pozamykac wszystko

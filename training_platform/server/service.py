@@ -58,6 +58,9 @@ class GameManager(Actor):
 
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
+        elif isinstance(msg, RestartEnvMsg):
+            self.environment.reset()
+            
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, "GameManager"))
 
