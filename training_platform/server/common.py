@@ -80,6 +80,10 @@ class GameOverMsg:
 
 # GUI <-> GameManager communication
 
+class StateUpdateMsg:
+    def __init__(self, state):
+        self.state = state
+
 class RestartEnvMsg:
     pass
 

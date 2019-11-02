@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from training_platform.server.common import *
 from training_platform.server.logger import Logger
+from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeClientActor
 import subprocess
 
 class GameManager(Actor):
@@ -42,6 +43,11 @@ class GameManager(Actor):
         elif isinstance(msg, MakeMoveMsg):
             x, y = msg.move
             self.environment.make_move(x, y)  # It implicitly makes next player current player
+            # State update for GUI clients
+            # TODO: make it better
+            for client in self.players_clients.values():
+                if isinstance(client, TicTacToeClientActor)
+                self.send(gui_client, StateUpdateMsg(self.environment.current_board))
 
             if self.environment.ended:
                 for player, client in self.players_clients.items():

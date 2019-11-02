@@ -95,12 +95,13 @@ class TicTacToeClientActor(Actor):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
             turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.NEW_YOUR_TURN}
             self._events_to_post += [state_changed_event, turn_changed_event]
+
         elif isinstance(msg, GameOverMsg):
             game_over_event = {"type": UserEventTypes.GAME_OVER.value, "new_winnings": msg.state}
             self._events_to_post.append(game_over_event)
 
-        # TODO nie mialo byc przypadkiem kurde state changed message dziejacego sie czesciej niz co ture?
-
+        elif isinstance(msg, StateUpdateMsg):
+            # TODO: implement GUI-friendly state update
         # TODO: implement errors handling in GUI-friendly way
         elif isinstance(msg, ServiceNotLaunchedMsg):
             # log("Attempt of using not launched service")
