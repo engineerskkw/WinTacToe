@@ -78,6 +78,11 @@ class GameOverMsg:
     def __init__(self, state):
         self.state = state
 
+# GUI <-> GameManager communication
+
+class RestartEnvMsg:
+    pass
+
 
 # Logger & Monitor
 class InitLoggerMsg:

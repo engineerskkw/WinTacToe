@@ -52,10 +52,6 @@ class GetEventsToPostMsg:
     pass
 
 
-class RestartMsg:
-    pass
-
-
 class EndMsg:
     pass
 
@@ -88,7 +84,7 @@ class TicTacToeClientActor(Actor):
             print("wanna make a step", msg.position)
             self.send(self.game_manager_addr, MakeMoveMsg(msg.position))
 
-        elif isinstance(msg, RestartMsg):
+        elif isinstance(msg, RestartEnvMsg):
             print("restart button pressed")
             # TODO wyslij msg ze chcesz restart
         elif isinstance(msg, EndMsg):
@@ -145,7 +141,6 @@ class TicTacToeComponent(AbstractComponent):
         call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
         cwd = os.path.join("..", "training_platform", "server")
         subprocess.call(call_string, shell=True, cwd=cwd)
-        # TODO tell do aktora jaki jest adres na ktory ma wysylac wiadomosci
 
         self.asys = ActorSystem('multiprocTCPBase')
         # TicTacToeClientActor initialization
@@ -164,10 +159,6 @@ class TicTacToeComponent(AbstractComponent):
         self._scene = TicTacToeScene(self, app.screen, self._board_size)
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
-
-        # TODO usunac ponizej, to tylko symulacja otrzymania wiadomosci od serwera
-        self.asys.tell(self._client_actor_address, YourTurnMsg("new_state_for_real", []))
-        self.asys.tell(self._client_actor_address, GameOverMsg("game over state is sad"))
 
         MusicSwitcher("resources/sounds/common/SneakyAdventure.mp3").start()
 
