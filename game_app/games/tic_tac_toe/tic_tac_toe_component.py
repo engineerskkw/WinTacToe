@@ -99,21 +99,20 @@ class TicTacToeComponent(AbstractComponent):
         call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
         cwd = os.path.join("..", "training_platform", "server")
         subprocess.call(call_string, shell=True, cwd=cwd)
-        # TODO zespawnuj tutaj serwer WAZNE musisz zapamietac jego adres
         # TODO tell do aktora jaki jest adres na ktory ma wysylac wiadomosci
 
-
         #TODO przenies actor system do zmiennej
-        self._client_actor_address = ActorSystem('multiprocTCPBase').createActor(TicTacToeClientActor)
-        ActorSystem('multiprocTCPBase').tell(self._client_actor_address, JoinServerMsg())
+        self.asys = ActorSystem('multiprocTCPBase')
+        self._client_actor_address = self.asys.createActor(TicTacToeClientActor)
+        self.asys.tell(self._client_actor_address, JoinServerMsg())
 
         self._scene = TicTacToeScene(self, app.screen, self._board_size)
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
 
         # TODO usunac ponizej, to tylko symulacja otrzymania wiadomosci od serwera
-        ActorSystem('multiprocTCPBase').tell(self._client_actor_address, YourTurnMsg("new_state_for_real", []))
-        ActorSystem('multiprocTCPBase').tell(self._client_actor_address, GameOverMsg("game over state is sad"))
+        self.asys.tell(self._client_actor_address, YourTurnMsg("new_state_for_real", []))
+        self.asys.tell(self._client_actor_address, GameOverMsg("game over state is sad"))
 
         MusicSwitcher("resources/sounds/common/SneakyAdventure.mp3").start()
 
@@ -139,18 +138,18 @@ class TicTacToeComponent(AbstractComponent):
                 button.on_pressed()
 
     def loop(self):
-        events_to_post = ActorSystem('multiprocTCPBase').ask(self._client_actor_address, GetEventsToPostMsg(), 1)
+        events_to_post = self.asys.ask(self._client_actor_address, GetEventsToPostMsg(), 1)
         for event in events_to_post:
             event_type = event['type']
             del event['type']
             pygame.event.post(pygame.event.Event(event_type, event))
 
     def step(self, position):
-        ActorSystem('multiprocTCPBase').tell(self._client_actor_address, MoveMsg(position))
+        self.asys.tell(self._client_actor_address, MoveMsg(position))
 
     def restart(self):
-        ActorSystem('multiprocTCPBase').tell(self._client_actor_address, RestartMsg())
+        self.asys.tell(self._client_actor_address, RestartMsg())
 
     def back_to_menu(self):
-        ActorSystem('multiprocTCPBase').tell(self._client_actor_address, EndMsg())
+        self.asys.tell(self._client_actor_address, EndMsg())
         self._app.switch_component(Components.MAIN_MENU)
