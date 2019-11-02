@@ -60,6 +60,7 @@ class TicTacToeClientActor(Actor):
         self.match_maker_addr = None
         self.game_manager_addr = None
         self.logger_addr = None
+        self.player = None # TODO: remove it after implementation of better player handling
 
     def receiveMessage(self, msg, sender):
         # Message exchanged between GUI and client at every tic of application
@@ -74,7 +75,8 @@ class TicTacToeClientActor(Actor):
 
         # Messages exchanged between GUI and client at special events
         elif isinstance(msg, JoinServerMsg):
-            self.send(self.match_maker_addr, JoinMsg(msg.player))
+            self.player = msg.player
+            self.send(self.match_maker_addr, JoinMsg(self.player))
 
         elif isinstance(msg, MoveMsg):
             print("wanna make a step", msg.position)
@@ -103,7 +105,7 @@ class TicTacToeClientActor(Actor):
         elif isinstance(msg, ServiceNotLaunchedMsg):
             # log("Attempt of using not launched service")
             # _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
-            # asys.tell(match_maker_addr, JoinMsg(player))
+            # asys.tell(match_maker_addr, JoinMsg(self.player))
 
         elif isinstance(msg, InvalidPlayerMsg):
             # log("Invalid player received during joining client handling")
@@ -117,7 +119,7 @@ class TicTacToeClientActor(Actor):
             # n = int(result[0])
             # player = msg.available_or_replaceable_players[n]
 
-            # # Server rejoining
+            # Server rejoining
             # asys.tell(match_maker_addr, JoinMsg(player))
 
         elif isinstance(msg, JoinAcknowledgementsMsg):
