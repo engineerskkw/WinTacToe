@@ -34,8 +34,18 @@ class MoveMsg:
         self.position = position
 
 
+class InitTTTClientActorMsg:
+    def __init__(self, match_maker_addr,
+                       game_manager_addr,
+                       logger_addr):
+    self.match_maker_addr = match_maker_addr
+    self.game_manager_addr = game_manager_addr
+    self.logger_addr = logger_addr
+
+# TODO: move player making to the server or remove it completely
 class JoinServerMsg:
-    pass
+    def __init__(self, player):
+    self.player = player
 
 
 class GetEventsToPostMsg:
@@ -55,19 +65,28 @@ class TicTacToeClientActor(Actor):
         super().__init__()
         self.turn = TurnState.NOT_YOUR_TURN
         self._events_to_post = []
+        self.match_maker_addr = None
+        self.game_manager_addr = None
+        self.logger_addr = None
 
     def receiveMessage(self, msg, sender):
         # Message exchanged between GUI and client at every tic of application
         if isinstance(msg, GetEventsToPostMsg):
             self.send(sender, self._events_to_post.copy())
             self._events_to_post = []
+        # Message exchanged between GUI and client at TicTacToeClientActor creation
+        elif isinstance(msg, InitTTTClientActorMsg):
+            self.match_maker_addr = msg.match_maker_addr
+            self.game_manager_addr = msg.game_manager_addr
+            self.logger_addr = msg.logger_addr
 
         # Messages exchanged between GUI and client at special events
         elif isinstance(msg, JoinServerMsg):
-            print("time to join")
-            # TODO wyslij msg ze chcesz dolaczyc
+            self.send(match_maker_addr, JoinMsg(msg.player))
+
         elif isinstance(msg, MoveMsg):
             print("wanna make a step", msg.position)
+            
             # TODO wyslij msg z ruchem
         elif isinstance(msg, RestartMsg):
             print("restart button pressed")
@@ -103,10 +122,19 @@ class TicTacToeComponent(AbstractComponent):
         subprocess.call(call_string, shell=True, cwd=cwd)
         # TODO tell do aktora jaki jest adres na ktory ma wysylac wiadomosci
 
-        #TODO przenies actor system do zmiennej
         self.asys = ActorSystem('multiprocTCPBase')
+        # TicTacToeClientActor initialization
         self._client_actor_address = self.asys.createActor(TicTacToeClientActor)
-        self.asys.tell(self._client_actor_address, JoinServerMsg())
+        match_maker_addr = asys.createActor(MatchMaker, globalName="MatchMaker")
+        game_manager_addr = asys.createActor(GameManager, globalName="GameManager")
+        logger_addr = asys.createActor(Logger, globalName="Logger")
+        msg = InitTTTClientActorMsg(match_maker_addr, game_manager_addr, logger_addr)
+        self.asys.tell(self._client_actor_address, msg)
+        # TODO: move player making to the server or remove it completely
+        player_name = "Player 0"
+        player_mark = 0
+        player = Player(player_name, player_mark)
+        self.asys.tell(self._client_actor_address, JoinServerMsg(player))
 
         self._scene = TicTacToeScene(self, app.screen, self._board_size)
         self.turn = TurnState.YOUR_TURN
