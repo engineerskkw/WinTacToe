@@ -82,12 +82,12 @@ class TicTacToeClientActor(Actor):
 
         # Messages exchanged between GUI and client at special events
         elif isinstance(msg, JoinServerMsg):
-            self.send(match_maker_addr, JoinMsg(msg.player))
+            self.send(self.match_maker_addr, JoinMsg(msg.player))
 
         elif isinstance(msg, MoveMsg):
             print("wanna make a step", msg.position)
-            
-            # TODO wyslij msg z ruchem
+            self.send(self.game_manager_addr, MakeMoveMsg(msg.position))
+
         elif isinstance(msg, RestartMsg):
             print("restart button pressed")
             # TODO wyslij msg ze chcesz restart
@@ -106,6 +106,31 @@ class TicTacToeClientActor(Actor):
 
         # TODO nie mialo byc przypadkiem kurde state changed message dziejacego sie czesciej niz co ture?
 
+        # TODO: implement errors handling in GUI-friendly way
+        elif isinstance(msg, ServiceNotLaunchedMsg):
+            # log("Attempt of using not launched service")
+            # _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
+            # asys.tell(match_maker_addr, JoinMsg(player))
+
+        elif isinstance(msg, InvalidPlayerMsg):
+            # log("Invalid player received during joining client handling")
+            # print("Invalid player received during joining client handling, try one of below:")
+
+            # for i in range(len(msg.available_or_replaceable_players)):
+                # print(f"{i}: {msg.available_or_replaceable_players[i]}")
+
+            # input_string = input("\nType number of the chosen player: ")
+            # result = parse("{}", input_string)
+            # n = int(result[0])
+            # player = msg.available_or_replaceable_players[n]
+
+            # # Server rejoining
+            # asys.tell(match_maker_addr, JoinMsg(player))
+
+        elif isinstance(msg, JoinAcknowledgementsMsg):
+            # log("Succesfully joined server!")
+            # print("Succesfully joined server!")
+            # print("Waiting for your turn...")
 
 class TicTacToeComponent(AbstractComponent):
     def __init__(self, app):
