@@ -83,6 +83,9 @@ class GameOverMsg:
 class RestartEnvMsg:
     pass
 
+class ShutdownMsg:
+    pass
+
 
 # Logger & Monitor
 class InitLoggerMsg:

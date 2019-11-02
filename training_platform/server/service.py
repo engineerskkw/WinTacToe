@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from training_platform.server.common import *
 from training_platform.server.logger import Logger
+import subprocess
 
 class GameManager(Actor):
     def __init__(self):
@@ -60,7 +61,12 @@ class GameManager(Actor):
 
         elif isinstance(msg, RestartEnvMsg):
             self.environment.reset()
-            
+
+        elif isinstance(msg, ShutdownMsg):
+            call_string = f"python stop_server.py"
+            cwd = os.path.join("..", "training_platform", "server")
+            subprocess.call(call_string, shell=True, cwd=cwd)
+
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, "GameManager"))
 

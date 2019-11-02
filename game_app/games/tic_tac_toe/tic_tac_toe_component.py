@@ -52,10 +52,6 @@ class GetEventsToPostMsg:
     pass
 
 
-class EndMsg:
-    pass
-
-
 class TicTacToeClientActor(Actor):
     def __init__(self):
         super().__init__()
@@ -86,10 +82,11 @@ class TicTacToeClientActor(Actor):
 
         elif isinstance(msg, RestartEnvMsg):
             self.send(self.game_manager_addr, msg)
-            
+
         elif isinstance(msg, EndMsg):
-            print("back to menu button pressed")
-            # TODO wyslij msg ze chcesz pozamykac wszystko
+            call_string = f"python stop_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
+            cwd = os.path.join("..", "training_platform", "server")
+            subprocess.call(call_string, shell=True, cwd=cwd)
 
         # Messages exchanged between server and client
         elif isinstance(msg, YourTurnMsg):
@@ -194,8 +191,8 @@ class TicTacToeComponent(AbstractComponent):
         self.asys.tell(self._client_actor_address, MoveMsg(position))
 
     def restart(self):
-        self.asys.tell(self._client_actor_address, RestartMsg())
+        self.asys.tell(self._client_actor_address, RestartEnvMsg())
 
     def back_to_menu(self):
-        self.asys.tell(self._client_actor_address, EndMsg())
+        self.asys.tell(self._client_actor_address, ShutdownMsg())
         self._app.switch_component(Components.MAIN_MENU)
