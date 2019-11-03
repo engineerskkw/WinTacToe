@@ -188,7 +188,7 @@ class TicTacToeEngine:
         list[Winnings]
             A list of current winnings.
         """
-        return self._winnings
+        return list(self._winnings)
 
     @property
     def allowed_actions(self):
