@@ -63,6 +63,8 @@ class GameManager(Actor):
 
         elif isinstance(msg, RestartEnvMsg):
             self.environment.reset()
+            for player in self.players_clients.keys():
+                self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
             current_client = self.players_clients[self.environment.current_player]
