@@ -8,7 +8,6 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import random
 import numpy as np
-from itertools import cycle
 
 from reinforcement_learning.agents.abstract_agent import Agent
 from reinforcement_learning.action import Action
@@ -17,7 +16,6 @@ from reinforcement_learning.episode import Episode
 from reinforcement_learning.epsilon_greedy_policy import EpsilonGreedyPolicy
 from reinforcement_learning.mdp import MDP
 from reinforcement_learning.model import Model
-from reinforcement_learning.policy import Policy
 from reinforcement_learning.returns import Returns
 from reinforcement_learning.state import State
 from reinforcement_learning.stochastic_model import StochasticModel
@@ -67,11 +65,9 @@ class BasicAgent(Agent):
     def exit(self, termination_state):
         termination_state = State(termination_state)
         self.last_episode.append((termination_state, Action([]))) # TODO: do something elese than empty action
-        self.last_episode.append(0) # TODO: do something else than just zero reward appending
 
         G = self.pass_episode()
         self.Gs.append(G)
-        print(f"self Gs: {self.Gs}")
 
     # RL Monte Carlo algorithm
     def pass_episode(self):
@@ -99,9 +95,6 @@ class BasicAgent(Agent):
     def get_mdp(self):
         self.last_MDP = MDP(self.model, self.action_value, self.policy)
         return self.last_MDP
-
-    def reset_policy(self):
-        self.policy = Policy(self.env)
 
     def reset_action_value(self):
         self.action_value = ActionValue()
