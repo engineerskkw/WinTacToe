@@ -11,7 +11,6 @@ from training_platform.server.service import GameManager
 
 
 if __name__ == '__main__':
-    print(13371337)
     # Commandline parameters parsing
     argc = len(sys.argv)
     if not argc == 4:
