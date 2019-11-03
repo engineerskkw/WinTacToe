@@ -8,13 +8,13 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import signal
 from parse import parse
+from thespian.actors import *
 
 from training_platform.server.common import *
 from training_platform.clients.basic_player_clients.terminal_human_player_agent import HumanPlayerAgent
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
-
-
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player
 
 def signal_handler(sig, frame):
     asys.tell(match_maker_addr, DetachMsg())

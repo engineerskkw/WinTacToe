@@ -88,3 +88,6 @@ if __name__ == '__main__':
             print("Succesfully joined server!")
             print("Waiting for your turn...")
 
+        elif isinstance(msg, StateUpdateMsg):
+            # TODO: StateUpdateMsg handling by clients which don't need it
+            pass
