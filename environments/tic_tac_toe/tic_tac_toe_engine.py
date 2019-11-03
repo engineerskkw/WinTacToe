@@ -9,8 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import random
 from itertools import cycle
 
-from game_app.games.tic_tac_toe.engine.gather_winnings_strategies import *
-from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine_utils import *
+from environments.tic_tac_toe.gather_winnings_strategies import *
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 
 
 class _Board:

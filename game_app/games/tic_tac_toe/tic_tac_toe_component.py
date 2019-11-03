@@ -15,7 +15,7 @@ import subprocess
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
-from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine_utils import Player
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger

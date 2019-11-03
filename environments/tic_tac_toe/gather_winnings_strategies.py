@@ -9,7 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 import numpy as np
 
-from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine_utils import *
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 
 
 

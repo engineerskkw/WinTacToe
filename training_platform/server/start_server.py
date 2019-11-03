@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from thespian.actors import *
 
-from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine import TicTacToeEngine
+from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform.server.common import *
 from training_platform.server.service import GameManager
 
