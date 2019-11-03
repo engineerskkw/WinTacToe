@@ -6,13 +6,7 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from thespian.actors import *
 import datetime
-
-from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine import TicTacToeEngine
-from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine_utils import *
-
-
 
 # start_server script <-> GameManager Actor comumnication
 
@@ -75,8 +69,9 @@ class RewardMsg:
 
 
 class GameOverMsg:
-    def __init__(self, state):
+    def __init__(self, state, winnings):
         self.state = state
+        self.winnings = winnings
 
 # GUI <-> GameManager communication
 
