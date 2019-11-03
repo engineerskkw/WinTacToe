@@ -36,8 +36,6 @@ class BasicAgent(Agent):
         self.last_MDP = None
         self.Gs = []
 
-    # TODO: Random step
-
     # Interface implementation
     def step(self, state, allowed_actions):
         # TODO: self.policy.epsilon = epsilon
@@ -63,11 +61,18 @@ class BasicAgent(Agent):
         self.last_episode.append(reward)
 
     def exit(self, termination_state):
+        # Episode ending
         termination_state = State(termination_state)
-        self.last_episode.append((termination_state, Action([]))) # TODO: do something elese than empty action
+        self.last_episode.append((termination_state, Action([]))) # TODO: maybe do something else than empty action
 
+        # Episode analysing
         G = self.pass_episode()
         self.Gs.append(G)
+
+        # Preparation for a new episode
+        self.last_episode = Episode()
+        self.last_state = None
+        self.last_action = None
 
     # RL Monte Carlo algorithm
     def pass_episode(self):

@@ -61,7 +61,6 @@ if __name__ == '__main__':
 
         elif isinstance(msg, GameOverMsg):
             agent.exit(msg.state)
-            exit()
 
         elif isinstance(msg, ServiceNotLaunchedMsg):
             log("Attempt of using not launched service")
