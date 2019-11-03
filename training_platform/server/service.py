@@ -68,6 +68,11 @@ class GameManager(Actor):
 
         elif isinstance(msg, RestartEnvMsg):
             self.environment.reset()
+            for client in self.players_clients.values():
+                self.send(client, StateUpdateMsg(self.environment.current_board))
+            current_client = self.players_clients[self.environment.current_player]
+            self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+
 
         elif isinstance(msg, ShutdownMsg):
             call_string = f"python stop_server.py"

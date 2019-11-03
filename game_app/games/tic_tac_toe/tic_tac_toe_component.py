@@ -89,9 +89,8 @@ class TicTacToeClientActor(Actor):
             self.send(self.game_manager_addr, msg)
 
         elif isinstance(msg, ShutdownMsg):
-            call_string = f"python stop_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
-            cwd = os.path.join("..", "training_platform", "server")
-            subprocess.call(call_string, shell=True, cwd=cwd)
+            ActorSystem('multiprocTCPBase').shutdown()
+            # self.send(self.game_manager_addr, msg)
 
         # Messages exchanged between server and client
         elif isinstance(msg, YourTurnMsg):
@@ -104,8 +103,10 @@ class TicTacToeClientActor(Actor):
             self._events_to_post.append(game_over_event)
 
         elif isinstance(msg, StateUpdateMsg):
-            pass
+            state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
+            self._events_to_post += [state_changed_event]
             # TODO: implement GUI-friendly state update
+
         # TODO: implement errors handling in GUI-friendly way
         elif isinstance(msg, ServiceNotLaunchedMsg):
             pass
@@ -146,8 +147,13 @@ class TicTacToeComponent(AbstractComponent):
         self._mark = 1
 
         call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
-        cwd = os.path.join("..", "training_platform", "server")
+        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
+
+        print("przed callem")
+
         subprocess.call(call_string, shell=True, cwd=cwd)
+
+        print("po callu")
 
         self.asys = ActorSystem('multiprocTCPBase')
         # TicTacToeClientActor initialization
@@ -163,6 +169,10 @@ class TicTacToeComponent(AbstractComponent):
         player = Player(player_name, player_mark)
         self.asys.tell(self._client_actor_address, JoinServerMsg(player))
 
+        call_string = "python rl_player_client.py \"Player 1\" 1"
+        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "basic_player_clients")
+        subprocess.Popen(call_string, shell=True, cwd=cwd)
+
         self._scene = TicTacToeScene(self, app.screen, self._board_size)
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
@@ -175,9 +185,10 @@ class TicTacToeComponent(AbstractComponent):
     def handle_event(self, event):
         if event.type == UserEventTypes.STATE_CHANGED.value:
             print("STATE CHANGED - gui to wie")
+            print(event.new_game_state)
             self._scene.handle_state_changed(event.new_game_state)
         elif event.type == UserEventTypes.TURN_CHANGED.value:
-            print("TURN CHANGED - gui to wie")
+            print("YOUR TURN - gui to wie")
             self.turn = event.new_turn
         elif event.type == UserEventTypes.GAME_OVER.value:
             print("GAME OVER - gui to wie")

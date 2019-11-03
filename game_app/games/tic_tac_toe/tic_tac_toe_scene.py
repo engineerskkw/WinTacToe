@@ -107,8 +107,10 @@ class TicTacToeScene:
             self._background_displayed = True
 
     def handle_state_changed(self, new_game_state):
-        # TODO przeiteruj sie po wszystkich polach i odpowiednich batonach, jesli mark sie nie zgadza z tym co jest na new_game_state to wywolaj marked_by_enemy na batonie
-        print(new_game_state)
+        for row in range(self._board_size):
+            for col in range(self._board_size):
+                if new_game_state[row, col] != self.buttons[row][col].mark:
+                    self.buttons[row][col].marked_by_enemy(new_game_state[row, col])
 
 
 class RectangularButton:
@@ -167,7 +169,7 @@ class TicTacToeButton(RectangularButton):
         self._disabled_color = (0, 10, 0)
         self._winning_color = (100, 100, 100)
         self._mark_color = (255, 255, 255)
-        self.mark = None
+        self.mark = -1
         self.set_text("")
 
         self.players_sounds = {
@@ -186,12 +188,16 @@ class TicTacToeButton(RectangularButton):
         self.mark = 0
         self.set_disabled()
 
-    def marked_by_enemy(self):
+    def marked_by_enemy(self, enemy_mark):
+        if enemy_mark == -1:
+            self._is_disabled = False
+            self.set_text("")
+            self.mark = -1
+            return
         if self._is_disabled:
             return
-        self.players_sounds[1].play()
         self.set_text(symbols[1])
-        self.mark = 1
+        self.mark = enemy_mark
         self.set_disabled()
 
     def set_text(self, text):
