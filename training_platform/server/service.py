@@ -42,12 +42,11 @@ class GameManager(Actor):
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, MakeMoveMsg):
+            self.before_first_move[self.environment.current_player] = False
             x, y = msg.move
             self.environment.make_move(x, y)  # It implicitly makes next player current player
-            # State update for GUI clients
-            # TODO: make it better
+            # State update for GUI clients TODO: make it better
             for client in self.players_clients.values():
-                # if isinstance(client, TicTacToeClientActor):
                 self.send(client, StateUpdateMsg(self.environment.current_board))
 
             if self.environment.ended:
@@ -55,15 +54,11 @@ class GameManager(Actor):
                     if not self.before_first_move[player]:
                         self.send(client, RewardMsg(self.environment.rewards[player]))
                     self.send(client, GameOverMsg(self.environment.current_board))
-                
             else:
                 current_player = self.environment.current_player
                 current_client = self.players_clients[current_player]
                 if not self.before_first_move[current_player]:
                     self.send(current_client, RewardMsg(self.environment.rewards[current_player]))
-                else:
-                    self.before_first_move[current_player] = False
-
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
