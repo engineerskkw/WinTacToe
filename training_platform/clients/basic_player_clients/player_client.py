@@ -10,7 +10,7 @@ import signal
 from parse import parse
 
 from training_platform.server.common import *
-from training_platform.clients.basic_player_client.terminal_human_player_agent import HumanPlayerAgent
+from training_platform.clients.basic_player_clients.terminal_human_player_agent import HumanPlayerAgent
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 
