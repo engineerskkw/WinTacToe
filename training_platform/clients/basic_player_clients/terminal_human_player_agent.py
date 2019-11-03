@@ -7,7 +7,6 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from parse import parse
-import numpy as np
 
 from training_platform.clients.basic_player_clients.abstract_agent import Agent
 
@@ -30,6 +29,7 @@ def pretty_print(state):
         if h < height-1:
             representation += '\n'
     print(representation)
+
 
 class HumanPlayerAgent(Agent):
     def __init__(self):
