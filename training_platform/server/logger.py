@@ -12,14 +12,11 @@ class Logger(Actor):
     def __init__(self):
         super().__init__()
         self.history = []
-        self.match_maker_addr = None
-        self.game_manager_addr = None
         self.monitor_addr = None
 
     def receiveMessage(self, msg, sender):
         if isinstance(msg, InitLoggerMsg):
-            self.match_maker_addr = self.createActor(MatchMaker, globalName="MatchMaker")
-            self.game_manager_addr = self.createActor(MatchMaker, globalName="GameManager")
+            pass
 
         elif isinstance(msg, JoinMonitorMsg):
             self.monitor_addr = sender
