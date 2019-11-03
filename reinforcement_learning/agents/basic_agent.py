@@ -6,6 +6,10 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+import random
+import numpy as np
+from itertools import cycle
+
 from reinforcement_learning.agents.abstract_agent import Agent
 from reinforcement_learning.action import Action
 from reinforcement_learning.action_value import ActionValue
@@ -17,10 +21,6 @@ from reinforcement_learning.policy import Policy
 from reinforcement_learning.returns import Returns
 from reinforcement_learning.state import State
 from reinforcement_learning.stochastic_model import StochasticModel
-
-import random
-import numpy as np
-from itertools import cycle
 
 
 class BasicAgent(Agent):

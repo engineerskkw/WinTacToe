@@ -6,10 +6,13 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from pygame.mixer import Sound
-from game_app.common_helper import SoundPlayer
-from pygame.rect import Rect
+
 import pygame
+from pygame.rect import Rect
+from pygame.mixer import Sound
+
+from game_app.common_helper import SoundPlayer
+
 
 symbols = {
     0: 'X',

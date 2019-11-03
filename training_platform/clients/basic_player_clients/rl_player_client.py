@@ -6,15 +6,14 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+import signal
+import sys
+from parse import parse
+
 from reinforcement_learning.agents.basic_agent import BasicAgent
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
-
-import signal
-import sys
-
-from parse import parse
 
 def signal_handler(sig, frame):
     asys.tell(match_maker_addr, DetachMsg())

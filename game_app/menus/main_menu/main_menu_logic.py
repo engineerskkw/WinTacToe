@@ -6,9 +6,11 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+from pygame.locals import *
+
 from game_app.common_helper import Components
 from game_app.menus.menus_scene_commons.buttons import RectangularTextButton
-from pygame.locals import *
+
 
 
 class MainMenuLogic:

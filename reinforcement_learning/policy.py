@@ -6,11 +6,11 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from reinforcement_learning.action import Action
-from reinforcement_learning.state import State
-
 import random
 from graphviz import Digraph
+
+from reinforcement_learning.action import Action
+from reinforcement_learning.state import State
 
 
 class Policy:

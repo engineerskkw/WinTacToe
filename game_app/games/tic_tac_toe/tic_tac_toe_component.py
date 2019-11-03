@@ -7,15 +7,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from thespian.actors import *
-from enum import Enum
+import pygame
 from pygame.locals import MOUSEBUTTONUP
+from enum import Enum
 import subprocess
 
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
-# from game_app.application import pygame
-import pygame
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger

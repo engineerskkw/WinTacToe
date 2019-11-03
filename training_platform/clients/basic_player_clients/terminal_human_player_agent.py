@@ -1,8 +1,16 @@
-import os, sys
-sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
-from abstract_agent import Agent
+#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+import sys, os
+REL_PROJECT_ROOT_PATH = "./../../../"
+ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
+sys.path.append(ABS_PROJECT_ROOT_PATH)
+#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
 from parse import parse
 import numpy as np
+
+from training_platform.clients.basic_player_clients.abstract_agent import Agent
+
 
 def pretty_print(state):
     representation = ''
