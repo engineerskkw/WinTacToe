@@ -57,20 +57,14 @@ class TicTacToeScene:
             buttons = sum(self.buttons, [])
             [button.set_disabled() for button in buttons]
             for winning in self._component.winnings:
-                xs = list(range(winning.starting_point[0], winning.ending_point[0] + 1)) \
-                    if winning.starting_point[0] < winning.ending_point[0] \
-                    else list(range(winning.starting_point[0], winning.ending_point[0] - 1, -1))
-                ys = list(range(winning.starting_point[1], winning.ending_point[1] + 1)) \
-                    if winning.starting_point[1] < winning.ending_point[1] \
-                    else list(range(winning.starting_point[1], winning.ending_point[1] - 1, -1))
-                xs = xs * len(ys) if len(xs) == 1 else xs
-                ys = ys * len(xs) if len(ys) == 1 else ys
-                [self.buttons[i][j].set_winning() for i, j in zip(xs, ys)]
+                [self.buttons[x][y].set_winning() for (x,y) in winning.points_included]
+
             font = pygame.font.Font(None, 50)
-            self._screen.blit(font.render("The winner is: " + self._winner, True, (100, 100, 100)), (5, 5))
             self._winner = symbols[self._component.winnings[0].mark]
+            self._screen.blit(font.render("The winner is: " + self._winner, True, (100, 100, 100)), (5, 5))
             self._game_over_displayed = True
-            SoundPlayer("resources/sounds/tic_tac_toe/victory.wav", True).start()
+            resource_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/victory.wav")
+            SoundPlayer(resource_path, True).start()
 
         self._display_background(self._screen)
 
@@ -146,7 +140,8 @@ class RectangularTextButton(RectangularButton):
         pygame.font.init()
         font = pygame.font.Font(None, 50)
         self.text = font.render(text, True, (255, 255, 255))
-        self.click_sound = Sound("resources/sounds/tic_tac_toe/move_sound_1.wav")
+        resource_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav")
+        self.click_sound = Sound(resource_path)
 
     def get_text_position(self):
         x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
@@ -173,9 +168,9 @@ class TicTacToeButton(RectangularButton):
         self.set_text("")
 
         self.players_sounds = {
-            0: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
-            1: Sound("resources/sounds/tic_tac_toe/move_sound_2.wav"),
-            2: Sound("resources/sounds/tic_tac_toe/move_sound_1.wav"),
+            0: Sound(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav")),
+            1: Sound(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_2.wav")),
+            2: Sound(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav")),
         }
 
     def on_pressed(self):
