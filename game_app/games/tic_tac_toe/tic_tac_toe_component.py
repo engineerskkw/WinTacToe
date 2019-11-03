@@ -15,9 +15,11 @@ import subprocess
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
+from game_app.games.tic_tac_toe.engine.tic_tac_toe_engine_utils import Player
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
+
 
 
 class TurnState(Enum):
@@ -63,7 +65,7 @@ class TicTacToeClientActor(Actor):
         self.match_maker_addr = None
         self.game_manager_addr = None
         self.logger_addr = None
-        self.player = None # TODO: remove it after implementation of better player handling
+        self.player = None  # TODO: remove it after implementation of better player handling
 
     def receiveMessage(self, msg, sender):
         # Message exchanged between GUI and client at every tic of application
@@ -99,7 +101,7 @@ class TicTacToeClientActor(Actor):
             self._events_to_post += [state_changed_event, turn_changed_event]
 
         elif isinstance(msg, GameOverMsg):
-            game_over_event = {"type": UserEventTypes.GAME_OVER.value, "new_winnings": msg.state}
+            game_over_event = {"type": UserEventTypes.GAME_OVER.value, "new_winnings": msg.winnings}
             self._events_to_post.append(game_over_event)
 
         elif isinstance(msg, StateUpdateMsg):
@@ -193,7 +195,7 @@ class TicTacToeComponent(AbstractComponent):
         elif event.type == UserEventTypes.GAME_OVER.value:
             print("GAME OVER - gui to wie")
             print(event.new_winnings) #TODO czemu game over msg posiada state a nie winnings?
-            # self.winnings = event.new_winnings
+            self.winnings = event.new_winnings
         elif event.type == MOUSEBUTTONUP:
             buttons = [self._scene.restart_button, self._scene.main_menu_button]
             if self.turn != TurnState.NOT_YOUR_TURN:
