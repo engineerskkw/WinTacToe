@@ -9,10 +9,11 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from reinforcement_learning.agents.basic_agent import BasicAgent
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
+from training_platform.server.logger import Logger
 
 import signal
 import sys
-from logger import Logger
+
 from parse import parse
 
 def signal_handler(sig, frame):
