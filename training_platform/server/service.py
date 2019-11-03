@@ -46,7 +46,7 @@ class GameManager(Actor):
             # TODO: make it better
             for client in self.players_clients.values():
                 # if isinstance(client, TicTacToeClientActor):
-                self.send(gui_client, StateUpdateMsg(self.environment.current_board))
+                self.send(client, StateUpdateMsg(self.environment.current_board))
 
             if self.environment.ended:
                 for player, client in self.players_clients.items():
@@ -69,7 +69,7 @@ class GameManager(Actor):
 
         elif isinstance(msg, ShutdownMsg):
             call_string = f"python stop_server.py"
-            cwd = os.path.join("..", "training_platform", "server")
+            cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
             subprocess.call(call_string, shell=True, cwd=cwd)
 
     def log(self, text):
