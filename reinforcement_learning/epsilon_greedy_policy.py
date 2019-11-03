@@ -1,8 +1,16 @@
+#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+import sys, os
+REL_PROJECT_ROOT_PATH = "./../"
+ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
+sys.path.append(ABS_PROJECT_ROOT_PATH)
+#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
 import random
 
-from state import State
-from action import Action
-from action_value import ActionValue
+from reinforcement_learning.state import State
+from reinforcement_learning.action import Action
+from reinforcement_learning.action_value import ActionValue
 
 
 class EpsilonGreedyPolicy:
