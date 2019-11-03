@@ -41,7 +41,7 @@ class Agent(ABC):
 
     @abstractmethod
     def exit(self, final_state):
-        """This method allows agent to prepare for shutdown. It also provide final/termination state of the game/environment
-
+        """This method allows agent to prepare for shutdown. It also provide final/termination
+        state of the game/environment
         """
         pass
