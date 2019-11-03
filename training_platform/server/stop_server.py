@@ -6,7 +6,7 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from training_platform.server.common import *
+from thespian.actors import *
 
 if __name__ == '__main__':
     ActorSystem('multiprocTCPBase').shutdown()
