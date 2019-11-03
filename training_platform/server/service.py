@@ -7,7 +7,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import subprocess
-
+from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.logger import Logger
 
@@ -53,7 +53,7 @@ class GameManager(Actor):
                 for player, client in self.players_clients.items():
                     if not self.before_first_move[player]:
                         self.send(client, RewardMsg(self.environment.rewards[player]))
-                    self.send(client, GameOverMsg(self.environment.current_board))
+                    self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
             else:
                 current_player = self.environment.current_player
                 current_client = self.players_clients[current_player]
