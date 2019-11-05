@@ -19,4 +19,4 @@ class TicTacToeLaunchMenuComponent(AbstractMenuComponent):
         self._scene = TicTacToeLaunchMenuScene(self, app.screen)
 
     def get_buttons(self):
-        return self._logic.buttons + self._logic.size_buttons + self._logic.marks_required_buttons
+        return self._logic.all_buttons

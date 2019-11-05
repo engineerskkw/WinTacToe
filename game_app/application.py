@@ -34,7 +34,7 @@ class Application:
         pygame.mixer.init(buffer=256)
         pygame.init()
 
-        logo = pygame.image.load("./resources/images/common/logo.png")
+        logo = pygame.image.load("resources/images/common/logo.png")
         pygame.display.set_icon(logo)
 
         pygame.display.set_caption("WinTacToe")
