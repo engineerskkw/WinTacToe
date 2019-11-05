@@ -15,7 +15,8 @@ from pygame.mixer import Sound
 
 class Components(Enum):
     MAIN_MENU = 1
-    TIC_TAC_TOE = 2
+    TIC_TAC_TOE_LAUNCH_MENU = 2
+    TIC_TAC_TOE = 3
 
 
 class MusicSwitcher(threading.Thread):

@@ -1,10 +1,11 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import pygame
 from pygame import Rect
@@ -48,3 +49,30 @@ class RectangularTextButton(RectangularButton):
         x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
         y = self._position[1] + self._size[1] // 2 - self.text.get_height() // 2
         return x, y
+
+
+class RectangularChoiceButton(RectangularTextButton):
+    def __init__(self, text, action, position, size, chosen):
+        super().__init__(text, action, position, size)
+        self._chosen = chosen
+
+        self._chosen_base_color = (0, 0, 0)
+        self._chosen_hovered_color = (30, 0, 0)
+        self._chosen_pressed_color = (50, 0, 0)
+
+    def on_pressed(self):
+        self._action()
+        self._chosen = True
+
+    def get_color(self, mouse_position, is_mouse_pressed):
+        if self._chosen:
+            if not self.contains_point(mouse_position):
+                return self._chosen_base_color
+            return self._chosen_pressed_color if is_mouse_pressed else self._chosen_hovered_color
+        else:
+            if not self.contains_point(mouse_position):
+                return self._base_color
+            return self._pressed_color if is_mouse_pressed else self._hovered_color
+
+    def set_chosen(self, new_chosen):
+        self._chosen = new_chosen
