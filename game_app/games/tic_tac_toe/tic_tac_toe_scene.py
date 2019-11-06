@@ -161,7 +161,7 @@ class TicTacToeButton(RectangularButton):
         self._game_position = game_position
         self._is_disabled = False
         self._is_winning = False
-        self._disabled_color = (0, 10, 0)
+        self._disabled_color = (0, 100, 0)
         self._winning_color = (100, 100, 100)
         self._mark_color = (255, 255, 255)
         self.mark = -1

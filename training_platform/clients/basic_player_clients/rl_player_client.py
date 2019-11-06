@@ -90,3 +90,6 @@ if __name__ == '__main__':
         elif isinstance(msg, StateUpdateMsg):
             # TODO: StateUpdateMsg handling by clients which don't need it
             pass
+
+        elif isinstance(msg, ActorExitRequest):
+            print("ActorExitRequest message")

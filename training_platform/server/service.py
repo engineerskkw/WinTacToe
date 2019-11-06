@@ -74,7 +74,12 @@ class GameManager(Actor):
         elif isinstance(msg, ShutdownMsg):
             call_string = f"python stop_server.py"
             cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
-            subprocess.call(call_string, shell=True, cwd=cwd)
+            # subprocess.call(call_string, shell=True, cwd=cwd)
+            # TODO
+            for client in self.players_clients.values():
+                self.send(client, ActorExitRequest)
+
+            self.send(self.match_maker_addr, InitMatchMakerMsg(self.environment.players))
 
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, "GameManager"))

@@ -1,10 +1,11 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from thespian.actors import *
 import pygame
@@ -19,7 +20,7 @@ from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
-
+from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 
 
 class TurnState(Enum):
@@ -41,11 +42,12 @@ class MoveMsg:
 
 class InitTTTClientActorMsg:
     def __init__(self, match_maker_addr,
-                       game_manager_addr,
-                       logger_addr):
+                 game_manager_addr,
+                 logger_addr):
         self.match_maker_addr = match_maker_addr
         self.game_manager_addr = game_manager_addr
         self.logger_addr = logger_addr
+
 
 # TODO: move player making to the server or remove it completely
 class JoinServerMsg:
@@ -91,8 +93,7 @@ class TicTacToeClientActor(Actor):
             self.send(self.game_manager_addr, msg)
 
         elif isinstance(msg, ShutdownMsg):
-            ActorSystem('multiprocTCPBase').shutdown()
-            # self.send(self.game_manager_addr, msg)
+            self.send(self.game_manager_addr, msg)
 
         # Messages exchanged between server and client
         elif isinstance(msg, YourTurnMsg):
@@ -122,7 +123,7 @@ class TicTacToeClientActor(Actor):
             # print("Invalid player received during joining client handling, try one of below:")
 
             # for i in range(len(msg.available_or_replaceable_players)):
-                # print(f"{i}: {msg.available_or_replaceable_players[i]}")
+            # print(f"{i}: {msg.available_or_replaceable_players[i]}")
 
             # input_string = input("\nType number of the chosen player: ")
             # result = parse("{}", input_string)
@@ -137,6 +138,9 @@ class TicTacToeClientActor(Actor):
             # log("Succesfully joined server!")
             # print("Succesfully joined server!")
             # print("Waiting for your turn...")
+        elif isinstance(msg, ActorExitRequest):
+            print("ActorExitRequest message")
+
 
 class TicTacToeComponent(AbstractComponent):
     def __init__(self, app):
@@ -148,28 +152,28 @@ class TicTacToeComponent(AbstractComponent):
         self._marks_required = 3
         self._mark = 1
 
-        call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
-        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
+        # TODO remove below
+        # call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
+        # cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
+        # print("przed callem")
+        # subprocess.call(call_string, cwd=cwd)
+        # print("po callu")
 
-        print("przed callem")
+        self._app.actorSystem.tell(self._app.tic_tac_toe_game_manager, InitGameManagerMsg(
+            TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)))
 
-        subprocess.call(call_string, shell=True, cwd=cwd)
-
-        print("po callu")
-
-        self.asys = ActorSystem('multiprocTCPBase')
         # TicTacToeClientActor initialization
-        self._client_actor_address = self.asys.createActor(TicTacToeClientActor)
-        match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
-        game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
-        logger_addr = self.asys.createActor(Logger, globalName="Logger")
+        self._client_actor_address = self._app.actorSystem.createActor(TicTacToeClientActor)
+        match_maker_addr = self._app.actorSystem.createActor(MatchMaker, globalName="MatchMaker")
+        game_manager_addr = self._app.actorSystem.createActor(GameManager, globalName="GameManager")
+        logger_addr = self._app.actorSystem.createActor(Logger, globalName="Logger")
         msg = InitTTTClientActorMsg(match_maker_addr, game_manager_addr, logger_addr)
-        self.asys.tell(self._client_actor_address, msg)
+        self._app.actorSystem.tell(self._client_actor_address, msg)
         # TODO: move player making to the server or remove it completely
         player_name = "Player 0"
         player_mark = 0
         player = Player(player_name, player_mark)
-        self.asys.tell(self._client_actor_address, JoinServerMsg(player))
+        self._app.actorSystem.tell(self._client_actor_address, JoinServerMsg(player))
 
         call_string = "python rl_player_client.py \"Player 1\" 1"
         cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "basic_player_clients")
@@ -194,7 +198,7 @@ class TicTacToeComponent(AbstractComponent):
             self.turn = event.new_turn
         elif event.type == UserEventTypes.GAME_OVER.value:
             print("GAME OVER - gui to wie")
-            print(event.new_winnings) #TODO czemu game over msg posiada state a nie winnings?
+            print(event.new_winnings)  # TODO czemu game over msg posiada state a nie winnings?
             self.winnings = event.new_winnings
         elif event.type == MOUSEBUTTONUP:
             buttons = [self._scene.restart_button, self._scene.main_menu_button]
@@ -204,18 +208,18 @@ class TicTacToeComponent(AbstractComponent):
                 button.on_pressed()
 
     def loop(self):
-        events_to_post = self.asys.ask(self._client_actor_address, GetEventsToPostMsg(), 1)
+        events_to_post = self._app.actorSystem.ask(self._client_actor_address, GetEventsToPostMsg(), 1)
         for event in events_to_post:
             event_type = event['type']
             del event['type']
             pygame.event.post(pygame.event.Event(event_type, event))
 
     def step(self, position):
-        self.asys.tell(self._client_actor_address, MoveMsg(position))
+        self._app.actorSystem.tell(self._client_actor_address, MoveMsg(position))
 
     def restart(self):
-        self.asys.tell(self._client_actor_address, RestartEnvMsg())
+        self._app.actorSystem.tell(self._client_actor_address, RestartEnvMsg())
 
     def back_to_menu(self):
-        self.asys.tell(self._client_actor_address, ShutdownMsg())
+        self._app.actorSystem.tell(self._client_actor_address, ShutdownMsg())
         self._app.switch_component(Components.MAIN_MENU)

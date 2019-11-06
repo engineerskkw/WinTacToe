@@ -7,13 +7,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import pygame
+import subprocess
 from thespian.actors import ActorSystem
 
 from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeComponent
 from game_app.menus.main_menu.main_menu_component import MainMenuComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
 from game_app.common_helper import Components
-
+from training_platform.server.service import GameManager
 
 
 class Application:
@@ -29,6 +30,21 @@ class Application:
         self.screen = None
         self._size = 1280, 720
         self._block_events = False
+
+        # TODO: remove it asap xD
+        # self._number_of_players = 2
+        # self._board_size = 3
+        # self._marks_required = 3
+        # self._mark = 1
+        # call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
+        # cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
+        # print("przed callem")
+        # subprocess.call(call_string, cwd=cwd)
+        # print("po callu")
+
+        # TODO probably the good version
+        self.actorSystem = ActorSystem('multiprocTCPBase')
+        self.tic_tac_toe_game_manager = self.actorSystem.createActor(GameManager, globalName="GameManager")
 
     def _launch(self):
         pygame.mixer.init(buffer=256)
