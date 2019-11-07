@@ -6,6 +6,7 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import subprocess
 from thespian.actors import ActorSystem
@@ -31,18 +32,6 @@ class Application:
         self._size = 1280, 720
         self._block_events = False
 
-        # TODO: remove it asap xD
-        # self._number_of_players = 2
-        # self._board_size = 3
-        # self._marks_required = 3
-        # self._mark = 1
-        # call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
-        # cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
-        # print("przed callem")
-        # subprocess.call(call_string, cwd=cwd)
-        # print("po callu")
-
-        # TODO probably the good version
         self.actorSystem = ActorSystem('multiprocTCPBase')
         self.tic_tac_toe_game_manager = self.actorSystem.createActor(GameManager, globalName="GameManager")
 
