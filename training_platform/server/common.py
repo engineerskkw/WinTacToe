@@ -82,9 +82,6 @@ class StateUpdateMsg:
 class RestartEnvMsg:
     pass
 
-class ShutdownMsg:
-    pass
-
 
 # Logger & Monitor
 class InitLoggerMsg:

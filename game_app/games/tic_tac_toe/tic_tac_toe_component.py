@@ -74,6 +74,7 @@ class TicTacToeClientActor(Actor):
         if isinstance(msg, GetEventsToPostMsg):
             self.send(sender, self._events_to_post.copy())
             self._events_to_post = []
+
         # Message exchanged between GUI and client at TicTacToeClientActor creation
         elif isinstance(msg, InitTTTClientActorMsg):
             self.match_maker_addr = msg.match_maker_addr
@@ -90,9 +91,6 @@ class TicTacToeClientActor(Actor):
             self.send(self.game_manager_addr, MakeMoveMsg(msg.position))
 
         elif isinstance(msg, RestartEnvMsg):
-            self.send(self.game_manager_addr, msg)
-
-        elif isinstance(msg, ShutdownMsg):
             self.send(self.game_manager_addr, msg)
 
         # Messages exchanged between server and client
@@ -138,6 +136,7 @@ class TicTacToeClientActor(Actor):
             # log("Succesfully joined server!")
             # print("Succesfully joined server!")
             # print("Waiting for your turn...")
+
         elif isinstance(msg, ActorExitRequest):
             print("ActorExitRequest message")
 
@@ -152,29 +151,27 @@ class TicTacToeComponent(AbstractComponent):
         self._marks_required = 3
         self._mark = 1
 
-        # TODO remove below
-        # call_string = f"python start_server.py {self._number_of_players} {self._board_size} {self._marks_required}"
-        # cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
-        # print("przed callem")
-        # subprocess.call(call_string, cwd=cwd)
-        # print("po callu")
+        # TODO: move actor system starting here
 
-        self._app.actorSystem.tell(self._app.tic_tac_toe_game_manager, InitGameManagerMsg(
-            TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)))
+        # GameManager initialization
+        engine = TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)
+        self._app.actorSystem.tell(self._app.tic_tac_toe_game_manager, InitGameManagerMsg(engine))
 
         # TicTacToeClientActor initialization
         self._client_actor_address = self._app.actorSystem.createActor(TicTacToeClientActor)
         match_maker_addr = self._app.actorSystem.createActor(MatchMaker, globalName="MatchMaker")
-        game_manager_addr = self._app.actorSystem.createActor(GameManager, globalName="GameManager")
         logger_addr = self._app.actorSystem.createActor(Logger, globalName="Logger")
-        msg = InitTTTClientActorMsg(match_maker_addr, game_manager_addr, logger_addr)
+        msg = InitTTTClientActorMsg(match_maker_addr, self._app.tic_tac_toe_game_manager, logger_addr)
         self._app.actorSystem.tell(self._client_actor_address, msg)
+
+        # TicTacToeClientActor server joining
         # TODO: move player making to the server or remove it completely
         player_name = "Player 0"
         player_mark = 0
         player = Player(player_name, player_mark)
         self._app.actorSystem.tell(self._client_actor_address, JoinServerMsg(player))
 
+        # Opponent initialization (and implicitly joining)
         call_string = "python rl_player_client.py \"Player 1\" 1"
         cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "basic_player_clients")
         subprocess.Popen(call_string, shell=True, cwd=cwd)
@@ -190,15 +187,10 @@ class TicTacToeComponent(AbstractComponent):
 
     def handle_event(self, event):
         if event.type == UserEventTypes.STATE_CHANGED.value:
-            print("STATE CHANGED - gui to wie")
-            print(event.new_game_state)
             self._scene.handle_state_changed(event.new_game_state)
         elif event.type == UserEventTypes.TURN_CHANGED.value:
-            print("YOUR TURN - gui to wie")
             self.turn = event.new_turn
         elif event.type == UserEventTypes.GAME_OVER.value:
-            print("GAME OVER - gui to wie")
-            print(event.new_winnings)  # TODO czemu game over msg posiada state a nie winnings?
             self.winnings = event.new_winnings
         elif event.type == MOUSEBUTTONUP:
             buttons = [self._scene.restart_button, self._scene.main_menu_button]
@@ -221,5 +213,5 @@ class TicTacToeComponent(AbstractComponent):
         self._app.actorSystem.tell(self._client_actor_address, RestartEnvMsg())
 
     def back_to_menu(self):
-        self._app.actorSystem.tell(self._client_actor_address, ShutdownMsg())
+        self._app.actorSystem.tell(self._app.tic_tac_toe_game_manager, ActorExitRequest)
         self._app.switch_component(Components.MAIN_MENU)
