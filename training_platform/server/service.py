@@ -45,7 +45,7 @@ class GameManager(Actor):
             self.before_first_move[self.environment.current_player] = False
             x, y = msg.move
             self.environment.make_move(x, y)  # It implicitly makes next player current player
-            # State update for GUI clients TODO: make it better
+            # State update for GUI clients TODO: send StateUpdateMsg only to GUI clients
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
 
@@ -70,16 +70,11 @@ class GameManager(Actor):
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
-
-        elif isinstance(msg, ShutdownMsg):
-            call_string = f"python stop_server.py"
-            cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "server")
-            # subprocess.call(call_string, shell=True, cwd=cwd)
-            # TODO
+        elif isinstance(msg, ActorExitRequest):
             for client in self.players_clients.values():
                 self.send(client, ActorExitRequest)
-
-            self.send(self.match_maker_addr, InitMatchMakerMsg(self.environment.players))
+            self.send(self.match_maker_addr, ActorExitRequest)
+            self.send(self.logger_addr, ActorExitRequest)
 
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, "GameManager"))
@@ -102,7 +97,7 @@ class MatchMaker(Actor):
             self.log(f"Initial players <-> clients mapping: {self.players_clients}")
 
         elif isinstance(msg, JoinMsg):
-            if self.game_manager_addr == None:
+            if self.game_manager_addr is None:
                 self.log("Can not join client, because service hasn't been launched")
                 self.send(sender, ServiceNotLaunchedMsg())
                 return
@@ -142,8 +137,6 @@ class MatchMaker(Actor):
                     if client == "available" or client == "replaceable":
                         available_or_replaceable_players.append(player)
                 self.send(sender, InvalidPlayerMsg(available_or_replaceable_players))
-
-
 
         elif isinstance(msg, DetachMsg):
             self.log(f"Detaching client: {sender}")
