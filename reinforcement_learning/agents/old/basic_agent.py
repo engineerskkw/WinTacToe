@@ -1,6 +1,6 @@
 #BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../../"
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -9,7 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import random
 import numpy as np
 
-from reinforcement_learning.agents.abstract_agent import Agent
+from reinforcement_learning.abstract.abstract_agent import Agent
 from reinforcement_learning.action import Action
 from reinforcement_learning.action_value import ActionValue
 from reinforcement_learning.episode import Episode
@@ -37,7 +37,7 @@ class BasicAgent(Agent):
         self.Gs = []
 
     # Interface implementation
-    def step(self, state, allowed_actions):
+    def take_action(self, state, allowed_actions):
         # TODO: self.policy.epsilon = epsilon
 
         # Choose action in epsilon-greedy way
@@ -57,7 +57,7 @@ class BasicAgent(Agent):
 
         return tuple(action.array)
 
-    def reward(self, reward):
+    def receive_reward(self, reward):
         self.last_episode.append(reward)
 
     def exit(self, termination_state):
