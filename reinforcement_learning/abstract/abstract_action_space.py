@@ -12,11 +12,10 @@ from random import choice
 
 
 class AbstractActionSpace(ABC):
-    def __init__(self, actions):
-        self.actions = actions
-
+    @abstractmethod
     def __contains__(self, action):
-        return action in self.actions
+        pass
 
+    @abstractmethod
     def random_action(self):
-        choice(self.actions)
+        pass

@@ -10,7 +10,7 @@ from reinforcement_learning.abstract.abstract_state import AbstractState
 from reinforcement_learning.abstract.abstract_action import AbstractAction
 from reinforcement_learning.abstract.abstract_action_space import AbstractActionSpace
 
-
+from random import choice
 
 class Player:
     """Class representing a Tic Tac Toe player.
@@ -114,7 +114,14 @@ class TicTacToeAction(AbstractAction):
 
 
 class TicTacToeActionSpace(AbstractActionSpace):
-    pass
+    def __init__(self, actions):
+        self.actions = actions
+
+    def __contains__(self, action):
+        return action in self.actions
+
+    def random_action(self):
+        choice(self.actions)
 
 
 class IllegalMoveError(Exception):
