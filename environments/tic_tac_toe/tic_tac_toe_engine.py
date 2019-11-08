@@ -99,17 +99,18 @@ class TicTacToeEngine:
     players()
         Get a list of player objects representing players.
     current_board()
-        Get an numpy array representing current state of the board.
+        Get an state representing current state of the board.
     winnings()
         Get a list of current winnings.
     allowed_actions()
-        Get a list of tuples of the coordinates of the unoccupied fields on the board.
+        Get a action space containing actions that indicate coordinates of unoccupied fields on the board.
     rewards(): {player: int}
         Get a hash containing a reward for each player. Used by RL agent when learning.
     ended()
         Check if the game has ended.
-    make_move(x, y)
-        Places a mark at the (x, y) coordinates, changes the current player to the next one and gathers winnings.
+    make_move(action)
+        Places a mark at the coordinates indicated by action, changes the current player
+        to the next one and gathers winnings.
     randomize_board(seed)
         Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
     reset()
@@ -168,12 +169,12 @@ class TicTacToeEngine:
 
     @property
     def current_board(self):
-        """Get an numpy array representing current state of the board.
+        """Get an state representing current state of the board.
 
         Returns
         -------
         np.array(dtype=int)
-            An numpy array representing current state of the board.
+            A state representing current state of the board.
         """
         return TicTacToeState(self._board.raw_board)
 
@@ -191,13 +192,12 @@ class TicTacToeEngine:
 
     @property
     def allowed_actions(self):
-        """Get a list of tuples of the coordinates of the unoccupied fields on the board. This is a whole current
-        allowed move space.
+        """Get a action space containing actions that indicate coordinates of unoccupied fields on the board.
 
         Returns
         -------
         TicTacToeActionSpace()
-            "Action space - list of tuples of the coordinates of the unoccupied fields on the board.
+            Action space - list of actions containing tuples of the coordinates of the unoccupied fields on the board.
         """
         return TicTacToeActionSpace([TicTacToeAction(x, y) for x, y in self._board.unoccupied_fields])
 
@@ -231,7 +231,8 @@ class TicTacToeEngine:
         return bool(self._winnings) or not bool(self.allowed_actions.actions)
 
     def make_move(self, action):
-        """Places a mark at the (x, y) coordinates and change the current player to the next one.
+        """Places a mark at the (x, y) coordinates indicated by the action
+        and change the current player to the next one.
 
         Parameters
         ----------

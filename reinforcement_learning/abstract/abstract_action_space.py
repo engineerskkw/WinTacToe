@@ -8,14 +8,45 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
-from random import choice
 
 
 class AbstractActionSpace(ABC):
+    """
+    Action space is an object that can be used for determining if given action
+    is allowed to receive by the environment. Moreover it provides random action (which also is allowed).
+
+    Methods
+    -------
+    __contains__(action)
+        Check if action is allowed by the environment.
+    random_action()
+        Get random (but allowed by the environment) action.
+    """
     @abstractmethod
     def __contains__(self, action):
+        """
+        Check if given action is allowed by the environment.
+
+        Parameters
+        ----------
+        action : AbstractAction
+            Action of the reinforcement learning agent.
+
+        Returns
+        -------
+        Bool
+            True if action is allowed, false otherwise.
+        """
         pass
 
     @abstractmethod
     def random_action(self):
+        """
+        Get random (but allowed by the environment) action.
+
+        Returns
+        -------
+        AbstractAction
+            Random action allowed by the environment.
+        """
         pass
