@@ -12,7 +12,6 @@ from itertools import cycle
 from environments.tic_tac_toe.gather_winnings_strategies import *
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 
-
 class _Board:
     def __init__(self, size, marks, marks_required):
         self._size = size
@@ -176,7 +175,7 @@ class TicTacToeEngine:
         np.array(dtype=int)
             An numpy array representing current state of the board.
         """
-        return self._board.raw_board
+        return TicTacToeState(self._board.raw_board)
 
     @property
     def winnings(self):
@@ -197,10 +196,10 @@ class TicTacToeEngine:
 
         Returns
         -------
-        list[(int, int)]
-            "A list of tuples of the coordinates of the unoccupied fields on the board.
+        TicTacToeActionSpace()
+            "Action space - list of tuples of the coordinates of the unoccupied fields on the board.
         """
-        return self._board.unoccupied_fields
+        return TicTacToeActionSpace([TicTacToeAction(x, y) for x, y in self._board.unoccupied_fields])
 
     @property
     def rewards(self):
@@ -229,17 +228,14 @@ class TicTacToeEngine:
         bool
             True is the game has ended, False otherwise.
         """
-        return bool(self._winnings) or not bool(self.allowed_actions)
+        return bool(self._winnings) or not bool(self.allowed_actions.actions)
 
-    def make_move(self, x, y):
+    def make_move(self, action):
         """Places a mark at the (x, y) coordinates and change the current player to the next one.
 
         Parameters
         ----------
-        x : int
-            The x coordinate.
-        y : int
-            The y coordinate.
+        action: TicTacToeAction
 
         Raises
         ------
@@ -249,7 +245,7 @@ class TicTacToeEngine:
             If there are invalid coordinates.
 
         """
-        self._board.place_mark(x, y, self._current_player.mark)
+        self._board.place_mark(action.x, action.y, self._current_player.mark)
         self._current_player = next(self._player_generator)
         self._gather_winnings()
 
@@ -270,7 +266,7 @@ class TicTacToeEngine:
         for _ in range(no_of_moves):
             x, y = random.choice(move_space)
             try:
-                self.make_move(x, y)
+                self.make_move(TicTacToeAction(x, y))
                 if self.ended:
                     self._undo_last_move()
             except (IndexError, IllegalMoveError):
@@ -297,7 +293,7 @@ class TicTacToeEngine:
             while True:
                 try:
                     x, y = input("Input coordinates: ")
-                    self.make_move(int(x), int(y))
+                    self.make_move(TicTacToeAction(int(x), int(y)))
                     break
                 except IndexError:
                     print("These are not valid coordinates, try again...")

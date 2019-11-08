@@ -6,6 +6,11 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+from reinforcement_learning.abstract.abstract_state import AbstractState
+from reinforcement_learning.abstract.abstract_action import AbstractAction
+from reinforcement_learning.abstract.abstract_action_space import AbstractActionSpace
+
+
 
 class Player:
     """Class representing a Tic Tac Toe player.
@@ -84,6 +89,32 @@ class Winning:
 
     def __hash__(self):
         return hash((self.mark, *self.points_included))
+
+
+class TicTacToeState(AbstractState):
+    def __init__(self, board):
+        self.board = board
+
+    def __str__(self):
+        return str(self.board)
+
+    def __hash__(self):
+        return hash(str(self.board))
+
+
+class TicTacToeAction(AbstractAction):
+    def __init__(self, x, y):
+        self.x, self.y = x, y
+
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+
+class TicTacToeActionSpace(AbstractActionSpace):
+    pass
 
 
 class IllegalMoveError(Exception):
