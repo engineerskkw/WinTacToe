@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 
 
-class Policy(ABC):
+class AbstractPolicy(ABC):
     """Class implements reinforcement learning policy.
 
     A policy defines the learning agent’s way of behaving at a given time.

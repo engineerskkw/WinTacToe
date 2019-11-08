@@ -53,11 +53,11 @@ if __name__ == '__main__':
     while True:
         msg = asys.listen()
         if isinstance(msg, YourTurnMsg):
-            asys.tell(game_manager_addr, MakeMoveMsg(agent.step(msg.state, msg.allowed_actions)))
+            asys.tell(game_manager_addr, MakeMoveMsg(agent.take_action(msg.state, msg.allowed_actions)))
             print("Waiting for your turn...")
 
         elif isinstance(msg, RewardMsg):
-            agent.reward(msg.reward)
+            agent.receive_reward(msg.reward)
 
         elif isinstance(msg, GameOverMsg):
             agent.exit(msg.state)
