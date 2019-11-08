@@ -10,7 +10,7 @@ import signal
 from parse import parse
 from thespian.actors import *
 
-from reinforcement_learning.agents.basic_agent import BasicAgent
+from reinforcement_learning.agents.old.basic_agent import BasicAgent
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
