@@ -173,7 +173,7 @@ class TicTacToeEngine:
 
         Returns
         -------
-        np.array(dtype=int)
+        TicTacToeState
             A state representing current state of the board.
         """
         return TicTacToeState(self._board.raw_board)
