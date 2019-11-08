@@ -35,9 +35,7 @@ class AbstractAction(ABC):
         Get a string representation.
     """
 
-    def __init__(self, value):
-        self.value = np.array(value)
-
+    @abstractmethod
     def __hash__(self):
         """
         Get a unique hash value of the action.
@@ -47,7 +45,8 @@ class AbstractAction(ABC):
         Int
             Hash value.
         """
-        return hash(self.value.tostring())
+        # return hash(self.value.tostring())
+        pass
 
     # TODO: remove after making sure you can do it
     def __eq__(self, other):

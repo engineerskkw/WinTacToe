@@ -35,9 +35,7 @@ class AbstractState(ABC):
         Get a string representation.
     """
 
-    def __init__(self, array):
-        self.array = np.array(array)
-
+    @abstractmethod
     def __hash__(self):
         """
         Get a unique hash value of the state.
@@ -47,7 +45,8 @@ class AbstractState(ABC):
         Int
             Hash value.
         """
-        return hash(self.array.tostring())
+        # return hash(self.array.tostring())
+        pass
 
     # TODO: remove after making sure you can do it
     def __eq__(self, other):
