@@ -9,9 +9,9 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import random
 from graphviz import Digraph
 
-from reinforcement_learning.state import State
-from reinforcement_learning.action import Action
-from reinforcement_learning.auxiliary_utilities import linear_map
+from reinforcement_learning.agents.basic_mc_agent.state import State
+from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
 
 class ActionValue:

@@ -6,19 +6,18 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import random
 import numpy as np
 
 from reinforcement_learning.abstract.abstract_agent import Agent
-from reinforcement_learning.action import Action
-from reinforcement_learning.action_value import ActionValue
-from reinforcement_learning.episode import Episode
-from reinforcement_learning.epsilon_greedy_policy import EpsilonGreedyPolicy
-from reinforcement_learning.mdp import MDP
-from reinforcement_learning.model import Model
-from reinforcement_learning.returns import Returns
-from reinforcement_learning.state import State
-from reinforcement_learning.stochastic_model import StochasticModel
+from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.agents.basic_mc_agent.action_value import ActionValue
+from reinforcement_learning.agents.basic_mc_agent.episode import Episode
+from reinforcement_learning.agents.basic_mc_agent.epsilon_greedy_policy import EpsilonGreedyPolicy
+from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
+from reinforcement_learning.agents.basic_mc_agent.model import Model
+from reinforcement_learning.agents.basic_mc_agent.returns import Returns
+from reinforcement_learning.agents.basic_mc_agent.state import State
+from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
 
 
 class BasicAgent(Agent):

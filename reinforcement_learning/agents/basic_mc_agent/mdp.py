@@ -9,7 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from graphviz import Digraph
 import numpy as np
 
-from reinforcement_learning.auxiliary_utilities import linear_map
+from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
 
 class MDP:
