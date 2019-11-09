@@ -47,21 +47,21 @@ class _Board:
     def unoccupied_fields(self):
         unoccupied_fields = []
 
-        for i in range(self.size):
-            for j in range(self.size):
-                if self._board[i, j] == -1:
-                    unoccupied_fields.append((i, j))
+        for x in range(self.size):
+            for y in range(self.size):
+                if self._board[y, x] == -1:
+                    unoccupied_fields.append((x, y))
 
         return unoccupied_fields
 
     def place_mark(self, x, y, mark):
-        if self._board[x][y] == -1 and mark in self._marks:
-            self._board[x][y] = mark
+        if self._board[y][x] == -1 and mark in self._marks:
+            self._board[y][x] = mark
             self._points_placed.append((x, y))
             self._marks_placed.append(mark)
 
-        elif self._board[x][y] != -1:
-            raise IllegalMoveError("These coordinates are already taken...")
+        elif self._board[y][x] != -1:
+            raise IllegalMoveError(f"These coordinates (x={x}, y={y}) are already taken... board: {self._board}")
 
         elif mark not in self._marks:
             raise IllegalMoveError("This is an illegal mark...")
@@ -69,7 +69,7 @@ class _Board:
     def remove_last_mark(self):
         if self._points_placed:
             last_x, last_y = self._points_placed.pop()
-            self._board[last_x][last_y] = -1
+            self._board[last_y][last_x] = -1
             self._marks_placed.pop()
 
 
