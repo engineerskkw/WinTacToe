@@ -36,7 +36,6 @@ class StochasticModel:
             self.model_dict[state][action][next_state] = 0
         self.model_dict[state][action][next_state] += 1
 
-    # Representations
     def _get_graph(self):
         graph = Digraph()
         for state, actions in self.model_dict.items():

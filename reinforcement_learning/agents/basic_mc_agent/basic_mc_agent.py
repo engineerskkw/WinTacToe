@@ -9,14 +9,12 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import numpy as np
 
 from reinforcement_learning.abstract.abstract_agent import Agent
-from reinforcement_learning.agents.basic_mc_agent.action import Action
 from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.basic_mc_agent.episode import Episode
 from reinforcement_learning.agents.basic_mc_agent.epsilon_greedy_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
 from reinforcement_learning.agents.basic_mc_agent.model import Model
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
-from reinforcement_learning.agents.basic_mc_agent.state import State
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
 
 
