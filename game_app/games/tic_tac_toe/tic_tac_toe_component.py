@@ -86,7 +86,7 @@ class TicTacToeClientActor(Actor):
             self.send(self.match_maker_addr, JoinMsg(self.player))
 
         elif isinstance(msg, MoveMsg):
-            self.send(self.game_manager_addr, MakeMoveMsg(msg.action))
+            self.send(self.game_manager_addr, TakeActionMsg(msg.action))
 
         elif isinstance(msg, RestartEnvMsg):
             self.send(self.game_manager_addr, msg)

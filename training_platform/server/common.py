@@ -8,15 +8,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import datetime
 
-# start_server script <-> GameManager Actor comumnication
 
+# start_server script <-> GameManager Actor communication
 class InitGameManagerMsg:
     def __init__(self, environment):
         self.environment = environment
 
 
 # GameManager Actor <-> MatchMaker Actor communication
-
 class InitMatchMakerMsg:
     def __init__(self, players):
         self.players = players
@@ -28,18 +27,20 @@ class LaunchGameMsg:
         self.relaunch = relaunch
 
 
-# player_client script <-> MatchMaker comumnication
-
+# player_client script <-> MatchMaker communication
 class JoinMsg:
     def __init__(self, player):
         self.player = player
+
 
 class InvalidPlayerMsg:
     def __init__(self, available_or_replaceable_players):
         self.available_or_replaceable_players = available_or_replaceable_players
 
+
 class JoinAcknowledgementsMsg:
     pass
+
 
 class ServiceNotLaunchedMsg:
     pass
@@ -49,16 +50,14 @@ class DetachMsg:
     pass
 
 
-
 # player_client script <-> GameManager communication
-
 class YourTurnMsg:
     def __init__(self, state, action_space):
         self.state = state
         self.action_space = action_space
 
 
-class MakeMoveMsg:
+class TakeActionMsg:
     def __init__(self, action):
         self.action = action
 
@@ -73,11 +72,12 @@ class GameOverMsg:
         self.state = state
         self.winnings = winnings
 
-# GUI <-> GameManager communication
 
+# GUI <-> GameManager communication
 class StateUpdateMsg:
     def __init__(self, state):
         self.state = state
+
 
 class RestartEnvMsg:
     pass
@@ -90,6 +90,7 @@ class InitLoggerMsg:
 
 class JoinMonitorMsg:
     pass
+
 
 class DetachMonitorMsg:
     pass

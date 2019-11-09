@@ -41,7 +41,7 @@ class GameManager(Actor):
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
-        elif isinstance(msg, MakeMoveMsg):
+        elif isinstance(msg, TakeActionMsg):
             self.before_first_move[self.environment.current_player] = False
             self.environment.make_move(msg.action)  # It implicitly makes next player current player
             # State update for GUI clients TODO: send StateUpdateMsg only to GUI clients
