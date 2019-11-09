@@ -120,8 +120,9 @@ class TicTacToeActionSpace(AbstractActionSpace):
     def __contains__(self, action):
         return action in self.actions
 
+    @property
     def random_action(self):
-        choice(self.actions)
+        return choice(self.actions)
 
 
 class IllegalMoveError(Exception):
