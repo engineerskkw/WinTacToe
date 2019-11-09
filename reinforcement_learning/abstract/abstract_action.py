@@ -8,21 +8,11 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
-import numpy as np
 
 
 class AbstractAction(ABC):
     """
     Class implements action taken by reinforcement learning agent.
-
-    It contains numpy array which is sufficiently general and convenient
-    data structure that is able to represent wide variety of agent's actions.
-    Moreover it's easy to use with neural networks.
-
-    Parameters
-    ----------
-    value : numpy array or python list
-        State data.
 
     Methods
     -------
@@ -45,7 +35,6 @@ class AbstractAction(ABC):
         Int
             Hash value.
         """
-        # return hash(self.value.tostring())
         pass
 
     # TODO: remove after making sure you can do it

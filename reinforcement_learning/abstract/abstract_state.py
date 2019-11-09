@@ -15,15 +15,6 @@ class AbstractState(ABC):
     """
     Class implements reinforcement learning state of the environment
 
-    It contains numpy array which is sufficiently general and convenient
-    data structure that is able to represent wide variety of environmental
-    states. Moreover it's easy to use with neural networks.
-
-    Parameters
-    ----------
-    array : numpy array or python list
-        State data.
-
     Methods
     -------
     __hash__()
@@ -45,7 +36,6 @@ class AbstractState(ABC):
         Int
             Hash value.
         """
-        # return hash(self.array.tostring())
         pass
 
     # TODO: remove after making sure you can do it
