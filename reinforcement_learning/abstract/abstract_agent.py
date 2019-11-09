@@ -37,7 +37,7 @@ class Agent(ABC):
 
         Parameters
         ----------
-        reward : Double
+        reward : Float
             Reinforcement learning reward.
         """
         pass

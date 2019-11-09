@@ -6,19 +6,20 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import random
 from graphviz import Digraph
 
 from reinforcement_learning.agents.basic_mc_agent.state import State
 from reinforcement_learning.agents.basic_mc_agent.action import Action
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
+from reinforcement_learning.abstract.abstract_action_value import AbstractActionValue
 
-class ActionValue:
+class LazyTabularActionValue(AbstractActionValue):
     MIN_PEN_WIDTH = 1
     MAX_PEN_WIDTH = 4
 
     def __init__(self):
+        super().__init__()
         self.action_value_dict = {}
 
     # Lazy initialization
@@ -26,41 +27,53 @@ class ActionValue:
         if type(key) == tuple and len(key) == 2:
             state, action = key
             if self.action_value_dict.get(state) is None:
-                self.action_value_dict[state] = {action: 0}  # Arbitrarily initialization
+                self.action_value_dict[state] = {action: self._initial_cell_value}
             elif self.action_value_dict[state].get(action) is None:
-                self.action_value_dict[state][action] = 0  # Arbitrarily initialization
-
-            return self.action_value_dict[state][action]
-
-        elif type(key) == State:
-            return self.action_value_dict[key]
-
-    def get_state_actions(self, state):
-        return self.action_value_dict.get(state)
+                self.action_value_dict[state][action] = self._initial_cell_value
+            return float(self.action_value_dict[state][action])
+        else:
+            raise Exception(f"Invalid key in __getitem___ mehod of ActionValue: {key}, "
+                            f"should be tuple(AbstractState, AbstractAction)")
 
     def __setitem__(self, key, value):
         state, action = key
         if self.action_value_dict.get(state) is None:
             self.action_value_dict[state] = {}
-        self.action_value_dict[state][action] = value
+        self.action_value_dict[state][action] = float(value)
 
-    # Argmax over action as argument, state is constant
-    # Settle draw randomly with uniform distribution
-    def argmax_a(self, state):
+    def max_over_actions(self, state):
+        expected_returns = self.action_value_dict.get(state, {}).values()
+        if expected_returns:
+            return max(expected_returns)
+        return self._initial_cell_value
+
+    def argmax_over_actions(self, state):
         max_value = float('-inf')
-        max_value_actions = []
+        max_value_actions = {}
         for action, value in self.action_value_dict.get(state, {}).items():
             if value > max_value:
                 max_value = value
-                max_value_actions = [action]
+                max_value_actions = {action}
             elif value == max_value:
-                max_value_actions.append(action)
-        if max_value_actions:
-            return random.choice(max_value_actions)
-        else:
-            return Action([])
+                max_value_actions.add(action)
+        return max_value_actions
 
-    # Representations
+    @property
+    def _initial_cell_value(self):
+        """
+        This function is used to initialize action value table,
+        despite the fact that it's lazy initialization.
+
+        Returns
+        -------
+        Float
+            Arbitrarily chosen, initial value of the action-value table cell.
+        """
+        return float(0)
+
+    def returns_of_actions(self, state):
+        return self.action_value_dict.get(state, {})
+
     def __str__(self):
         return str(self.action_value_dict)
 

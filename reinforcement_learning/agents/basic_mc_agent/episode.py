@@ -11,70 +11,65 @@ import uuid
 
 from reinforcement_learning.agents.basic_mc_agent.state import State
 from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.abstract.abstract_action import AbstractAction
+from reinforcement_learning.abstract.abstract_state import AbstractState
 
 
 class Episode(list):
     def __init__(self, the_list=[]):
         super().__init__(the_list)
 
-    # TODO better structure, getters, easy access to chosen objects (states, actions, rewards)
-
     def __str__(self):
         representation = ''
         for element in self:
-            if type(element) == int:
+            if isinstance(element, float):
                 representation += 'Reward:\n'
-                representation += str(element)
-                representation += '\n'
-            elif (type(element[0]), type(element[1])) == (State, Action):
+            elif isinstance(element, AbstractState):
                 representation += 'State:\n'
-                representation += str(element[0])
-                representation += '\n\n'
+            elif isinstance(element, AbstractAction):
                 representation += 'Action:\n'
-                representation += str(element[1])
-                representation += '\n'
             else:
-                print("Ivalid episode's element error")
-                raise
-            representation += '\n'
+                raise Exception("Ivalid episode's element error")
+            representation += str(element)
+            representation += '\n\n'
         return representation
 
-    def _get_graph(self):
-        graph = Digraph()
-        graph.attr(rankdir="LR")
-        last_reward_hash = None
-        for i in range(int(len(self) / 2)):
-            state = self[2 * i][0]
-            action = self[2 * i][1]
-            reward = self[2 * i + 1]
-
-            # State node
-            graph.attr('node', shape='doublecircle')
-            state_hash = str(uuid.uuid4())
-            graph.node(state_hash, str(state))
-
-            if last_reward_hash:
-                graph.edge(last_reward_hash, state_hash)
-
-            # Action node
-            graph.attr('node', shape='circle')
-            action_hash = str(uuid.uuid4())
-            graph.node(action_hash, str(action))
-            graph.edge(state_hash, action_hash)
-
-            # Next state node
-            graph.attr('node', shape='diamond')
-            reward_hash = str(uuid.uuid4())
-            graph.node(reward_hash, str(reward))
-            graph.edge(action_hash, reward_hash)
-            last_reward_hash = reward_hash
-        return graph
-
-    def _repr_svg_(self):
-        return self._get_graph()._repr_svg_()
-
-    def view(self):
-        return self._get_graph().view()
+    # def _get_graph(self):
+    #     graph = Digraph()
+    #     graph.attr(rankdir="LR")
+    #     last_reward_hash = None
+    #     for i in range(int(len(self) / 2)):
+    #         state = self[2 * i][0]
+    #         action = self[2 * i][1]
+    #         reward = self[2 * i + 1]
+    #
+    #         # State node
+    #         graph.attr('node', shape='doublecircle')
+    #         state_hash = str(uuid.uuid4())
+    #         graph.node(state_hash, str(state))
+    #
+    #         if last_reward_hash:
+    #             graph.edge(last_reward_hash, state_hash)
+    #
+    #         # Action node
+    #         graph.attr('node', shape='circle')
+    #         action_hash = str(uuid.uuid4())
+    #         graph.node(action_hash, str(action))
+    #         graph.edge(state_hash, action_hash)
+    #
+    #         # Next state node
+    #         graph.attr('node', shape='diamond')
+    #         reward_hash = str(uuid.uuid4())
+    #         graph.node(reward_hash, str(reward))
+    #         graph.edge(action_hash, reward_hash)
+    #         last_reward_hash = reward_hash
+    #     return graph
+    #
+    # def _repr_svg_(self):
+    #     return self._get_graph()._repr_svg_()
+    #
+    # def view(self):
+    #     return self._get_graph().view()
 
 if __name__ == '__main__':
     # Episode test

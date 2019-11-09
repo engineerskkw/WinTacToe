@@ -46,7 +46,7 @@ class AbstractActionValue(ABC):
 
         Returns
         -------
-        Double
+        Float
             Expected return.
         """
         pass
@@ -60,6 +60,8 @@ class AbstractActionValue(ABC):
         ----------
         key : Tuple(AbstractState, AbstractAction)
             Pair of the state and action.
+        value : Double
+            Expected return.
         """
         pass
 
@@ -76,7 +78,7 @@ class AbstractActionValue(ABC):
 
         Returns
         -------
-        Double
+        Float
             Maximum expected return.
         """
         pass

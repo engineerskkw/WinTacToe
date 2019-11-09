@@ -208,15 +208,15 @@ class TicTacToeEngine:
 
         Returns
         -------
-        hash{player: int}
+        hash{player: float}
                 A hash containing a reward for each player.
         """
         if self.ended:
             winning_marks = map(lambda winning: winning.mark, self._winnings)
-            rewards = map(lambda player: 1 if player.mark in winning_marks else -1, self._players)
+            rewards = map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players)
             return {player: reward for player, reward in zip(self._players, rewards)}
         else:
-            return {player: 0 for player in self._players}
+            return {player: 0.0 for player in self._players}
 
     @property
     def ended(self):

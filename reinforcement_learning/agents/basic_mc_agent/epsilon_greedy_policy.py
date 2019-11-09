@@ -10,22 +10,31 @@ import random
 
 from reinforcement_learning.agents.basic_mc_agent.state import State
 from reinforcement_learning.agents.basic_mc_agent.action import Action
-from reinforcement_learning.agents.basic_mc_agent.action_value import ActionValue
+from reinforcement_learning.abstract.abstract_policy import AbstractPolicy
+from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value import LazyTabularActionValue
 
 
-class EpsilonGreedyPolicy:
-    def __init__(self, action_value, allowed_actions, epsilon):
-        self.action_space = allowed_actions
+class ActionValueDerivedPolicy(AbstractPolicy):
+    def __init__(self, action_value, action_space):
+        super().__init__()
+        self.action_space = action_space
         self.action_value = action_value
-        self.epsilon = epsilon
 
-    # Action-value and epsilon based action choosing
-    def __getitem__(self, state):
-        if random.random() >= self.epsilon:
-            action = self.action_value.argmax_a(state)
-            if action != Action([]):
-                return action
-        return self.action_space.random_action
+    def __getitem__(self, key):
+        # Expected return of the given action in the given state
+        action_return = self.action_value[key]
+        # Sum of expected returns of all possible actions in the given state
+        sum_of_returns = sum(self.action_value.returns_of_actions(key[0]).values())
+        return action_return/sum_of_returns
+
+    def epsilon_greedy(self, state, action_space, epsilon=0.1):
+        if random.random() >= epsilon: # Choose action in the epsilon-greedy way
+            greedy_actions = self.action_value.argmax_over_actions(state)
+            if greedy_actions:  # Check if there are any chosen possibilities
+                action = random.choice(greedy_actions)  # Random drawback settlement
+                if action in action_space:  # Check action validity
+                    return action
+        return action_space.random_action # Otherwise (in each case) get a random action
 
     # Representations
     def __str__(self):
@@ -41,7 +50,7 @@ class EpsilonGreedyPolicy:
         return self.action_value.view()
 
 if __name__ == '__main__':
-    av = ActionValue()
+    av = LazyTabularActionValue()
 
     s = State([[-1, -1], [-1, 1]])
 
@@ -53,7 +62,7 @@ if __name__ == '__main__':
     av[s, a2] = 2.9
     av[s, a3] = -10
 
-    egp = EpsilonGreedyPolicy(None, av, 0.3)
+    egp = ActionValueDerivedPolicy(None, av, 0.3)
 
     print(egp)
     egp.view()

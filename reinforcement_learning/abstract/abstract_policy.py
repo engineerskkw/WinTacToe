@@ -43,13 +43,13 @@ class AbstractPolicy(ABC):
 
         Returns
         -------
-        Double
+        Float
             Probability of taking given action in given state.
         """
         pass
 
     @abstractmethod
-    def epsilon_greedy(self, state, epsilon=None):
+    def epsilon_greedy(self, state, action_space, epsilon):
         """
         Get an epsilon-greedily chosen action in the given state.
 
@@ -57,14 +57,16 @@ class AbstractPolicy(ABC):
         ----------
         state : AbstractState
             State of the environment.
+        action_space : AbstractActionSpace
+            Space of all possible actions the in given state
         epsilon : Double
             Epsilon - value used when determining the selection of a greedy
             or random action.
 
         Returns
         -------
-        Double
-            Probability of taking given action in given state.
+        AbstractAction
+            Greedy action
         """
         pass
 

@@ -40,7 +40,7 @@ class AbstractReturns(ABC):
 
         Returns
         -------
-        list[Double]
+        list[Float]
             List of expected returns.
         """
         pass
