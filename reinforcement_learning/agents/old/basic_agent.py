@@ -37,15 +37,14 @@ class BasicAgent(Agent):
         self.Gs = []
 
     # Interface implementation
-    def take_action(self, state, allowed_actions):
+    def take_action(self, state, action_space):
         # TODO: self.policy.epsilon = epsilon
 
         # Choose action in epsilon-greedy way
-        state = State(state)
-        self.policy.allowed_actions = allowed_actions
+        self.policy.action_space = action_space
         action = self.policy[state]
-        if not tuple(action.array) in allowed_actions:
-            action = Action(random.choice(allowed_actions))
+        if action not in action_space:
+            action = action_space.random_action
 
         # Register model transition
         if self.last_state and self.last_action:
@@ -55,7 +54,7 @@ class BasicAgent(Agent):
         # Register state and action
         self.last_episode.append((state, action))
 
-        return tuple(action.array)
+        return action
 
     def receive_reward(self, reward):
         self.last_episode.append(reward)

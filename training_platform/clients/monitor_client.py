@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import signal
 import sys
+from thespian.actors import *
 
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker

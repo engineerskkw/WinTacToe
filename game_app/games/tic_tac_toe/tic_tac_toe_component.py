@@ -1,6 +1,5 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -16,7 +15,7 @@ import subprocess
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
-from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, TicTacToeAction
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
@@ -36,8 +35,8 @@ class UserEventTypes(Enum):
 
 
 class MoveMsg:
-    def __init__(self, position):
-        self.position = position
+    def __init__(self, action):
+        self.action = action
 
 
 class InitTTTClientActorMsg:
@@ -87,8 +86,7 @@ class TicTacToeClientActor(Actor):
             self.send(self.match_maker_addr, JoinMsg(self.player))
 
         elif isinstance(msg, MoveMsg):
-            print("wanna make a step", msg.position)
-            self.send(self.game_manager_addr, MakeMoveMsg(msg.position))
+            self.send(self.game_manager_addr, MakeMoveMsg(msg.action))
 
         elif isinstance(msg, RestartEnvMsg):
             self.send(self.game_manager_addr, msg)
@@ -207,7 +205,9 @@ class TicTacToeComponent(AbstractComponent):
             pygame.event.post(pygame.event.Event(event_type, event))
 
     def step(self, position):
-        self._app.actorSystem.tell(self._client_actor_address, MoveMsg(position))
+        y, x = position
+        action = TicTacToeAction(x, y)
+        self._app.actorSystem.tell(self._client_actor_address, MoveMsg(action))
 
     def restart(self):
         self._app.actorSystem.tell(self._client_actor_address, RestartEnvMsg())

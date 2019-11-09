@@ -9,19 +9,20 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from parse import parse
 
 from training_platform.clients.basic_player_clients.abstract_agent import Agent
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 
 
-def pretty_print(state):
+def pretty_print(board):
     representation = ''
-    height, width = state.shape
+    height, width = board.shape
     
     for h in range(height):
         for w in range(width):
-            if state[h,w] == -1:
+            if board[h, w] == -1:
                 representation += '#'
-            elif state[h,w] == 0:
+            elif board[h, w] == 0:
                 representation += 'O'
-            elif state[h,w] == 1:
+            elif board[h, w] == 1:
                 representation += 'X'
             else:
                 print("Invalid mark code")
@@ -35,17 +36,18 @@ class HumanPlayerAgent(Agent):
     def __init__(self):
         pass
 
-    def step(self, state, allowed_actions):
+    def step(self, state, action_space):
         print("State:")
-        pretty_print(state)
+        pretty_print(state.board)
         while True:
             input_string = input("\nType move's coordinates in order y, x (i.e 1,2): ")
             print("\n")
             result = parse("{},{}", input_string)
             y = int(result[0])
             x = int(result[1])
-            if (y,x) in allowed_actions:
-                return y, x
+            action = TicTacToeAction(x, y)
+            if action in action_space:
+                return action
             else:
                 print("Invalid action, try again")
 
@@ -54,4 +56,4 @@ class HumanPlayerAgent(Agent):
 
     def exit(self, final_state):
         print(f"Game Over:")
-        pretty_print(final_state)
+        pretty_print(final_state.board)

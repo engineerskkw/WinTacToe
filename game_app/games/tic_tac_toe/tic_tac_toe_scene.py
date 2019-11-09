@@ -101,6 +101,7 @@ class TicTacToeScene:
             self._background_displayed = True
 
     def handle_state_changed(self, new_game_state):
+        new_game_state = new_game_state.board
         for row in range(self._board_size):
             for col in range(self._board_size):
                 if new_game_state[row, col] != self.buttons[row][col].mark:

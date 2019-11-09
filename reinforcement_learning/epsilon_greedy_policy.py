@@ -15,7 +15,7 @@ from reinforcement_learning.action_value import ActionValue
 
 class EpsilonGreedyPolicy:
     def __init__(self, action_value, allowed_actions, epsilon):
-        self.allowed_actions = allowed_actions
+        self.action_space = allowed_actions
         self.action_value = action_value
         self.epsilon = epsilon
 
@@ -25,9 +25,7 @@ class EpsilonGreedyPolicy:
             action = self.action_value.argmax_a(state)
             if action != Action([]):
                 return action
-        if self.allowed_actions:
-            return Action(random.choice(self.allowed_actions))
-        return Action([])
+        return self.action_space.random_action
 
     # Representations
     def __str__(self):

@@ -53,14 +53,14 @@ class DetachMsg:
 # player_client script <-> GameManager communication
 
 class YourTurnMsg:
-    def __init__(self, state, allowed_actions):
+    def __init__(self, state, action_space):
         self.state = state
-        self.allowed_actions = allowed_actions
+        self.action_space = action_space
 
 
 class MakeMoveMsg:
-    def __init__(self, move):
-        self.move = move
+    def __init__(self, action):
+        self.action = action
 
 
 class RewardMsg:

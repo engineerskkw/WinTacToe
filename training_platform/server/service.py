@@ -43,8 +43,7 @@ class GameManager(Actor):
 
         elif isinstance(msg, MakeMoveMsg):
             self.before_first_move[self.environment.current_player] = False
-            x, y = msg.move
-            self.environment.make_move(x, y)  # It implicitly makes next player current player
+            self.environment.make_move(msg.action)  # It implicitly makes next player current player
             # State update for GUI clients TODO: send StateUpdateMsg only to GUI clients
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
