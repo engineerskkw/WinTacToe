@@ -29,13 +29,12 @@ class BasicAgent(Agent):
         self.last_episode = Episode()
         self.model = StochasticModel()
 
-        # Auxiliary atributes
+        # Auxiliary attributes
         self.last_state = None
         self.last_action = None
         self.last_MDP = None
         self.Gs = []
 
-    # Interface implementation
     def take_action(self, state, action_space):
         # TODO: epsilon
 
