@@ -1,6 +1,8 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
 
+from pygame.mixer import Sound
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -49,6 +51,33 @@ class RectangularTextButton(RectangularButton):
         x = self._position[0] + self._size[0] // 2 - self.text.get_width() // 2
         y = self._position[1] + self._size[1] // 2 - self.text.get_height() // 2
         return x, y
+
+
+class DisableableRectangularTextButton(RectangularTextButton):
+    def __init__(self, text, action, position, size, disabled):
+        super().__init__(text, action, position, size)
+        self._disabled = disabled
+        self._disabled_color = (250, 100, 100)
+
+    def get_color(self, mouse_position, is_mouse_pressed):
+        if self._disabled:
+            return self._disabled_color
+        return super().get_color(mouse_position, is_mouse_pressed)
+
+    def disable(self):
+        self._disabled = True
+
+    def enable(self):
+        self._disabled = False
+
+    def set_disabled(self, new_disabled):
+        self._disabled = new_disabled
+
+    def on_pressed(self):
+        if self._disabled:
+            Sound(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav")).play()
+        else:
+            super().on_pressed()
 
 
 class RectangularChoiceButton(RectangularTextButton):

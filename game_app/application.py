@@ -64,11 +64,15 @@ class Application:
         ActorSystem('multiprocTCPBase').shutdown()
         pygame.quit()
 
-    def switch_component(self, component):
+    def switch_component(self, component, **args):
         ev = pygame.event.Event(pygame.USEREVENT, {'new_game_state': 1})
         pygame.event.post(ev)
         self._block_events = True
-        self._current_component = self._components[component](self)
+        if args:
+            print("args given", args)
+            self._current_component = self._components[component](self, **args)
+        else:
+            self._current_component = self._components[component](self)
         pygame.event.clear()
         self._block_events = False
 

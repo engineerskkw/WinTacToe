@@ -11,7 +11,8 @@ from pygame.locals import *
 from pygame.mixer import Sound
 
 from game_app.common_helper import Components
-from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RectangularChoiceButton
+from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RectangularChoiceButton, \
+    DisableableRectangularTextButton
 
 
 class TicTacToeLaunchMenuLogic:
@@ -19,7 +20,7 @@ class TicTacToeLaunchMenuLogic:
         self._app = app
         self._board_size = 3
         self._marks_required = 3
-        self._mark = 1
+        self._mark = 0
 
         self._size_buttons = [RectangularChoiceButton("3x3",
                                                       lambda: self.change_board_size(3),
@@ -59,12 +60,12 @@ class TicTacToeLaunchMenuLogic:
                                                                 (130, 100),
                                                                 True),
                                         RectangularChoiceButton("4",
-                                                                lambda: self.change_marks_required(5),
+                                                                lambda: self.change_marks_required(4),
                                                                 (575, 300),
                                                                 (130, 100),
                                                                 False),
                                         RectangularChoiceButton("5",
-                                                                lambda: self.change_marks_required(10),
+                                                                lambda: self.change_marks_required(5),
                                                                 (750, 300),
                                                                 (130, 100),
                                                                 False),
@@ -82,13 +83,14 @@ class TicTacToeLaunchMenuLogic:
                                                       False),
                               ]
 
-        self._start_button = RectangularTextButton("Start",
-                                                   lambda: print("TODO"),
-                                                   (450, 550),
-                                                   (380, 100))
+        self._start_button = DisableableRectangularTextButton("Start",
+                                                              lambda: self.switch_to_tic_tac_toe(),
+                                                              (450, 550),
+                                                              (380, 100),
+                                                              False)
 
         self._back_to_menu_button = RectangularTextButton("BackToMenu",
-                                                          lambda: print("TODO"),
+                                                          lambda: self.switch_back_to_main_menu(),
                                                           (10, 10),
                                                           (130, 100))
 
@@ -108,6 +110,7 @@ class TicTacToeLaunchMenuLogic:
             for size_button in self._size_buttons:
                 size_button.set_chosen(False)
             self._board_size = new_size
+            self._start_button.set_disabled(new_size < self._marks_required)
         self._button_click_sound.play()
 
     def change_marks_required(self, new_marks_required):
@@ -115,6 +118,7 @@ class TicTacToeLaunchMenuLogic:
             for button in self._marks_required_buttons:
                 button.set_chosen(False)
             self._marks_required = new_marks_required
+            self._start_button.set_disabled(new_marks_required > self._board_size)
         self._button_click_sound.play()
 
     def change_mark(self, new_mark):
@@ -124,5 +128,9 @@ class TicTacToeLaunchMenuLogic:
             self._mark = new_mark
         self._button_click_sound.play()
 
+    def switch_back_to_main_menu(self):
+        self._app.switch_component(Components.MAIN_MENU, switch_music=False)
+
     def switch_to_tic_tac_toe(self):
-        self._app.switch_component(Components.TIC_TAC_TOE)
+        self._app.switch_component(Components.TIC_TAC_TOE, board_size=self._board_size,
+                                   marks_required=self._marks_required, mark=self._mark)
