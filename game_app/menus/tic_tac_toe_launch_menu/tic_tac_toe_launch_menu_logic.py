@@ -82,12 +82,18 @@ class TicTacToeLaunchMenuLogic:
                                                       False),
                               ]
 
-        self.start_button = RectangularTextButton("Start",
-                                                  lambda: print("TODO"),
-                                                  (450, 550),
-                                                  (380, 100))
+        self._start_button = RectangularTextButton("Start",
+                                                   lambda: print("TODO"),
+                                                   (450, 550),
+                                                   (380, 100))
 
-        self.all_buttons = [self.start_button] + self._size_buttons + self._marks_required_buttons + self._mark_buttons
+        self._back_to_menu_button = RectangularTextButton("BackToMenu",
+                                                          lambda: print("TODO"),
+                                                          (10, 10),
+                                                          (130, 100))
+
+        self.all_buttons = [self._start_button, self._back_to_menu_button] \
+                           + self._size_buttons + self._marks_required_buttons + self._mark_buttons
 
         self._button_click_sound = Sound(
             os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav"))
