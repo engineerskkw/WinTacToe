@@ -1,10 +1,10 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
 
@@ -13,7 +13,6 @@ from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value impo
 from reinforcement_learning.agents.basic_mc_agent.episode import Episode
 from reinforcement_learning.agents.basic_mc_agent.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
-from reinforcement_learning.agents.basic_mc_agent.model import Model
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
 
@@ -22,7 +21,7 @@ class BasicAgent(Agent):
     def __init__(self):
         # Agent's building blocks
         self.action_value = LazyTabularActionValue()
-        self.policy = ActionValueDerivedPolicy(self.action_value, None)
+        self.policy = ActionValueDerivedPolicy(self.action_value)
         self.returns = Returns()
         self.last_episode = Episode()
         self.model = StochasticModel()
@@ -97,7 +96,7 @@ class BasicAgent(Agent):
 
     # Auxiliary methods
     def get_mdp(self):
-        self.last_MDP = MDP(self.model, self.action_value, self.policy)
+        self.last_MDP = MDP(self.model, self.action_value)
         return self.last_MDP
 
     def reset_action_value(self):
@@ -112,7 +111,7 @@ class BasicAgent(Agent):
         self.last_action = None
 
     def reset_model(self):
-        self.model = Model()
+        self.model = StochasticModel()
         self.last_state = None
         self.last_action = None
 

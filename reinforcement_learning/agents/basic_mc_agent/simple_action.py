@@ -7,19 +7,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
+from reinforcement_learning.abstract.abstract_action import AbstractAction
 
-
-class Action:
+class SimpleAction(AbstractAction):
     def __init__(self, array):
         self.array = np.array(array)
 
     def __hash__(self):
         return hash(self.array.tostring())
-
-    def __eq__(self, other):
-        if not isinstance(other, Action):
-            return NotImplemented
-        return hash(self) == hash(other)
 
     def __str__(self):
         return str(self.array)

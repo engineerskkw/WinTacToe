@@ -8,19 +8,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 
 import numpy as np
+from reinforcement_learning.abstract.abstract_state import AbstractState
 
-
-class State:
+class State(AbstractState):
     def __init__(self, array):
         self.array = np.array(array)
 
     def __hash__(self):
         return hash(self.array.tostring())
-
-    def __eq__(self, other):
-        if not isinstance(other, State):
-            return NotImplemented
-        return hash(self) == hash(other)
 
     def __str__(self):
         representation = ''

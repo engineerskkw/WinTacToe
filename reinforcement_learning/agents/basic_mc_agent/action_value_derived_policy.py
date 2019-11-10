@@ -1,23 +1,22 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
 REL_PROJECT_ROOT_PATH = "./../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import random
 
-from reinforcement_learning.agents.basic_mc_agent.state import State
-from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
+from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.abstract.abstract_policy import AbstractPolicy
 from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value import LazyTabularActionValue
 
 
 class ActionValueDerivedPolicy(AbstractPolicy):
-    def __init__(self, action_value, action_space):
+    def __init__(self, action_value):
         super().__init__()
-        self.action_space = action_space
         self.action_value = action_value
 
     def __getitem__(self, key):
@@ -28,15 +27,14 @@ class ActionValueDerivedPolicy(AbstractPolicy):
         return action_return/sum_of_returns
 
     def epsilon_greedy(self, state, action_space, epsilon=0.1):
-        if random.random() >= epsilon: # Choose action in the epsilon-greedy way
+        if random.random() >= epsilon:  # Choose action in the epsilon-greedy way
             greedy_actions = self.action_value.argmax_over_actions(state)
             if greedy_actions:  # Check if there are any chosen possibilities
                 action = random.choice(greedy_actions)  # Random drawback settlement
                 if action in action_space:  # Check action validity
                     return action
-        return action_space.random_action # Otherwise (in each case) get a random action
+        return action_space.random_action  # Otherwise (in each case) get a random action
 
-    # Representations
     def __str__(self):
         return self.action_value.__str__()
 
@@ -52,17 +50,17 @@ class ActionValueDerivedPolicy(AbstractPolicy):
 if __name__ == '__main__':
     av = LazyTabularActionValue()
 
-    s = State([[-1, -1], [-1, 1]])
+    s = SimpleState([[-1, -1], [-1, 1]])
 
-    a1 = Action([0, 0])
-    a2 = Action([0, 1])
-    a3 = Action([1, 0])
+    a1 = SimpleAction([0, 0])
+    a2 = SimpleAction([0, 1])
+    a3 = SimpleAction([1, 0])
 
     av[s, a1] = 6
     av[s, a2] = 2.9
     av[s, a3] = -10
 
-    egp = ActionValueDerivedPolicy(None, av, 0.3)
+    egp = ActionValueDerivedPolicy(av)
 
     print(egp)
     egp.view()
