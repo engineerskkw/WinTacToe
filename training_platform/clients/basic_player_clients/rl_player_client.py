@@ -1,10 +1,10 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import signal
 from parse import parse
@@ -16,13 +16,16 @@ from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player
 
+
 def signal_handler(sig, frame):
     asys.tell(match_maker_addr, DetachMsg())
     print('\nDetached from server')
     sys.exit(0)
 
+
 def log(text):
     asys.tell(logger_addr, LogMsg(text, f"client:{player}"))
+
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)

@@ -9,8 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from graphviz import Digraph
 import uuid
 
-from reinforcement_learning.agents.basic_mc_agent.state import State
-from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
+from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 
 class Returns:
     def __init__(self):
@@ -32,7 +32,6 @@ class Returns:
             self.returns_dict[state] = {}
         self.returns_dict[state][action] = value
 
-    # Representations
     def __str__(self):
         return self.returns_dict.__str__()
 
@@ -70,20 +69,20 @@ if __name__ == '__main__':
 
     r = Returns()
 
-    s1 = State([[-1, 0], [-1, -1]])
-    a1 = Action([1, 0])
+    s1 = SimpleState([[-1, 0], [-1, -1]])
+    a1 = SimpleAction([1, 0])
     G = -3
     r[s1, a1].append(G)
 
-    s2 = State([[-1, 0], [0, -1]])
-    a2 = Action([0, 0])
+    s2 = SimpleState([[-1, 0], [0, -1]])
+    a2 = SimpleAction([0, 0])
     G = 10.0
     r[s2, a2].append(G)
     G = 7.8
     r[s2, a2].append(G)
 
-    s3 = State([[0, 0], [0, -1]])
-    a3 = Action([1, 1])
+    s3 = SimpleState([[0, 0], [0, -1]])
+    a3 = SimpleAction([1, 1])
     G = -5.1
     r[s3, a3].append(G)
     G = 3.2
@@ -91,8 +90,8 @@ if __name__ == '__main__':
     G = -1.9
     r[s3, a3].append(G)
 
-    s4 = State([[-1, 0], [0, 0]])
-    a4 = Action([0, 0])
+    s4 = SimpleState([[-1, 0], [0, 0]])
+    a4 = SimpleAction([0, 0])
     G = -5.1
     r[s4, a4].append(G)
     G = -6.5

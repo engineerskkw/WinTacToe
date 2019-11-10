@@ -1,18 +1,19 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
 REL_PROJECT_ROOT_PATH = "./../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from graphviz import Digraph
 
-from reinforcement_learning.agents.basic_mc_agent.state import State
-from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
+from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
 from reinforcement_learning.abstract.abstract_action_value import AbstractActionValue
+
 
 class LazyTabularActionValue(AbstractActionValue):
     MIN_PEN_WIDTH = 1
@@ -102,14 +103,14 @@ class LazyTabularActionValue(AbstractActionValue):
         return self._get_graph().view()
 
 if __name__ == '__main__':
-    # Action-value test
+    # SimpleAction-value test
     av = ActionValue()
 
-    s = State([[-1, -1], [-1, 1]])
+    s = SimpleState([[-1, -1], [-1, 1]])
 
-    a1 = Action([0, 0])
-    a2 = Action([0, 1])
-    a3 = Action([1, 0])
+    a1 = SimpleAction([0, 0])
+    a2 = SimpleAction([0, 1])
+    a3 = SimpleAction([1, 0])
 
     av[s, a1] = 6
     av[s, a2] = 0.8

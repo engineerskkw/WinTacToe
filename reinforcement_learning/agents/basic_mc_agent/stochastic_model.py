@@ -9,8 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from graphviz import Digraph
 import numpy as np
 
-from reinforcement_learning.agents.basic_mc_agent.state import State
-from reinforcement_learning.agents.basic_mc_agent.action import Action
+from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
+from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
 
@@ -39,13 +39,13 @@ class StochasticModel:
     def _get_graph(self):
         graph = Digraph()
         for state, actions in self.model_dict.items():
-            # State node
+            # SimpleState node
             graph.attr('node', shape='doublecircle')
             graph.attr('node', style='', color='', fontcolor='black')
             state_hash = str(hash(state))
             graph.node(state_hash, str(state))
             for action, next_states in actions.items():
-                # Action node
+                # SimpleAction node
                 graph.attr('node', shape='circle')
                 graph.attr('node', style='filled', color='black', fontcolor='white')
                 action_hash = str(hash(action)) + state_hash
@@ -83,24 +83,24 @@ if __name__ == '__main__':
 
     m = StochasticModel()
 
-    s1 = State([[-1, 0], [-1, -1]])
-    a1 = Action([1, 0])
-    s2 = State([[-1, 0], [0, -1]])
-    s3 = State([[-1, 0], [-1, 0]])
+    s1 = SimpleState([[-1, 0], [-1, -1]])
+    a1 = SimpleAction([1, 0])
+    s2 = SimpleState([[-1, 0], [0, -1]])
+    s3 = SimpleState([[-1, 0], [-1, 0]])
     m[s1, a1] = s2
     m[s1, a1] = s3
     m[s1, a1] = s3
     m[s1, a1] = s3
     m[s1, a1] = s3
 
-    a2 = Action([0, 0])
-    s4 = State([[0, 0], [0, -1]])
+    a2 = SimpleAction([0, 0])
+    s4 = SimpleState([[0, 0], [0, -1]])
     m[s2, a2] = s4
 
-    a4 = Action([1, 1])
-    s5 = State([[-1, 0], [0, 0]])
-    s6 = State([[-1, 0], [-1, 0]])
-    s7 = State([[-1, -1], [-1, -1]])
+    a4 = SimpleAction([1, 1])
+    s5 = SimpleState([[-1, 0], [0, 0]])
+    s6 = SimpleState([[-1, 0], [-1, 0]])
+    s7 = SimpleState([[-1, -1], [-1, -1]])
     m[s2, a4] = s5
     m[s2, a4] = s5
     m[s2, a4] = s5

@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import numpy as np
 from reinforcement_learning.abstract.abstract_state import AbstractState
 
-class State(AbstractState):
+class SimpleState(AbstractState):
     def __init__(self, array):
         self.array = np.array(array)
 
