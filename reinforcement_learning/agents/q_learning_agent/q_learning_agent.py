@@ -25,7 +25,9 @@ class QLearningAgent(Agent):
         self.prev_reward = None
 
     def take_action(self, state, allowed_actions):
-        self.update_rule(self.prev_state, self.prev_action, self.prev_reward, state)
+        if not self.prev_state:
+            self.update_rule(self.prev_state, self.prev_action, self.prev_reward, state)
+
         action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
         self.prev_action = action
         self.prev_state = state
@@ -42,4 +44,4 @@ class QLearningAgent(Agent):
         self.action_value[prev_state, prev_action] = prev_action_value + error
 
     def exit(self, terminal_state):
-        pass
+        self.update_rule(self.prev_state, self.prev_action, self.prev_reward, terminal_state)
