@@ -177,7 +177,8 @@ class TicTacToeComponent(AbstractComponent):
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
 
-        MusicSwitcher("resources/sounds/common/SneakyAdventure.mp3").start()
+        MusicSwitcher(
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3")).start()
 
     def render(self):
         self._scene.render()
