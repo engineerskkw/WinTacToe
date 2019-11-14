@@ -136,7 +136,7 @@ class TicTacToeEngine:
         assert (len(set(marks)) == len(marks)), "Marks of all players should be unique.."
         self._marks = marks
 
-        self._gather_winnings_strategy = StandardGatherWinningsStrategy()
+        self._gather_winnings_strategy = AlternateGatherWinningsStrategy()
         self._winnings = set()
 
         self._board = _Board(
@@ -249,6 +249,7 @@ class TicTacToeEngine:
         self._board.place_mark(action.x, action.y, self._current_player.mark)
         self._current_player = next(self._player_generator)
         self._gather_winnings()
+        print(f"Current winnings: {self.winnings}")
 
     def randomize_board(self, seed=None):
         """Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
