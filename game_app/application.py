@@ -39,7 +39,7 @@ class Application:
         pygame.mixer.init(buffer=256)
         pygame.init()
 
-        logo = pygame.image.load("resources/images/common/logo.png")
+        logo = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/images/common/logo.png"))
         pygame.display.set_icon(logo)
 
         pygame.display.set_caption("WinTacToe")
@@ -69,7 +69,6 @@ class Application:
         pygame.event.post(ev)
         self._block_events = True
         if args:
-            print("args given", args)
             self._current_component = self._components[component](self, **args)
         else:
             self._current_component = self._components[component](self)

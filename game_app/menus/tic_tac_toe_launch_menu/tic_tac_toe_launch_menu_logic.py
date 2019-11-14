@@ -12,7 +12,7 @@ from pygame.mixer import Sound
 
 from game_app.common_helper import Components
 from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RectangularChoiceButton, \
-    DisableableRectangularTextButton
+    DisableableRectangularTextButton, RoundIconButton
 
 
 class TicTacToeLaunchMenuLogic:
@@ -89,10 +89,11 @@ class TicTacToeLaunchMenuLogic:
                                                               (380, 100),
                                                               False)
 
-        self._back_to_menu_button = RectangularTextButton("BackToMenu",
-                                                          lambda: self.switch_back_to_main_menu(),
-                                                          (10, 10),
-                                                          (130, 100))
+        self._back_to_menu_button = RoundIconButton(
+            'game_app/resources/images/menus/tic_tac_toe_launch_menu/left-arrow.png',
+            lambda: self.switch_back_to_main_menu(),
+            (50, 50),
+            35)
 
         self.all_buttons = [self._start_button, self._back_to_menu_button] \
                            + self._size_buttons + self._marks_required_buttons + self._mark_buttons

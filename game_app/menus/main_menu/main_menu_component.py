@@ -18,7 +18,8 @@ class MainMenuComponent(AbstractMenuComponent):
         self._logic = MainMenuLogic(app)
         self._scene = MainMenuScene(self, app.screen)
         if switch_music:
-            MusicSwitcher("resources/sounds/common/SneakySnitch.mp3").start()
+            MusicSwitcher(
+                os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakySnitch.mp3")).start()
 
     def get_buttons(self):
         return self._logic.buttons
