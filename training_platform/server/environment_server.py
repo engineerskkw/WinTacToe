@@ -41,7 +41,7 @@ class ServerNotReadyToStart(Exception):
         return str(self.message)
 
 
-class Server:
+class EnvironmentServer:
     def __init__(self, engine=None):
         self.engine = engine
         self.asys = ActorSystem('multiprocTCPBase')
@@ -52,6 +52,8 @@ class Server:
         if isinstance(response, IAmInitializedMsg):
             if self.engine is not None:
                 raise InitializedServerWithEngine("Initialized server spawned with engine")
+            else:
+                self.engine = response.engine
 
         if isinstance(response, IAmUninitializedMsg):
             if self.engine is None:
@@ -84,7 +86,7 @@ class Server:
         if isinstance(response, StartedMsg):
             return
         elif isinstance(response, NotReadyToStartMsg):
-            raise ServerNotReadyToStart("Server not ready to start")
+            raise ServerNotReadyToStart("EnvironmentServer not ready to start")
         else:
             raise
 
@@ -96,7 +98,7 @@ class Server:
             elif isinstance(response, GameRestartedMsg):
                 return
             elif isinstance(response, NotReadyToStartMsg):
-                raise ServerNotReadyToStart("Server not ready to start")
+                raise ServerNotReadyToStart("EnvironmentServer not ready to start")
             elif isinstance(response, StartedMsg):
                 response = self.asys.listen()
             else:

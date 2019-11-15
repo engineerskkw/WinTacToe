@@ -49,7 +49,7 @@ class DetachMsg:
     pass
 
 
-# PlayerClient <-> GameManager communication
+# AgentClient <-> GameManager communication
 class StartEnvMsg:
     pass
 
@@ -129,8 +129,8 @@ class AreYouInitializedMsg:
         pass
 
 class IAmInitializedMsg:
-    def __init__(self):
-        pass
+    def __init__(self, engine=None):
+        self.engine = engine
 
 class IAmUninitializedMsg:
     def __init__(self):

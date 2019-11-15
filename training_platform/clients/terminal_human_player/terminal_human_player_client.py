@@ -11,7 +11,7 @@ from parse import parse
 from thespian.actors import *
 
 from training_platform.server.common import *
-from training_platform.clients.basic_player_clients.terminal_human_player_agent import HumanPlayerAgent
+from training_platform.clients.terminal_human_player.terminal_human_player_agent import HumanPlayerAgent
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player
@@ -32,7 +32,7 @@ if __name__ == '__main__':
     if not argc == 3:
         print(f"Invalid arguments number: {argc-1} (should be 2)")
         print("Try again with following arguments:")
-        print("python player_client.py <player_name> <player_mark>")
+        print("python agent_client.py <player_name> <player_mark>")
         exit()
     player_name = sys.argv[1]
     player_mark = int(sys.argv[2])
@@ -45,7 +45,7 @@ if __name__ == '__main__':
     game_manager_addr = asys.createActor(GameManager, globalName="GameManager")
     logger_addr = asys.createActor(Logger, globalName="Logger")
 
-    # Server joining
+    # EnvironmentServer joining
     asys.tell(match_maker_addr, JoinMsg(player))
     log("Attempt of server joining")
 
@@ -80,7 +80,7 @@ if __name__ == '__main__':
             n = int(result[0])
             player = msg.available_or_replaceable_players[n]
 
-            # Server rejoining
+            # EnvironmentServer rejoining
             asys.tell(match_maker_addr, JoinMsg(player))
 
         elif isinstance(msg, JoinAcknowledgementsMsg):

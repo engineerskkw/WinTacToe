@@ -125,7 +125,7 @@ class TicTacToeClientActor(Actor):
             # n = int(result[0])
             # player = msg.available_or_replaceable_players[n]
 
-            # Server rejoining
+            # EnvironmentServer rejoining
             # asys.tell(match_maker_addr, JoinMsg(player))
 
         elif isinstance(msg, JoinAcknowledgementsMsg):
@@ -170,7 +170,7 @@ class TicTacToeComponent(AbstractComponent):
 
         # Opponent initialization (and implicitly joining)
         call_string = "python rl_player_client.py \"Player 1\" 1"
-        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "basic_player_clients")
+        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "terminal_human_player")
         subprocess.Popen(call_string, shell=True, cwd=cwd)
 
         self._scene = TicTacToeScene(self, app.screen, self._board_size)

@@ -25,7 +25,7 @@ if __name__ == '__main__':
     board_size = int(sys.argv[2])
     marks_required = int(sys.argv[3])
 
-    # Server starting
+    # EnvironmentServer starting
     asys = ActorSystem('multiprocTCPBase')
     game_manager = asys.createActor(GameManager, globalName="GameManager")
     asys.tell(game_manager, InitGameManagerMsg(TicTacToeEngine(no_of_players, board_size, marks_required)))
