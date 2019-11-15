@@ -101,7 +101,7 @@ class PlayerClientActor(Actor):
         self.send(self.logger_addr, LogMsg(text, f"client:{self.player}"))
 
 
-class PlayerClient:
+class AgentClient:
     def __init__(self, agent):
         self.agent = agent
         self.asys = ActorSystem('multiprocTCPBase')

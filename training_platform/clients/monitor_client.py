@@ -28,7 +28,7 @@ if __name__ == '__main__':
     game_manager_addr = asys.createActor(GameManager, globalName="GameManager")
     logger_addr = asys.createActor(Logger, globalName="Logger")
 
-    # Server joining
+    # EnvironmentServer joining
     asys.tell(logger_addr, JoinMonitorMsg())
 
     # Messages dispatcher

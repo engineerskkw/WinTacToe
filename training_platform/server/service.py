@@ -41,7 +41,7 @@ class GameManager(Actor):
 
         elif isinstance(msg, AreYouInitializedMsg):
             if self.initialized:
-                response = IAmInitializedMsg()
+                response = IAmInitializedMsg(self.environment)
             else:
                 response = IAmUninitializedMsg()
             self.send(sender, response)
@@ -145,8 +145,8 @@ class MatchMaker(Actor):
                     if value == "available" or value == "replaceable":
                         return
 
-                # Launch a game
-                self.log("Launching the game!")
+                # Send player_clients mapping to the GameManager
+                self.log("Clients for all players have joined!")
                 self.send(self.game_manager_addr, PlayerClientsMsg(self.players_clients))
 
             elif self.players_clients.get(msg.player) == "replaceable":
