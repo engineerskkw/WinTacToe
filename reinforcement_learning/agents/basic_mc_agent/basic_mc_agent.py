@@ -68,7 +68,6 @@ class BasicAgent(Agent):
     # RL Monte Carlo algorithm
     def pass_episode(self):
         episode = self.last_episode
-        print(f"EPISODE:\n{episode}")
         gamma = 0.9  # Discount factor
         G = 0.0  # Episode's accumulative discounted total reward/return
         steps_no = len(episode) // 3
