@@ -69,7 +69,6 @@ class PlayerClientActor(Actor):
             self.log(f"Received state \n{state}\n and take action {action}")
             self.send(self.game_manager_addr, TakeActionMsg(action))
 
-
         elif isinstance(msg, RewardMsg):
             self.agent.receive_reward(msg.reward)
 

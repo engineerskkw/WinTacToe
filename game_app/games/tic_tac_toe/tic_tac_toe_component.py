@@ -10,16 +10,17 @@ from thespian.actors import *
 import pygame
 from pygame.locals import MOUSEBUTTONUP
 from enum import Enum
-import subprocess
 
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
-from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, TicTacToeAction
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.server.common import *
-from training_platform.server.service import GameManager, MatchMaker
+from training_platform.server.service import MatchMaker
 from training_platform.server.logger import Logger
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
+from training_platform import EnvironmentServer, AgentClient
+from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 
 
 class TurnState(Enum):
@@ -48,7 +49,6 @@ class InitTTTClientActorMsg:
         self.logger_addr = logger_addr
 
 
-# TODO: move player making to the server or remove it completely
 class JoinServerMsg:
     def __init__(self, player):
         self.player = player
@@ -66,7 +66,7 @@ class TicTacToeClientActor(Actor):
         self.match_maker_addr = None
         self.game_manager_addr = None
         self.logger_addr = None
-        self.player = None  # TODO: remove it after implementation of better player handling
+        self.player = None
 
     def receiveMessage(self, msg, sender):
         # Message exchanged between GUI and client at every tic of application
@@ -148,11 +148,12 @@ class TicTacToeComponent(AbstractComponent):
         self._marks_required = marks_required
         self._mark = mark
 
-        # TODO: move actor system starting here
-
-        # GameManager initialization
+        # Training Platform initialization
         engine = TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)
-        self._app.actorSystem.tell(self._app.tic_tac_toe_game_manager, InitGameManagerMsg(engine))
+        server = EnvironmentServer(engine)
+        players = server.players
+        p0 = players[0]
+        p1 = players[1]
 
         # TicTacToeClientActor initialization
         self._client_actor_address = self._app.actorSystem.createActor(TicTacToeClientActor)
@@ -162,16 +163,15 @@ class TicTacToeComponent(AbstractComponent):
         self._app.actorSystem.tell(self._client_actor_address, msg)
 
         # TicTacToeClientActor server joining
-        # TODO: move player making to the server or remove it completely
-        player_name = "Player 0"
-        player_mark = 0
-        player = Player(player_name, player_mark)
-        self._app.actorSystem.tell(self._client_actor_address, JoinServerMsg(player))
+        self._app.actorSystem.tell(self._client_actor_address, JoinServerMsg(p0))
 
         # Opponent initialization (and implicitly joining)
-        call_string = "python rl_player_client.py \"Player 1\" 1"
-        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "terminal_human_player")
-        subprocess.Popen(call_string, shell=True, cwd=cwd)
+        p1 = players[1]
+        c1 = AgentClient(BasicAgent())
+        server.join(c1, p1)
+
+        # Environment starting
+        server.start(blocking=False)
 
         self._scene = TicTacToeScene(self, app.screen, self._board_size)
         self.turn = TurnState.YOUR_TURN
