@@ -21,10 +21,9 @@ class InitMatchMakerMsg:
         self.players = players
 
 
-class LaunchGameMsg:
-    def __init__(self, players_clients, relaunch=False):
+class PlayerClientsMsg:
+    def __init__(self, players_clients):
         self.players_clients = players_clients
-        self.relaunch = relaunch
 
 
 # player_client script <-> MatchMaker communication
@@ -42,7 +41,7 @@ class JoinAcknowledgementsMsg:
     pass
 
 
-class ServiceNotLaunchedMsg:
+class ServiceUninitializedMsg:
     pass
 
 
@@ -50,7 +49,11 @@ class DetachMsg:
     pass
 
 
-# player_client script <-> GameManager communication
+# PlayerClient <-> GameManager communication
+class StartEnvMsg:
+    pass
+
+
 class YourTurnMsg:
     def __init__(self, state, action_space):
         self.state = state
@@ -68,9 +71,17 @@ class RewardMsg:
 
 
 class GameOverMsg:
-    def __init__(self, state, winnings):
+    def __init__(self, state=None, winnings=None):
         self.state = state
         self.winnings = winnings
+
+
+class GameRestartedMsg:
+    pass
+
+
+class ShutdownAcknowledgement:
+    pass
 
 
 # GUI <-> GameManager communication
@@ -80,6 +91,13 @@ class StateUpdateMsg:
 
 
 class RestartEnvMsg:
+    pass
+
+
+class NotReadyToStartMsg:
+    pass
+
+class StartedMsg:
     pass
 
 
@@ -104,3 +122,24 @@ class LogMsg:
 
     def __str__(self):
         return f"{self.time.__str__()} [{self.author}]: {self.text}"
+
+# Messages for initialization checking
+class AreYouInitializedMsg:
+    def __init__(self):
+        pass
+
+class IAmInitializedMsg:
+    def __init__(self):
+        pass
+
+class IAmUninitializedMsg:
+    def __init__(self):
+        pass
+
+class GetEngineMsg:
+    def __init__(self):
+        pass
+
+class EngineMsg:
+    def __init__(self, engine):
+        self.engine = engine
