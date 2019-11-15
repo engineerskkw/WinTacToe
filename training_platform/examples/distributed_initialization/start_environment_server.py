@@ -20,3 +20,4 @@ if __name__ == '__main__':
         server.start()
 
     server.shutdown()
+    print("Training platform has been shutdowned!")
