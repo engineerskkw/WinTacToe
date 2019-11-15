@@ -25,9 +25,9 @@ class Episode(list):
             if isinstance(element, float):
                 representation += 'Reward:\n'
             elif isinstance(element, AbstractState):
-                representation += 'SimpleState:\n'
+                representation += 'State:\n'
             elif isinstance(element, AbstractAction):
-                representation += 'SimpleAction:\n'
+                representation += 'Action:\n'
             else:
                 raise Exception("Ivalid episode's element error")
             representation += str(element)
