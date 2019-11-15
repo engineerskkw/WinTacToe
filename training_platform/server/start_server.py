@@ -10,7 +10,7 @@ from thespian.actors import *
 
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform.server.common import *
-from training_platform.server.service import GameManager
+from training_platform import EnvironmentServer
 
 
 if __name__ == '__main__':
@@ -25,7 +25,9 @@ if __name__ == '__main__':
     board_size = int(sys.argv[2])
     marks_required = int(sys.argv[3])
 
-    # EnvironmentServer starting
-    asys = ActorSystem('multiprocTCPBase')
-    game_manager = asys.createActor(GameManager, globalName="GameManager")
-    asys.tell(game_manager, InitGameManagerMsg(TicTacToeEngine(no_of_players, board_size, marks_required)))
+    server = EnvironmentServer(TicTacToeEngine(no_of_players, board_size, marks_required))
+
+    input("Press ENTER after all players have joined")
+
+    server.start()
+    print("Episode has ended!")
