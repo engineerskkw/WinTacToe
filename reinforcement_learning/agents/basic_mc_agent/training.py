@@ -8,35 +8,54 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
-import matplotlib.pyplot as plt
-from thespian.actors import *
-import subprocess
-
-from training_platform.server.service import GameManager
-from training_platform.server.common import *
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 import time
 
 if __name__ == '__main__':
-    # Environment initialization
-    asys = ActorSystem('multiprocTCPBase')
-    game_manager = asys.createActor(GameManager, globalName="GameManager")
-    asys.tell(game_manager, InitGameManagerMsg(TicTacToeEngine(2, 3, 3)))
+    # CENTRAL INITIALIZATION
+    from training_platform.server.server import Server
+    from training_platform.clients.player_client import PlayerClient
+    server = Server(TicTacToeEngine(2, 3, 3))
+    players = server.players
+    p0 = players[0]
+    p1 = players[1]
 
-    # Agents initialization
-    for i in range(2):
-        call_string = f"python rl_player_client.py \"Player {i}\" {i}"
-        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "basic_player_clients")
-        subprocess.Popen(call_string, shell=True, cwd=cwd)
+    c0 = PlayerClient(BasicAgent())
+    c1 = PlayerClient(BasicAgent())
 
-    episodes_number = 1
-    for i in range(episodes_number):
-        time.sleep(1)
-        asys.tell(game_manager, RestartEnvMsg())
+    server.join(c0, p0)
+    server.join(c1, p1)
 
-    asys.tell(game_manager, ActorExitRequest())
-    asys.shutdown()
+    times = []
+
+    for i in range(1000):
+        print(i)
+        start = time.time()
+        server.start()
+        end = time.time()
+        times.append(end - start)
+
+    server.shutdown()
+
+    print(np.mean(times))
+
+    # server.restart()
+
+    # # DISTRIBUTED INITIALIZATION
+    # # Server script
+    # from TrainingPlatform import Server
+    # server = Server(SomeEngine())
+    #
+    # # PlayerClient script
+    # from TrainingPlatform import Server, Client
+    # p = Server().get_players()[0]
+    #
+    # c = Client(SomeRLAgent())
+    # c.join(p)
+
+
+
 
     # # Plot
     # agent_data = mces.agent1_G

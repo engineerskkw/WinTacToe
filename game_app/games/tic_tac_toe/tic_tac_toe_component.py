@@ -106,7 +106,7 @@ class TicTacToeClientActor(Actor):
             self._events_to_post += [state_changed_event]
 
         # TODO: implement errors handling in GUI-friendly way
-        elif isinstance(msg, ServiceNotLaunchedMsg):
+        elif isinstance(msg, ServiceUninitializedMsg):
             pass
             # log("Attempt of using not launched service")
             # _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
