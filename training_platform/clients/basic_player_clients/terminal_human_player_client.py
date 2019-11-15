@@ -32,7 +32,7 @@ if __name__ == '__main__':
     if not argc == 3:
         print(f"Invalid arguments number: {argc-1} (should be 2)")
         print("Try again with following arguments:")
-        print("python client.py <player_name> <player_mark>")
+        print("python player_client.py <player_name> <player_mark>")
         exit()
     player_name = sys.argv[1]
     player_mark = int(sys.argv[2])
@@ -63,7 +63,7 @@ if __name__ == '__main__':
             agent.exit(msg.state)
             exit()
 
-        elif isinstance(msg, ServiceNotLaunchedMsg):
+        elif isinstance(msg, ServiceUninitializedMsg):
             log("Attempt of using not launched service")
             _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
             asys.tell(match_maker_addr, JoinMsg(player))
