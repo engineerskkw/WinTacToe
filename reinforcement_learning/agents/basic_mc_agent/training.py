@@ -14,44 +14,52 @@ import time
 
 if __name__ == '__main__':
     # CENTRAL INITIALIZATION
-    from training_platform.server.server import Server
-    from training_platform.clients.player_client import PlayerClient
-    server = Server(TicTacToeEngine(2, 3, 3))
+    from training_platform.server.environment_server import EnvironmentServer
+    from training_platform.clients.agent_client import AgentClient
+    server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
     players = server.players
     p0 = players[0]
     p1 = players[1]
 
-    c0 = PlayerClient(BasicAgent())
-    c1 = PlayerClient(BasicAgent())
+    c0 = AgentClient(BasicAgent())
+    c1 = AgentClient(BasicAgent())
 
     server.join(c0, p0)
     server.join(c1, p1)
 
-    times = []
-
-    for i in range(1000):
+    for i in range(100):
         print(i)
-        start = time.time()
         server.start()
-        end = time.time()
-        times.append(end - start)
 
     server.shutdown()
 
-    print(np.mean(times))
-
-    # server.restart()
-
     # # DISTRIBUTED INITIALIZATION
-    # # Server script
-    # from TrainingPlatform import Server
-    # server = Server(SomeEngine())
+    # # EnvironmentServer script
+    # from training_platform.server.environment_server import EnvironmentServer
+    # from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
     #
-    # # PlayerClient script
-    # from TrainingPlatform import Server, Client
-    # p = Server().get_players()[0]
+    # server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
+    # # After all player joinning
+    # server.start()
     #
-    # c = Client(SomeRLAgent())
+    # # AgentClient for player 0 script
+    # from training_platform.server.environment_server import EnvironmentServer
+    # from training_platform.clients.player_client import AgentClient
+    # from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
+    #
+    # server = EnvironmentServer()
+    # p = server.players[0]
+    # c = AgentClient(BasicAgent())
+    # c.join(p)
+    #
+    # # AgentClient for player 1 script
+    # from training_platform.server.environment_server import EnvironmentServer
+    # from training_platform.clients.player_client import AgentClient
+    # from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
+    #
+    # server = EnvironmentServer()
+    # p = server.players[0]
+    # c = AgentClient(BasicAgent())
     # c.join(p)
 
 
