@@ -33,4 +33,4 @@ if __name__ == '__main__':
     print("All episodes finished")
 
     server.shutdown()
-    print("Server has been shutdowned!")
+    print("Training platform has been shutdowned!")
