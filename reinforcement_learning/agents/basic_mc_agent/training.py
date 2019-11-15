@@ -7,15 +7,13 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import numpy as np
+
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-import time
+from training_platform import EnvironmentServer
+from training_platform import AgentClient
 
 if __name__ == '__main__':
-    # CENTRAL INITIALIZATION
-    from training_platform.server.environment_server import EnvironmentServer
-    from training_platform.clients.agent_client import AgentClient
     server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
     players = server.players
     p0 = players[0]
@@ -32,38 +30,6 @@ if __name__ == '__main__':
         server.start()
 
     server.shutdown()
-
-    # # DISTRIBUTED INITIALIZATION
-    # # EnvironmentServer script
-    # from training_platform.server.environment_server import EnvironmentServer
-    # from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
-    #
-    # server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
-    # # After all player joinning
-    # server.start()
-    #
-    # # AgentClient for player 0 script
-    # from training_platform.server.environment_server import EnvironmentServer
-    # from training_platform.clients.player_client import AgentClient
-    # from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-    #
-    # server = EnvironmentServer()
-    # p = server.players[0]
-    # c = AgentClient(BasicAgent())
-    # c.join(p)
-    #
-    # # AgentClient for player 1 script
-    # from training_platform.server.environment_server import EnvironmentServer
-    # from training_platform.clients.player_client import AgentClient
-    # from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-    #
-    # server = EnvironmentServer()
-    # p = server.players[0]
-    # c = AgentClient(BasicAgent())
-    # c.join(p)
-
-
-
 
     # # Plot
     # agent_data = mces.agent1_G
