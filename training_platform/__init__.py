@@ -9,3 +9,4 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from training_platform.server.environment_server import EnvironmentServer
 from training_platform.clients.agent_client import AgentClient
+from training_platform.clients.monitor_client import MonitorClient
