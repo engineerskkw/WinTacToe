@@ -1,5 +1,5 @@
 # WinTacToe
-WinTacToe is a system for training **reinforcement learning agents** to play tic-tac-toe-related games.
+WinTacToe is a system for training **reinforcement learning** agents to play tic-tac-toe-related games.
 It consists of the following elements:
 * Multiple, diverse game environments
 * RL agents of various architectures and levels of advancement
