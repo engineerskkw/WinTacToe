@@ -68,10 +68,7 @@ class Application:
         ev = pygame.event.Event(pygame.USEREVENT, {'new_game_state': 1})
         pygame.event.post(ev)
         self._block_events = True
-        if args:
-            self._current_component = self._components[component](self, **args)
-        else:
-            self._current_component = self._components[component](self)
+        self._current_component = self._components[component](self, **args)
         pygame.event.clear()
         self._block_events = False
 

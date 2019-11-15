@@ -73,33 +73,31 @@ class TicTacToeLaunchMenuLogic:
 
         self._mark_buttons = [RectangularChoiceButton("X",
                                                       lambda: self.change_mark(0),
-                                                      (500, 500),
+                                                      (490, 500),
                                                       (130, 100),
                                                       True),
                               RectangularChoiceButton("O",
                                                       lambda: self.change_mark(1),
-                                                      (700, 500),
+                                                      (660, 500),
                                                       (130, 100),
                                                       False),
                               ]
 
-        self._start_button = DisableableRectangularTextButton("Start",
+        self._start_button = DisableableRectangularTextButton("Let's go!",
+                                                              "Bad params",
                                                               lambda: self.switch_to_tic_tac_toe(),
-                                                              (450, 550),
-                                                              (380, 100),
+                                                              (1030, 590),
+                                                              (230, 110),
                                                               False)
 
         self._back_to_menu_button = RoundIconButton(
-            'game_app/resources/images/menus/tic_tac_toe_launch_menu/left-arrow.png',
+            'game_app/resources/images/tic_tac_toe_launch_menu/left_arrow_white.png',
             lambda: self.switch_back_to_main_menu(),
-            (50, 50),
-            35)
+            (40, 40),
+            30)
 
-        self.all_buttons = [self._start_button, self._back_to_menu_button] \
-                           + self._size_buttons + self._marks_required_buttons + self._mark_buttons
-
-        self._button_click_sound = Sound(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav"))
+        self.all_buttons = [self._start_button, self._back_to_menu_button] + \
+                           self._size_buttons + self._marks_required_buttons + self._mark_buttons
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
@@ -112,7 +110,6 @@ class TicTacToeLaunchMenuLogic:
                 size_button.set_chosen(False)
             self._board_size = new_size
             self._start_button.set_disabled(new_size < self._marks_required)
-        self._button_click_sound.play()
 
     def change_marks_required(self, new_marks_required):
         if new_marks_required != self._marks_required:
@@ -120,14 +117,12 @@ class TicTacToeLaunchMenuLogic:
                 button.set_chosen(False)
             self._marks_required = new_marks_required
             self._start_button.set_disabled(new_marks_required > self._board_size)
-        self._button_click_sound.play()
 
     def change_mark(self, new_mark):
         if new_mark != self._mark:
             for button in self._mark_buttons:
                 button.set_chosen(False)
             self._mark = new_mark
-        self._button_click_sound.play()
 
     def switch_back_to_main_menu(self):
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)

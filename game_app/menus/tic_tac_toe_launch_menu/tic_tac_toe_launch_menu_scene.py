@@ -13,7 +13,8 @@ class TicTacToeLaunchMenuScene:
     def __init__(self, component, screen):
         self._component = component
         self._screen = screen
-        self._background_color = (100, 100, 100)
+        self._text_color = (255, 255, 255)
+        self._background_color = (55, 55, 55)
         self._background_displayed = False
 
     def render(self):
@@ -30,10 +31,10 @@ class TicTacToeLaunchMenuScene:
             self._background_displayed = True
 
             pygame.font.init()
-            font = pygame.font.Font(None, 50)
-            text1 = font.render("Board Size", True, (255, 255, 255))
-            text2 = font.render("Goal", True, (255, 255, 255))
-            text3 = font.render("Your Mark", True, (255, 255, 255))
-            self._screen.blit(text1, (0, 0))
-            self._screen.blit(text2, (0, 300))
-            self._screen.blit(text3, (0, 500))
+            font = pygame.font.Font(None, 30)
+            text1 = font.render("Select size of the board:", True, self._text_color)
+            text2 = font.render("Select number of marks to connect required to win:", True, self._text_color)
+            text3 = font.render("Select your mark:", True, self._text_color)
+            self._screen.blit(text1, (640 - text1.get_width() / 2, 60))
+            self._screen.blit(text2, (640 - text2.get_width() / 2, 260))
+            self._screen.blit(text3, (640 - text3.get_width() / 2, 460))
