@@ -6,7 +6,9 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from thespian.actors import *
+from training_platform import EnvironmentServer
 
 if __name__ == '__main__':
-    ActorSystem('multiprocTCPBase').shutdown()
+    server = EnvironmentServer()
+    server.shutdown()
+    print("Training platform has been shutdowned!")
