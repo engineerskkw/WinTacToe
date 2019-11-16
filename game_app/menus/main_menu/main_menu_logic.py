@@ -16,15 +16,15 @@ class MainMenuLogic:
     def __init__(self, app):
         self._app = app
         self.buttons = [
-            RectangularTextButton("TicTacToe",
-                                  lambda: self.switch_to_tic_tac_toe(),
+            RectangularTextButton("Start game",
+                                  lambda: self.switch_to_tic_tac_toe_launcher_menu(),
                                   (450, 100),
                                   (380, 100)),
-            RectangularTextButton("TODO",
-                                  lambda: self.switch_to_tic_tac_toe_launcher_menu(),
+            RectangularTextButton("CreditsTODO",
+                                  lambda: print("TODO"),
                                   (450, 300),
                                   (380, 100)),
-            RectangularTextButton("TODO",
+            RectangularTextButton("SettingsTODO",
                                   lambda: print("TODO"),
                                   (450, 500),
                                   (380, 100)),
@@ -34,9 +34,6 @@ class MainMenuLogic:
         if event.type == MOUSEBUTTONUP:
             for pressed_button in filter(lambda button: button.contains_point(event.pos), self.buttons):
                 pressed_button.on_pressed()
-
-    def switch_to_tic_tac_toe(self):
-        self._app.switch_component(Components.TIC_TAC_TOE)
 
     def switch_to_tic_tac_toe_launcher_menu(self):
         self._app.switch_component(Components.TIC_TAC_TOE_LAUNCH_MENU)

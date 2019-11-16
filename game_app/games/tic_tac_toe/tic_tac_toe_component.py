@@ -104,7 +104,6 @@ class TicTacToeClientActor(Actor):
         elif isinstance(msg, StateUpdateMsg):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
             self._events_to_post += [state_changed_event]
-            # TODO: implement GUI-friendly state update
 
         # TODO: implement errors handling in GUI-friendly way
         elif isinstance(msg, ServiceNotLaunchedMsg):
@@ -140,14 +139,14 @@ class TicTacToeClientActor(Actor):
 
 
 class TicTacToeComponent(AbstractComponent):
-    def __init__(self, app):
+    def __init__(self, app, number_of_players=2, board_size=3, marks_required=3, mark=1):
         self._app = app
 
         # TODO stworzyc menu ktore pozwala wpisac te parametry (albo wybrac z proponowanych)
-        self._number_of_players = 2
-        self._board_size = 3
-        self._marks_required = 3
-        self._mark = 1
+        self._number_of_players = number_of_players
+        self._board_size = board_size
+        self._marks_required = marks_required
+        self._mark = mark
 
         # TODO: move actor system starting here
 
@@ -178,7 +177,8 @@ class TicTacToeComponent(AbstractComponent):
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
 
-        MusicSwitcher("resources/sounds/common/SneakyAdventure.mp3").start()
+        MusicSwitcher(
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3")).start()
 
     def render(self):
         self._scene.render()
@@ -205,8 +205,9 @@ class TicTacToeComponent(AbstractComponent):
             pygame.event.post(pygame.event.Event(event_type, event))
 
     def step(self, position):
-        y, x = position
-        action = TicTacToeAction(x, y)
+        self.turn = TurnState.NOT_YOUR_TURN
+        row, col = position
+        action = TicTacToeAction(row, col)
         self._app.actorSystem.tell(self._client_actor_address, MoveMsg(action))
 
     def restart(self):

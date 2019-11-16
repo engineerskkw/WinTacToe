@@ -10,7 +10,7 @@ from reinforcement_learning.abstract.abstract_state import AbstractState
 from reinforcement_learning.abstract.abstract_action import AbstractAction
 from reinforcement_learning.abstract.abstract_action_space import AbstractActionSpace
 
-from random import choice
+from random import choice, sample, randrange
 
 class Player:
     """Class representing a Tic Tac Toe player.
@@ -103,14 +103,14 @@ class TicTacToeState(AbstractState):
 
 
 class TicTacToeAction(AbstractAction):
-    def __init__(self, x, y):
-        self.x, self.y = x, y
+    def __init__(self, row, col):
+        self.row, self.col = row, col
 
     def __str__(self):
-        return f"({self.x}, {self.y})"
+        return f"({self.row}, {self.col})"
 
     def __hash__(self):
-        return hash((self.x, self.y))
+        return hash((self.row, self.col))
 
 
 class TicTacToeActionSpace(AbstractActionSpace):
@@ -120,9 +120,17 @@ class TicTacToeActionSpace(AbstractActionSpace):
     def __contains__(self, action):
         return action in self.actions
 
+    def __len__(self):
+        return len(self.actions)
+
     @property
     def random_action(self):
         return choice(self.actions)
+
+    @property
+    def random_actions(self, no_of_actions=None):
+        no_of_actions = randrange(1, len(self.actions)) if not no_of_actions else no_of_actions
+        return sample(self.actions, no_of_actions)
 
 
 class IllegalMoveError(Exception):

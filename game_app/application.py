@@ -39,7 +39,7 @@ class Application:
         pygame.mixer.init(buffer=256)
         pygame.init()
 
-        logo = pygame.image.load("resources/images/common/logo.png")
+        logo = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/images/common/logo.png"))
         pygame.display.set_icon(logo)
 
         pygame.display.set_caption("WinTacToe")
@@ -64,11 +64,11 @@ class Application:
         ActorSystem('multiprocTCPBase').shutdown()
         pygame.quit()
 
-    def switch_component(self, component):
+    def switch_component(self, component, **args):
         ev = pygame.event.Event(pygame.USEREVENT, {'new_game_state': 1})
         pygame.event.post(ev)
         self._block_events = True
-        self._current_component = self._components[component](self)
+        self._current_component = self._components[component](self, **args)
         pygame.event.clear()
         self._block_events = False
 
