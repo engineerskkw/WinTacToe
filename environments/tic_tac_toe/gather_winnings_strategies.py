@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from abc import ABC, abstractmethod
 import numpy as np
+import math
 
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 
@@ -109,38 +110,26 @@ class StandardGatherWinningsStrategy(GatherWinningsStrategy):
         if not board.last_point:
             return []
 
-        if board.size // 2 < board.marks_required:
+        if math.ceil(board.size/2) < board.marks_required:
             return AlternateGatherWinningsStrategy().run(board)
 
         winnings = []
-        x, y = board.last_point
+        row, col = board.last_point
 
         # Change the coordinates of the last move if it is in one of the corners
-        if x - board.marks_required < 0:
-            x = board.marks_required - 1
-        elif x + board.marks_required >= board.size:
-            x = board.size - board.marks_required
+        if row - board.marks_required < 0:
+            row = board.marks_required - 1
+        elif row + board.marks_required > board.size:
+            row = board.size - board.marks_required
 
-        if y - board.marks_required < 0:
-            y = board.marks_required - 1
-        elif y + board.marks_required >= board.size:
-            y = board.size - board.marks_required
+        if col - board.marks_required < 0:
+            col = board.marks_required - 1
+        elif col + board.marks_required > board.size:
+            col = board.size - board.marks_required
 
-        # Check 4 subboards surrounding last move made
-        subboard = board.raw_board[x:x + board.marks_required, y:y + board.marks_required]
-        top_left = (x, y)
-        winnings += self._check_subboard(subboard, top_left)
+        for i in range(row-board.marks_required+1, row+1):
+            for j in range(col-board.marks_required+1, col+1):
+                subboard = board.raw_board[i:i + board.marks_required, j:j + board.marks_required]
+                winnings += self._check_subboard(subboard, (i, j))
 
-        subboard = board.raw_board[x - board.marks_required + 1: x + 1, y:y + board.marks_required]
-        top_left = (x - board.marks_required, y)
-        winnings += self._check_subboard(subboard, top_left)
-
-        subboard = board.raw_board[x: x + board.marks_required, y - board.marks_required + 1:y + 1]
-        top_left = (x, y - board.marks_required)
-        winnings += self._check_subboard(subboard, top_left)
-
-        subboard = board.raw_board[x - board.marks_required + 1: x + 1, y - board.marks_required + 1:y + 1]
-        top_left = (x - board.marks_required, y - board.marks_required)
-        winnings += self._check_subboard(subboard, top_left)
-
-        return winnings
+        return [winnings[0]] if winnings else []

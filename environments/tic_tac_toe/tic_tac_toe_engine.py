@@ -1,16 +1,17 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
 import random
 from itertools import cycle
 
 from environments.tic_tac_toe.gather_winnings_strategies import *
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
+
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+REL_PROJECT_ROOT_PATH = "./../../../../"
+ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
+sys.path.append(ABS_PROJECT_ROOT_PATH)
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
 
 class _Board:
     def __init__(self, size, marks, marks_required):
@@ -47,29 +48,29 @@ class _Board:
     def unoccupied_fields(self):
         unoccupied_fields = []
 
-        for x in range(self.size):
-            for y in range(self.size):
-                if self._board[y, x] == -1:
-                    unoccupied_fields.append((x, y))
+        for row in range(self.size):
+            for col in range(self.size):
+                if self._board[row, col] == -1:
+                    unoccupied_fields.append((row, col))
 
         return unoccupied_fields
 
-    def place_mark(self, x, y, mark):
-        if self._board[y][x] == -1 and mark in self._marks:
-            self._board[y][x] = mark
-            self._points_placed.append((x, y))
+    def place_mark(self, row, col, mark):
+        if self._board[row][col] == -1 and mark in self._marks:
+            self._board[row][col] = mark
+            self._points_placed.append((row, col))
             self._marks_placed.append(mark)
 
-        elif self._board[y][x] != -1:
-            raise IllegalMoveError(f"These coordinates (x={x}, y={y}) are already taken... board: {self._board}")
+        elif self._board[row][col] != -1:
+            raise IllegalMoveError(f"These coordinates (row={row}, col={col}) are already taken...")
 
         elif mark not in self._marks:
             raise IllegalMoveError("This is an illegal mark...")
 
     def remove_last_mark(self):
         if self._points_placed:
-            last_x, last_y = self._points_placed.pop()
-            self._board[last_y][last_x] = -1
+            last_row, last_col = self._points_placed.pop()
+            self._board[last_row][last_col] = -1
             self._marks_placed.pop()
 
 
@@ -199,7 +200,7 @@ class TicTacToeEngine:
         TicTacToeActionSpace()
             Action space - list of actions containing tuples of the coordinates of the unoccupied fields on the board.
         """
-        return TicTacToeActionSpace([TicTacToeAction(x, y) for x, y in self._board.unoccupied_fields])
+        return TicTacToeActionSpace([TicTacToeAction(row, col) for row, col in self._board.unoccupied_fields])
 
     @property
     def rewards(self):
@@ -231,7 +232,7 @@ class TicTacToeEngine:
         return bool(self._winnings) or not bool(self.allowed_actions.actions)
 
     def make_move(self, action):
-        """Places a mark at the (x, y) coordinates indicated by the action
+        """Places a mark at the (row, col) coordinates indicated by the action
         and change the current player to the next one.
 
         Parameters
@@ -241,12 +242,12 @@ class TicTacToeEngine:
         Raises
         ------
         IllegalMoveError
-            If there is an illegal move made, that is coordinates x, y are already taken or there is an illegal mark.
+            If there is an illegal move made, that is coordinates row, col are already taken or there is an illegal mark.
         IndexError
             If there are invalid coordinates.
 
         """
-        self._board.place_mark(action.x, action.y, self._current_player.mark)
+        self._board.place_mark(action.row, action.col, self._current_player.mark)
         self._current_player = next(self._player_generator)
         self._gather_winnings()
 
@@ -261,13 +262,11 @@ class TicTacToeEngine:
         self.reset()
         random.seed(seed)
 
-        move_space = self.allowed_actions
-        no_of_moves = random.randint(1, len(move_space) - 1)
+        chosen_moves = self.allowed_actions.random_actions
 
-        for _ in range(no_of_moves):
-            x, y = random.choice(move_space)
+        for move in chosen_moves:
             try:
-                self.make_move(TicTacToeAction(x, y))
+                self.make_move(move)
                 if self.ended:
                     self._undo_last_move()
             except (IndexError, IllegalMoveError):
@@ -293,8 +292,8 @@ class TicTacToeEngine:
 
             while True:
                 try:
-                    x, y = input("Input coordinates: ")
-                    self.make_move(TicTacToeAction(int(x), int(y)))
+                    row, col = input("Input coordinates: ")
+                    self.make_move(TicTacToeAction(int(row), int(col)))
                     break
                 except IndexError:
                     print("These are not valid coordinates, try again...")
@@ -303,10 +302,13 @@ class TicTacToeEngine:
                     print(error)
                     continue
 
+        print(self._board.raw_board)
+
         try:
             winning_mark = list(self._winnings)[0].mark
             winner = next(filter(lambda player: player.mark == winning_mark, self._players))
             print(f"{winner} won!")
+            print(f"Winings: {self.winnings}")
         except (IndexError, StopIteration):
             print("There is a draw!")
 
@@ -321,14 +323,19 @@ class TicTacToeEngine:
     def _undo_last_move(self):
         last_mark = self._board.last_mark
         last_point = self._board.last_point
-        self._board.remove_last_mark()
 
+        self._board.remove_last_mark()
+        self._remove_last_winning(last_mark, last_point)
+        self._rewind_last_player(last_mark)
+
+    def _remove_last_winning(self, last_mark, last_point):
         try:
             last_winning = next(filter(lambda winning: winning.mark == last_mark and
-                                       last_point in winning.points_included, self._winnings))
+                                                       last_point in winning.points_included, self._winnings))
             self._winnings.remove(last_winning)
         except StopIteration:
             pass
 
+    def _rewind_last_player(self, last_mark):
         while self.current_player.mark != self._board.last_mark:
             self._current_player = next(self._player_generator)
