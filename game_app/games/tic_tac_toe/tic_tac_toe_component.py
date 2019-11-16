@@ -206,8 +206,8 @@ class TicTacToeComponent(AbstractComponent):
 
     def step(self, position):
         self.turn = TurnState.NOT_YOUR_TURN
-        y, x = position
-        action = TicTacToeAction(x, y)
+        row, col = position
+        action = TicTacToeAction(row, col)
         self._app.actorSystem.tell(self._client_actor_address, MoveMsg(action))
 
     def restart(self):
