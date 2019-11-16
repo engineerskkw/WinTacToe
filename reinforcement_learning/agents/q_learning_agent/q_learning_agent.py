@@ -17,29 +17,41 @@ class QLearningAgent(Agent):
         self.step_size = step_size
         self.epsilon = epsilon
         self.delta = delta
+        self.performance_measure = []
 
-        self.prev_action = None
-        self.prev_state = None
-        self.prev_reward = None
+        self._prev_action = None
+        self._prev_state = None
+        self._prev_reward = None
+        self._current_episode_return = 0
 
     def take_action(self, state, allowed_actions):
-        if not self.prev_state:
-            self.update_rule(self.prev_state, self.prev_action, self.prev_reward, state)
+        if self._prev_state:
+            self._update(state)
 
         action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
-        self.prev_action = action
-        self.prev_state = state
+        self._prev_action = action
+        self._prev_state = state
 
         return action
 
     def receive_reward(self, reward):
-        self.prev_reward = reward
-
-    def update_rule(self, prev_state, prev_action, reward_for_prev_action, current_state):
-        prev_action_value = self.action_value[prev_state, prev_action]
-        error = self.step_size * \
-                (reward_for_prev_action + self.delta * self.action_value.max_over_actions(current_state) - prev_action_value)
-        self.action_value[prev_state, prev_action] = prev_action_value + error
+        self._prev_reward = reward
+        self._current_episode_return += reward
 
     def exit(self, terminal_state):
-        self.update_rule(self.prev_state, self.prev_action, self.prev_reward, terminal_state)
+        self._update(terminal_state)
+        self.performance_measure.append(self._current_episode_return)
+        self._reset_prev_info()
+
+    def _update(self, new_state):
+        prev_action_value = self.action_value[self._prev_state, self._prev_action]
+        error = self.step_size * \
+            (self._prev_reward + self.delta * self.action_value.max_over_actions(new_state) - prev_action_value)
+        self.action_value[self._prev_state, self._prev_action] = prev_action_value + error
+
+    def _reset_prev_info(self):
+        self._prev_action = None
+        self._prev_state = None
+        self._prev_reward = None
+        self._current_episode_return = 0
+
