@@ -70,6 +70,7 @@ class PlayerClientActor(Actor):
             self.send(self.game_manager_addr, TakeActionMsg(action))
 
         elif isinstance(msg, RewardMsg):
+            self.log(f"Reward: {msg.reward}")
             self.agent.receive_reward(msg.reward)
 
         elif isinstance(msg, GameOverMsg):
