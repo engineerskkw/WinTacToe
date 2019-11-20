@@ -6,8 +6,12 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import datetime
+import configparser
+config = configparser.ConfigParser()
+config.read(os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "config.ini"))
+ACTOR_SYSTEM_BASE = config["TRAINING PLATFORM PARAMETERS"]["actorsystembase"]
 
+import datetime
 
 # start_server script <-> GameManager Actor communication
 class InitGameManagerMsg:
@@ -154,3 +158,6 @@ class UnexpectedMessageError(Exception):
 
     def __str__(self):
         return f"Received unexpected message: {str(self.message)}"
+
+class MonitorJoinAcknowledgement:
+    pass
