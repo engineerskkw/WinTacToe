@@ -23,6 +23,7 @@ def signal_handler(sig, frame):
 
 def log(text):
     asys.tell(logger_addr, LogMsg(text, f"client:{player}"))
+    print(text)
 
 if __name__ == '__main__':
     signal.signal(signal.SIGINT, signal_handler)
@@ -40,7 +41,7 @@ if __name__ == '__main__':
     # Initialization
     player = Player(player_name, player_mark)
     agent = HumanPlayerAgent()
-    asys = ActorSystem('multiprocTCPBase')
+    asys = ActorSystem(ACTOR_SYSTEM_BASE)
     match_maker_addr = asys.createActor(MatchMaker, globalName="MatchMaker")
     game_manager_addr = asys.createActor(GameManager, globalName="GameManager")
     logger_addr = asys.createActor(Logger, globalName="Logger")
@@ -52,25 +53,15 @@ if __name__ == '__main__':
     # Messages dispatcher
     while True:
         msg = asys.listen()
-        if isinstance(msg, YourTurnMsg):
-            asys.tell(game_manager_addr, TakeActionMsg(agent.take_action(msg.state, msg.action_space)))
-            print("Waiting for your turn...")
-
-        elif isinstance(msg, RewardMsg):
-            agent.receive_reward(msg.reward)
-
-        elif isinstance(msg, GameOverMsg):
-            agent.exit(msg.state)
+        # Joining messages
+        if isinstance(msg, MatchMakerUninitializedMsg):
+            log("Can't join server because MatchMaker hasn't ben initialized")
             exit()
 
-        elif isinstance(msg, ServiceUninitializedMsg):
-            log("Attempt of using not launched service")
-            _ = input("Service hasn't been launched yet. Launch service and then press Enter...")
-            asys.tell(match_maker_addr, JoinMsg(player))
-
         elif isinstance(msg, InvalidPlayerMsg):
-            log("Invalid player received during joining client handling")
-            print("Invalid player received during joining client handling, try one of below:")
+            log("Invalid player sent during joining client handling")
+            print("Invalid player sent during joining client handling")
+            print("Try one of below:")
 
             for i in range(len(msg.available_or_replaceable_players)):
                 print(f"{i}: {msg.available_or_replaceable_players[i]}")
@@ -85,10 +76,19 @@ if __name__ == '__main__':
 
         elif isinstance(msg, JoinAcknowledgementsMsg):
             log("Succesfully joined server!")
-            print("Succesfully joined server!")
-            print("Waiting for your turn...")
+            print("wait for other players to make a move...")
 
-        elif isinstance(msg, StateUpdateMsg):
-            # TODO: StateUpdateMsg handling by clients which don't need it
+        # Playing messages
+        elif isinstance(msg, YourTurnMsg):
+            asys.tell(game_manager_addr, TakeActionMsg(agent.take_action(msg.state, msg.action_space)))
+            print("wait for other players to make a move...")
+
+        elif isinstance(msg, RewardMsg):
             pass
 
+        elif isinstance(msg, GameOverMsg):
+            agent.exit(msg.state)
+            exit()
+
+        elif isinstance(msg, StateUpdateMsg):
+            agent.update(msg.state)

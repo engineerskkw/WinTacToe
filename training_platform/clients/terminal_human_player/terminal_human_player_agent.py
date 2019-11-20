@@ -51,6 +51,10 @@ class HumanPlayerAgent(Agent):
             else:
                 print("Invalid action, try again")
 
+    def update(self, state):
+        print("State:")
+        pretty_print(state.board)
+
     def receive_reward(self, reward):
         pass
 
