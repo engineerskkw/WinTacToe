@@ -24,7 +24,7 @@ class MainMenuLogic:
                                   lambda: print("TODO"),
                                   (450, 300),
                                   (380, 100)),
-            RectangularTextButton("SettingsTODO",
+            RectangularTextButton("Settings",
                                   lambda: print("TODO"),
                                   (450, 500),
                                   (380, 100)),
