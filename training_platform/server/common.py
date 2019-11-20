@@ -125,21 +125,32 @@ class LogMsg:
 
 # Messages for initialization checking
 class AreYouInitializedMsg:
-    def __init__(self):
-        pass
+    pass
 
-class IAmInitializedMsg:
-    def __init__(self, engine=None):
-        self.engine = engine
 
-class IAmUninitializedMsg:
-    def __init__(self):
-        pass
+class GameManagerInitializedMsg:
+    def __init__(self, environment=None):
+        self.environment = environment
 
-class GetEngineMsg:
-    def __init__(self):
-        pass
 
-class EngineMsg:
-    def __init__(self, engine):
-        self.engine = engine
+class GameManagerUninitializedMsg:
+    pass
+
+
+class MatchMakerInitializedMsg:
+    pass
+
+
+class MatchMakerUninitializedMsg:
+    pass
+
+
+# Common errors
+
+
+class UnexpectedMessageError(Exception):
+    def __init(self, message):
+        self.message = message
+
+    def __str__(self):
+        return f"Received unexpected message: {str(self.message)}"

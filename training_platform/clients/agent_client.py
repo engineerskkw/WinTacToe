@@ -12,23 +12,6 @@ from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 
-class ServiceNotLaunchedError(Exception):
-    """Raised when client tries to join uninitialized server"""
-
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return str(self.message)
-
-class InvalidPlayerError(Exception):
-    """Raised when client tries to join server with invalid (or already allocated by other client) player"""
-
-    def __init__(self, message):
-        self.message = message
-
-    def __str__(self):
-        return str(self.message)
 
 class InitClientActorMsg:
     def __init__(self, agent, match_maker_addr, game_manager_addr, logger_addr):
@@ -38,7 +21,7 @@ class InitClientActorMsg:
         self.logger_addr = logger_addr
 
 
-class PlayerClientActor(Actor):
+class AgentClientActor(Actor):
     def __init__(self):
         super().__init__()
         self.agent = None
@@ -49,20 +32,31 @@ class PlayerClientActor(Actor):
         self.player = None
 
     def receiveMessage(self, msg, sender):
-        # Messages exchanged between client actor and client object
         if isinstance(msg, InitClientActorMsg):
             self.agent = msg.agent
             self.match_maker_addr = msg.match_maker_addr
             self.game_manager_addr = msg.game_manager_addr
             self.logger_addr = msg.logger_addr
             self.client_endpoint = sender
-            self.send(self.client_endpoint, IAmInitializedMsg())
+            self.send(self.client_endpoint, GameManagerInitializedMsg())
 
         elif isinstance(msg, JoinMsg):
             self.player = msg.player
             self.send(self.match_maker_addr, msg)
+            self.log("CCC")
 
-        # Messages exchanged between client actor and server
+        elif isinstance(msg, MatchMakerUninitializedMsg):
+            self.log("Can't join server because MatchMaker hasn't ben initialized")
+            self.send(self.client_endpoint, msg)
+
+        elif isinstance(msg, InvalidPlayerMsg):
+            self.log("Invalid player sent during joining server")
+            self.send(self.client_endpoint, msg)
+
+        elif isinstance(msg, JoinAcknowledgementsMsg):
+            self.send(self.client_endpoint, msg)
+            self.log("Successfully joined server!")
+
         elif isinstance(msg, YourTurnMsg):
             state = msg.state
             action = self.agent.take_action(msg.state, msg.action_space)
@@ -79,23 +73,11 @@ class PlayerClientActor(Actor):
         elif isinstance(msg, StateUpdateMsg):
             pass
 
-        elif isinstance(msg, ServiceUninitializedMsg):
-            self.log("Attempt of using uninitialized service")
-            self.send(self.client_endpoint, msg)
-
-        elif isinstance(msg, InvalidPlayerMsg):
-            self.log("Invalid player sent during joining server")
-            self.send(self.client_endpoint, msg)
-
-        elif isinstance(msg, JoinAcknowledgementsMsg):
-            self.send(self.client_endpoint, msg)
-            self.log("Successfully joined server!")
-
         elif isinstance(msg, ActorExitRequest):
             self.log("Exiting")
 
         else:
-            raise
+            raise UnexpectedMessageError(msg)
 
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, f"client:{self.player}"))
@@ -103,25 +85,44 @@ class PlayerClientActor(Actor):
 
 class AgentClient:
     def __init__(self, agent):
+        self.joined = False
         self.agent = agent
         self.asys = ActorSystem('multiprocTCPBase')
-        self.client_actor_address = self.asys.createActor(PlayerClientActor)
+        self.client_actor_address = self.asys.createActor(AgentClientActor)
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         msg = InitClientActorMsg(self.agent, self.match_maker_addr, self.game_manager_addr, self.logger_addr)
         response = self.asys.ask(self.client_actor_address, msg)
-        if not isinstance(response, IAmInitializedMsg):
-            raise
+        if not isinstance(response, GameManagerInitializedMsg):
+            raise UnexpectedMessageError(response)
 
     def join(self, player):
-        # TODO: checking if client actor is  not dead
+        if self.joined:
+            raise RejoiningError
+        print("bb")
         response = self.asys.ask(self.client_actor_address, JoinMsg(player))
-        if isinstance(response, ServiceUninitializedMsg):
-            raise ServiceNotLaunchedError("Attempt of using uninitialized service")
+        print("after response")
+        if isinstance(response, MatchMakerUninitializedMsg):
+            raise MatchMakerUninitializedError
         elif isinstance(response, InvalidPlayerMsg):
-            raise InvalidPlayerError("Invalid player sent during joining server")
+            raise InvalidPlayer
         elif isinstance(response, JoinAcknowledgementsMsg):
+            self.joined = True
             return True
-        else:
-            raise
+        raise UnexpectedMessageError
+
+
+class RejoiningError(Exception):
+    def __str__(self):
+        return "Attempt of rejoining while already joined"
+
+
+class InvalidPlayer(Exception):
+    def __str__(self):
+        return "Invalid player sent during joining server"
+
+
+class MatchMakerUninitializedError(Exception):
+    def __str__(self):
+        return "Can't join server because MatchMaker hasn't ben initialized"
