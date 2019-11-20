@@ -181,8 +181,10 @@ class MatchMaker(Actor):
                 if client == sender:
                     self.players_clients[player] = "replaceable"
                     self.log(f"Current players <-> clients mapping: {self.players_clients}")
+
         elif isinstance(msg, ActorExitRequest):
             self.log("Exiting")
+
         else:
             raise UnexpectedMessageError(msg)
 
