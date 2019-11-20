@@ -17,7 +17,7 @@ class MainMenuLogic:
         self._app = app
         self.buttons = [
             RectangularTextButton("Start game",
-                                  lambda: self.switch_to_tic_tac_toe_launcher_menu(),
+                                  self.switch_to_tic_tac_toe_launcher_menu,
                                   (450, 100),
                                   (380, 100)),
             RectangularTextButton("CreditsTODO",
@@ -25,7 +25,7 @@ class MainMenuLogic:
                                   (450, 300),
                                   (380, 100)),
             RectangularTextButton("Settings",
-                                  lambda: print("TODO"),
+                                  self.switch_to_settings,
                                   (450, 500),
                                   (380, 100)),
         ]
@@ -37,3 +37,6 @@ class MainMenuLogic:
 
     def switch_to_tic_tac_toe_launcher_menu(self):
         self._app.switch_component(Components.TIC_TAC_TOE_LAUNCH_MENU)
+
+    def switch_to_settings(self):
+        self._app.switch_component(Components.SETTINGS)
