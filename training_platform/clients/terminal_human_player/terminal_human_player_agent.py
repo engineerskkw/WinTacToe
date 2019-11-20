@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from parse import parse
 
-from training_platform.clients.basic_player_clients.abstract_agent import Agent
+from reinforcement_learning.abstract.abstract_agent import Agent
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 
 
@@ -36,7 +36,7 @@ class HumanPlayerAgent(Agent):
     def __init__(self):
         pass
 
-    def step(self, state, action_space):
+    def take_action(self, state, action_space):
         print("State:")
         pretty_print(state.board)
         while True:
@@ -51,8 +51,12 @@ class HumanPlayerAgent(Agent):
             else:
                 print("Invalid action, try again")
 
-    def reward(self, reward):
-        print(f"Received reward: {reward}")
+    def update(self, state):
+        print("State:")
+        pretty_print(state.board)
+
+    def receive_reward(self, reward):
+        pass
 
     def exit(self, final_state):
         print(f"Game Over:")
