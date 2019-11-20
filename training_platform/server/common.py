@@ -13,15 +13,9 @@ config = configparser.ConfigParser()
 config.read(os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "config.ini"))
 ACTOR_SYSTEM_BASE = config["TRAINING PLATFORM PARAMETERS"]["actorsystembase"]
 
+# MESSAGES
 
-
-# start_server script <-> GameManager Actor communication
-class InitGameManagerMsg:
-    def __init__(self, environment):
-        self.environment = environment
-
-
-# GameManager Actor <-> MatchMaker Actor communication
+# GameManager <-> MatchMaker communication
 class InitMatchMakerMsg:
     def __init__(self, players):
         self.players = players
@@ -32,7 +26,7 @@ class PlayerClientsMsg:
         self.players_clients = players_clients
 
 
-# player_client script <-> MatchMaker communication
+# AgentClient <-> AgentClientActor <-> MatchMaker communication
 class JoinMsg:
     def __init__(self, player):
         self.player = player
@@ -55,11 +49,7 @@ class DetachMsg:
     pass
 
 
-# AgentClient <-> GameManager communication
-class StartEnvMsg:
-    pass
-
-
+# AgentClient <-> AgentClientActor <-> GameManager communication
 class YourTurnMsg:
     def __init__(self, state, action_space):
         self.state = state
@@ -82,28 +72,34 @@ class GameOverMsg:
         self.winnings = winnings
 
 
-class GameRestartedMsg:
-    pass
-
-
-class ShutdownAcknowledgement:
-    pass
-
-
-# GUI <-> GameManager communication
 class StateUpdateMsg:
     def __init__(self, state):
         self.state = state
+
+
+# EnvironmentServer <-> GameManager communication
+class InitGameManagerMsg:
+    def __init__(self, environment):
+        self.environment = environment
+
+
+class StartEnvMsg:
+    pass
+
+
+class EnvStartedMsg:
+    pass
+
+
+class EnvNotReadyToStartMsg:
+    pass
 
 
 class RestartEnvMsg:
     pass
 
 
-class NotReadyToStartMsg:
-    pass
-
-class StartedMsg:
+class EnvRestartedMsg:
     pass
 
 
@@ -116,7 +112,7 @@ class JoinMonitorMsg:
     pass
 
 
-class DetachMonitorMsg:
+class MonitorJoinAcknowledgement:
     pass
 
 
@@ -128,6 +124,7 @@ class LogMsg:
 
     def __str__(self):
         return f"{self.time.__str__()} [{self.author}]: {self.text}"
+
 
 # Messages for initialization checking
 class AreYouInitializedMsg:
@@ -152,14 +149,9 @@ class MatchMakerUninitializedMsg:
 
 
 # Common errors
-
-
 class UnexpectedMessageError(Exception):
     def __init(self, message):
         self.message = message
 
     def __str__(self):
         return f"Received unexpected message: {str(self.message)}"
-
-class MonitorJoinAcknowledgement:
-    pass

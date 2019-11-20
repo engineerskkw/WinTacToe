@@ -52,7 +52,7 @@ class GameManager(Actor):
 
         elif isinstance(msg, StartEnvMsg):
             if not self.ready_to_start:
-                self.send(sender, NotReadyToStartMsg())
+                self.send(sender, EnvNotReadyToStartMsg())
                 return
             self.ready_to_start = False
             self.who_started_game = sender
@@ -62,7 +62,7 @@ class GameManager(Actor):
             self.log(f"Launched game with following players and clients: {self.players_clients}")
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
-            self.send(self.who_started_game, StartedMsg())
+            self.send(self.who_started_game, EnvStartedMsg())
 
 
         elif isinstance(msg, TakeActionMsg):
@@ -88,14 +88,14 @@ class GameManager(Actor):
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
-            self.send(self.who_started_game, GameRestartedMsg())
+            self.send(self.who_started_game, EnvRestartedMsg())
             self.who_started_game = sender
             self.environment.reset()
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
-            self.send(self.who_started_game, GameRestartedMsg())
+            self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
@@ -104,7 +104,6 @@ class GameManager(Actor):
                 self.send(client, ActorExitRequest())
             self.send(self.match_maker_addr, ActorExitRequest())
             self.send(self.logger_addr, ActorExitRequest())
-            self.send(sender, ShutdownAcknowledgement())
 
         else:
             raise UnexpectedMessageError(msg)

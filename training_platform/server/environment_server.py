@@ -75,19 +75,19 @@ class EnvironmentServer:
 
     def _start_non_blocking(self, response):
         """Non-blocking call, returns immediately after EnvironmentServer has started environment"""
-        if isinstance(response, StartedMsg):
+        if isinstance(response, EnvStartedMsg):
             return
-        elif isinstance(response, NotReadyToStartMsg):
+        elif isinstance(response, EnvNotReadyToStartMsg):
             raise EnvironmentNotReadyToStartError
         raise UnexpectedMessageError(response)
 
     def _start_blocking(self, response):
         """Blocking call, returns after completing or restarting of the episode started by this access-object"""
-        if isinstance(response, NotReadyToStartMsg):
+        if isinstance(response, EnvNotReadyToStartMsg):
             raise EnvironmentNotReadyToStartError
-        elif isinstance(response, StartedMsg):
+        elif isinstance(response, EnvStartedMsg):
             response = self.asys.listen()
-            if isinstance(response, GameOverMsg) or isinstance(response, GameRestartedMsg):
+            if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return True
         raise UnexpectedMessageError(response)
 
@@ -99,13 +99,13 @@ class EnvironmentServer:
             return self._restart_non_blocking(response)
 
     def _restart_non_blocking(self, response):
-        if isinstance(response, GameRestartedMsg):
+        if isinstance(response, EnvRestartedMsg):
             return
         raise UnexpectedMessageError(response)
 
     def _restart_blocking(self, response):
-        if isinstance(response, GameRestartedMsg):
-            if isinstance(response, GameOverMsg) or isinstance(response, GameRestartedMsg):
+        if isinstance(response, EnvRestartedMsg):
+            if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return
         raise UnexpectedMessageError(response)
 
