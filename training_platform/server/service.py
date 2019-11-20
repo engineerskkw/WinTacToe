@@ -122,7 +122,6 @@ class MatchMaker(Actor):
         self.initialized = False
 
     def receiveMessage(self, msg, sender):
-        self.log("cos odebralem")
         if isinstance(msg, InitMatchMakerMsg):
             self.game_manager_addr = self.createActor(GameManager, globalName="GameManager")
             self.logger_addr = self.createActor(Logger, globalName="Logger")
@@ -134,7 +133,6 @@ class MatchMaker(Actor):
             self.send(self.game_manager_addr, MatchMakerInitializedMsg())
 
         elif isinstance(msg, JoinMsg):
-            self.log("DDD")
             if not self.initialized:
                 self.log("Can't' join client, because MatchMaker hasn't been initialized")
                 self.send(sender, MatchMakerUninitializedMsg())
@@ -190,4 +188,5 @@ class MatchMaker(Actor):
             raise UnexpectedMessageError(msg)
 
     def log(self, text):
-        self.send(self.logger_addr, LogMsg(text, "MatchMaker"))
+        if self.logger_addr is not None:
+            self.send(self.logger_addr, LogMsg(text, "MatchMaker"))
