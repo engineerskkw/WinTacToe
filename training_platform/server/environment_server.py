@@ -34,7 +34,7 @@ class EnvServerReinitializingError(Exception):
 class EnvironmentServer:
     def __init__(self, engine=None):
         self.engine = engine
-        self.asys = ActorSystem('multiprocTCPBase')
+        self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self._connect()
@@ -88,7 +88,7 @@ class EnvironmentServer:
         elif isinstance(response, StartedMsg):
             response = self.asys.listen()
             if isinstance(response, GameOverMsg) or isinstance(response, GameRestartedMsg):
-                return
+                return True
         raise UnexpectedMessageError(response)
 
     def restart(self, blocking=True):
