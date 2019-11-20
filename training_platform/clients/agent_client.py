@@ -39,6 +39,7 @@ class AgentClientActor(Actor):
         self.player = None
 
     def receiveMessage(self, msg, sender):
+        # Initialization
         if isinstance(msg, InitClientActorMsg):
             self.agent = msg.agent
             self.match_maker_addr = msg.match_maker_addr
@@ -47,6 +48,7 @@ class AgentClientActor(Actor):
             self.client_endpoint = sender
             self.send(self.client_endpoint, GameManagerInitializedMsg())
 
+        # Joining server
         elif isinstance(msg, JoinMsg):
             self.player = msg.player
             self.send(self.match_maker_addr, msg)
@@ -66,6 +68,7 @@ class AgentClientActor(Actor):
         elif isinstance(msg, GetAgentMsg):
             self.send(self.client_endpoint, AgentMsg(self.agent, self.agent.Gs))
 
+        # Main Game loop
         elif isinstance(msg, YourTurnMsg):
             state = msg.state
             action = self.agent.take_action(msg.state, msg.action_space)
@@ -82,6 +85,7 @@ class AgentClientActor(Actor):
         elif isinstance(msg, StateUpdateMsg):
             pass
 
+        # Exiting
         elif isinstance(msg, ActorExitRequest):
             self.log("Exiting")
 
