@@ -16,4 +16,4 @@ if __name__ == '__main__':
     p = server.players[0]
     c = AgentClient(BasicAgent())
     c.join(p)
-    print("Agent Client has joind server!")
+    print("Agent Client has joined server!")
