@@ -41,9 +41,8 @@ class GetAgentMsg:
     pass
 
 class AgentMsg:
-    def __init__(self, agent, Gs):
+    def __init__(self, agent):
         self.agent = agent
-        self.Gs = Gs
 
 class AgentClientActor(Actor):
     def __init__(self):
@@ -83,7 +82,7 @@ class AgentClientActor(Actor):
             self.log("Successfully joined server!")
 
         elif isinstance(msg, GetAgentMsg):
-            self.send(self.client_endpoint, AgentMsg(self.agent, self.agent.Gs))
+            self.send(self.client_endpoint, AgentMsg(self.agent))
 
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):
