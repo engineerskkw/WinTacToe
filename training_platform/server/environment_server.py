@@ -78,7 +78,7 @@ class EnvironmentServer:
     # TODO: rethink starting and restarting, blocking and  non-blocking, check corner cases
     def start(self, blocking=True):
         self.asys.tell(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
-        self.log("Sent StartEnvMsg(notify_on_end=blocking) to the GameManager")
+        self.log(f"Sent StartEnvMsg(notify_on_end={blocking}) to the GameManager")
         response = self.asys.listen()
         if blocking:
             return self._start_blocking(response)
@@ -108,7 +108,7 @@ class EnvironmentServer:
 
     def restart(self, blocking=True):
         self.asys.tell(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
-        self.log("Sent RestartEnvMsg(notify_on_end=blocking) to the GameManager")
+        self.log(f"Sent RestartEnvMsg(notify_on_end={blocking}) to the GameManager")
         response = self.asys.listen()
         if blocking:
             return self._restart_blocking(response)
