@@ -61,7 +61,6 @@ class Application:
         self._current_component.render()
 
     def _cleanup(self):
-        ActorSystem('multiprocTCPBase').shutdown()
         pygame.quit()
 
     def switch_component(self, component, **args):

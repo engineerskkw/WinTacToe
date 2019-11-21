@@ -1,6 +1,5 @@
 .idea
 __pycache__/
-src/reinforcement_learning/.ipynb_checkpoints/
-src/reinforcement_learning/Monte_Carlo_agent_alpha_draft.ipynb
-src/agents/.ipynb_checkpoints/
-src/components/games/tic_tac_toe/envs/__pycache__/
+training_platform/examples/agent0.ai
+training_platform/examples/agent1.ai
+

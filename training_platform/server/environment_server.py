@@ -11,64 +11,56 @@ from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 
-
-class UninitializedServerWithoutEngine(Exception):
-    """Raised when uninitialized server is spawned without engine"""
-
-    def __init__(self, message):
-        self.message = message
-
+class EnvironmentNotReadyToStartError(Exception):
     def __str__(self):
-        return str(self.message)
+        return "EnvironmentServer not ready to start (not all clients have joined or game is already started)"
 
 
-class InitializedServerWithEngine(Exception):
-    """Raised when initialized server is spawned with engine"""
-
-    def __init__(self, message):
-        self.message = message
-
+class AccessingUninitializedEnvServerError(Exception):
     def __str__(self):
-        return str(self.message)
+        return "Attempt of getting access-object of uninitialized EnvironmentServer. " \
+               "If you want initialize it try constructor EnvironmentServer(engine) " \
+               "with engine parameter."
 
-class ServerNotReadyToStart(Exception):
-    """Raised when server is called to start but it hasn't all player clients joined"""
 
-    def __init__(self, message):
-        self.message = message
-
+class EnvServerReinitializingError(Exception):
     def __str__(self):
-        return str(self.message)
+        return "Attempt of reinitializing already initialized EnvironmentServer with new engine! " \
+               "To get access-object to already initialized EnvironmentServer" \
+               "try constructor EnvironmentServer() without engine parameter."
 
 
 class EnvironmentServer:
     def __init__(self, engine=None):
         self.engine = engine
-        self.asys = ActorSystem('multiprocTCPBase')
+        self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
+        self._connect()
+
+    def _connect(self):
         response = self.asys.ask(self.game_manager_addr, AreYouInitializedMsg())
-
-        if isinstance(response, IAmInitializedMsg):
-            if self.engine is not None:
-                raise InitializedServerWithEngine("Initialized server spawned with engine")
+        if self.engine is None:
+            if isinstance(response, GameManagerInitializedMsg):
+                self.engine = response.environment
+            elif isinstance(response, GameManagerUninitializedMsg):
+                raise AccessingUninitializedEnvServerError
             else:
-                self.engine = response.engine
-
-        if isinstance(response, IAmUninitializedMsg):
-            if self.engine is None:
-                raise UninitializedServerWithoutEngine("Uninitialized server spawned without engine")
-            else:
+                raise UnexpectedMessageError(response)
+        else:
+            if isinstance(response, GameManagerInitializedMsg):
+                raise EnvServerReinitializingError
+            elif isinstance(response, GameManagerUninitializedMsg):
                 response = self.asys.ask(self.game_manager_addr, InitGameManagerMsg(self.engine))
-                if not isinstance(response, IAmInitializedMsg):
-                    raise
+                if not isinstance(response, GameManagerInitializedMsg):
+                    raise UnexpectedMessageError(response)
+            else:
+                raise UnexpectedMessageError(response)
 
     @property
     def players(self):
-        if self.engine is not None:
-            return self.engine.players
-        else:
-            return None
+        return self.engine.players
+
 
     def join(self, client, player):
         return client.join(player)
@@ -82,30 +74,24 @@ class EnvironmentServer:
             return self._start_non_blocking(response)
 
     def _start_non_blocking(self, response):
-        """Non-blocking call"""
-        if isinstance(response, StartedMsg):
+        """Non-blocking call, returns immediately after EnvironmentServer has started environment"""
+        if isinstance(response, EnvStartedMsg):
             return
-        elif isinstance(response, NotReadyToStartMsg):
-            raise ServerNotReadyToStart("EnvironmentServer not ready to start")
-        else:
-            raise
+        elif isinstance(response, EnvNotReadyToStartMsg):
+            raise EnvironmentNotReadyToStartError
+        raise UnexpectedMessageError(response)
 
     def _start_blocking(self, response):
-        """Blocking call"""
-        while True:
-            if isinstance(response, GameOverMsg):
-                return
-            elif isinstance(response, GameRestartedMsg):
-                return
-            elif isinstance(response, NotReadyToStartMsg):
-                raise ServerNotReadyToStart("EnvironmentServer not ready to start")
-            elif isinstance(response, StartedMsg):
-                response = self.asys.listen()
-            else:
-                raise
+        """Blocking call, returns after completing or restarting of the episode started by this access-object"""
+        if isinstance(response, EnvNotReadyToStartMsg):
+            raise EnvironmentNotReadyToStartError
+        elif isinstance(response, EnvStartedMsg):
+            response = self.asys.listen()
+            if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
+                return True
+        raise UnexpectedMessageError(response)
 
     def restart(self, blocking=True):
-
         response = self.asys.ask(self.game_manager_addr, RestartEnvMsg())
         if blocking:
             return self._restart_blocking(response)
@@ -113,18 +99,15 @@ class EnvironmentServer:
             return self._restart_non_blocking(response)
 
     def _restart_non_blocking(self, response):
-        if isinstance(response, GameRestartedMsg):
+        if isinstance(response, EnvRestartedMsg):
             return
-        else:
-            raise
+        raise UnexpectedMessageError(response)
 
     def _restart_blocking(self, response):
-        while True:
-            if isinstance(response, GameOverMsg):
-
+        if isinstance(response, EnvRestartedMsg):
+            if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return
-            else:
-                response = self.asys.listen()
+        raise UnexpectedMessageError(response)
 
     def shutdown(self):
         self.asys.shutdown()

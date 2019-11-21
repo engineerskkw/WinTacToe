@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
-
+import pickle
 
 class Agent(ABC):
     @abstractmethod
@@ -55,3 +55,12 @@ class Agent(ABC):
             Terminal state of the environment.
         """
         pass
+
+    def save(self, file_path):
+        with open(file_path, 'wb') as file:
+            pickle.dump(self, file)
+
+    @staticmethod
+    def load(file_path):
+        with open(file_path, 'rb') as file:
+            return pickle.load(file)

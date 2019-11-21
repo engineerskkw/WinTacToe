@@ -1,12 +1,12 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+import sys
+import os
 REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import subprocess
 from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.logger import Logger
@@ -27,43 +27,43 @@ class GameManager(Actor):
 
     def receiveMessage(self, msg, sender):
         if isinstance(msg, InitGameManagerMsg):
+            # TODO: maybe check if initialized already
             self.environment = msg.environment
             self.match_maker_addr = self.createActor(MatchMaker, globalName="MatchMaker")
             self.logger_addr = self.createActor(Logger, globalName="Logger")
             self.creator = sender
             self.send(self.match_maker_addr, InitMatchMakerMsg(self.environment.players))
 
-        elif isinstance(msg, IAmInitializedMsg):
-            if sender == self.match_maker_addr:
-                self.initialized = True
-                self.send(self.creator, IAmInitializedMsg())
-                self.log("Initialization done")
+        elif isinstance(msg, MatchMakerInitializedMsg):
+            self.initialized = True
+            self.log("Initialization done")
+            self.send(self.creator, GameManagerInitializedMsg())
 
         elif isinstance(msg, AreYouInitializedMsg):
             if self.initialized:
-                response = IAmInitializedMsg(self.environment)
+                response = GameManagerInitializedMsg(self.environment)
             else:
-                response = IAmUninitializedMsg()
+                response = GameManagerUninitializedMsg()
             self.send(sender, response)
 
         elif isinstance(msg, PlayerClientsMsg):
             self.players_clients = msg.players_clients
-
             self.ready_to_start = True
 
         elif isinstance(msg, StartEnvMsg):
             if not self.ready_to_start:
-                self.send(sender, NotReadyToStartMsg())
+                self.send(sender, EnvNotReadyToStartMsg())
                 return
             self.ready_to_start = False
             self.who_started_game = sender
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             self.environment.reset()
+            self.log(f"Launched game with following players and clients: {self.players_clients}")
             current_client = self.players_clients[self.environment.current_player]
             self.log(f"Launched game with following players and clients: {self.players_clients}")
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
-            self.send(sender, StartedMsg())
+            self.send(self.who_started_game, EnvStartedMsg())
 
 
         elif isinstance(msg, TakeActionMsg):
@@ -89,14 +89,15 @@ class GameManager(Actor):
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
-            self.send(self.who_started_game, GameRestartedMsg())
+            self.send(self.who_started_game, EnvRestartedMsg())
             self.who_started_game = sender
             self.environment.reset()
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
-            self.send(self.who_started_game, GameRestartedMsg())
+
+            self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
@@ -105,7 +106,8 @@ class GameManager(Actor):
                 self.send(client, ActorExitRequest())
             self.send(self.match_maker_addr, ActorExitRequest())
             self.send(self.logger_addr, ActorExitRequest())
-            self.send(sender, ShutdownAcknowledgement())
+        else:
+            raise UnexpectedMessageError(msg)
 
     def log(self, text):
         self.send(self.logger_addr, LogMsg(text, "GameManager"))
@@ -117,6 +119,7 @@ class MatchMaker(Actor):
         self.players_clients = {}
         self.game_manager_addr = None
         self.logger_addr = None
+        self.initialized = False
 
     def receiveMessage(self, msg, sender):
         if isinstance(msg, InitMatchMakerMsg):
@@ -124,15 +127,15 @@ class MatchMaker(Actor):
             self.logger_addr = self.createActor(Logger, globalName="Logger")
             for player in msg.players:
                 self.players_clients[player] = "available"
-
             self.log(f"Initial players <-> clients mapping: {self.players_clients}")
-            self.send(self.game_manager_addr, IAmInitializedMsg())
+            self.initialized = True
             self.log("Initialization done")
+            self.send(self.game_manager_addr, MatchMakerInitializedMsg())
 
         elif isinstance(msg, JoinMsg):
-            if self.game_manager_addr is None:
-                self.log("Can not join client, because service hasn't been initialized")
-                self.send(sender, ServiceUninitializedMsg())
+            if not self.initialized:
+                self.log("Can't' join client, because MatchMaker hasn't been initialized")
+                self.send(sender, MatchMakerUninitializedMsg())
                 return
 
             if self.players_clients.get(msg.player) == "available":
@@ -172,6 +175,7 @@ class MatchMaker(Actor):
                 self.send(sender, InvalidPlayerMsg(available_or_replaceable_players))
 
         elif isinstance(msg, DetachMsg):
+            # TODO: finish implementation of detaching in all places
             self.log(f"Detaching client: {sender}")
 
             for player, client in self.players_clients.items():
@@ -179,5 +183,12 @@ class MatchMaker(Actor):
                     self.players_clients[player] = "replaceable"
                     self.log(f"Current players <-> clients mapping: {self.players_clients}")
 
+        elif isinstance(msg, ActorExitRequest):
+            self.log("Exiting")
+
+        else:
+            raise UnexpectedMessageError(msg)
+
     def log(self, text):
-        self.send(self.logger_addr, LogMsg(text, "MatchMaker"))
+        if self.logger_addr is not None:
+            self.send(self.logger_addr, LogMsg(text, "MatchMaker"))
