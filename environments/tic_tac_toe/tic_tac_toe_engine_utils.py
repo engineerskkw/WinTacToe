@@ -124,7 +124,7 @@ class TicTacToeActionSpace(AbstractActionSpace):
         return len(self.actions)
 
     @property
-    def random_action(self):
+    def random_action(self, no_of_actions=None):
         return choice(self.actions)
 
     @property
