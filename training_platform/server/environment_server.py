@@ -75,7 +75,6 @@ class EnvironmentServer:
         self.log(f"Started joining client {client} to player {player} on server")
         return client.join(player)
 
-    # TODO: rethink starting and restarting, blocking and  non-blocking, check corner cases
     def start(self, blocking=True):
         self.asys.tell(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
         self.log(f"Sent StartEnvMsg(notify_on_end={blocking}) to the GameManager")
@@ -88,6 +87,7 @@ class EnvironmentServer:
     def _start_non_blocking(self, response):
         """Non-blocking call, returns immediately after EnvironmentServer has started environment"""
         self.log(f"Received response: {response} in _start_non_blocking")
+        print(f"Received response: {response} in _start_non_blocking")
         if isinstance(response, EnvStartedMsg):
             return
         elif isinstance(response, EnvNotReadyToStartMsg):
