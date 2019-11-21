@@ -24,6 +24,7 @@ class GameManager(Actor):
         self.creator = None
         self.ready_to_start = False
         self.who_started_game = None
+        self.notify_on_end = None
 
     def receiveMessage(self, msg, sender):
         if isinstance(msg, InitGameManagerMsg):
@@ -56,6 +57,7 @@ class GameManager(Actor):
                 return
             self.ready_to_start = False
             self.who_started_game = sender
+            self.notify_on_end = msg.notify_on_end
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             self.environment.reset()
@@ -63,7 +65,6 @@ class GameManager(Actor):
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
             self.send(self.who_started_game, EnvStartedMsg())
-
 
         elif isinstance(msg, TakeActionMsg):
             self.before_first_move[self.environment.current_player] = False
@@ -78,7 +79,8 @@ class GameManager(Actor):
                         self.send(client, RewardMsg(self.environment.rewards[player]))
                     self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
                 self.ready_to_start = True
-                self.send(self.who_started_game, GameOverMsg())
+                if self.notify_on_end:
+                    self.send(self.who_started_game, GameOverMsg())
                 self.log(f"Game over!\n{self.environment.current_board}")
             else:
                 current_player = self.environment.current_player
@@ -88,14 +90,17 @@ class GameManager(Actor):
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
-            self.send(self.who_started_game, EnvRestartedMsg())
+            if self.notify_on_end:
+                self.send(self.who_started_game, EnvRestartedMsg())
             self.who_started_game = sender
+            self.notify_on_end = msg.notify_on_end
             self.environment.reset()
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
-            self.send(self.who_started_game, EnvRestartedMsg())
+            if self.notify_on_end:
+                self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 

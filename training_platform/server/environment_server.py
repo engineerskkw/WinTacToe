@@ -67,7 +67,7 @@ class EnvironmentServer:
 
     # TODO: rethink starting and restarting, blocking and  non-blocking, check corner cases
     def start(self, blocking=True):
-        response = self.asys.ask(self.game_manager_addr, StartEnvMsg())
+        response = self.asys.ask(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
         if blocking:
             return self._start_blocking(response)
         else:
@@ -92,7 +92,7 @@ class EnvironmentServer:
         raise UnexpectedMessageError(response)
 
     def restart(self, blocking=True):
-        response = self.asys.ask(self.game_manager_addr, RestartEnvMsg())
+        response = self.asys.ask(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
         if blocking:
             return self._restart_blocking(response)
         else:
