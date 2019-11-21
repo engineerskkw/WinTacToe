@@ -42,7 +42,10 @@ class EnvironmentServer:
         self._connect()
 
     def _connect(self):
-        response = self.asys.ask(self.game_manager_addr, AreYouInitializedMsg())
+        self.asys.tell(self.game_manager_addr, AreYouInitializedMsg())
+        self.log("Sent AreYouInitializedMsg() to the GameManager")
+        response = self.asys.listen()
+        self.log(f"Received response: {response}")
         if self.engine is None:
             if isinstance(response, GameManagerInitializedMsg):
                 self.engine = response.environment
@@ -54,7 +57,10 @@ class EnvironmentServer:
             if isinstance(response, GameManagerInitializedMsg):
                 raise EnvServerReinitializingError
             elif isinstance(response, GameManagerUninitializedMsg):
-                response = self.asys.ask(self.game_manager_addr, InitGameManagerMsg(self.engine))
+                self.asys.tell(self.game_manager_addr, InitGameManagerMsg(self.engine))
+                self.log("Sent InitGameManagerMsg(self.engine) to the GameManager")
+                response = self.asys.listen()
+                self.log(f"Received response: {response}")
                 if not isinstance(response, GameManagerInitializedMsg):
                     raise UnexpectedMessageError(response)
             else:
@@ -62,14 +68,18 @@ class EnvironmentServer:
 
     @property
     def players(self):
+        self.log(f"Getting players")
         return self.engine.players
 
     def join(self, client, player):
+        self.log(f"Started joining client {client} to player {player} on server")
         return client.join(player)
 
     # TODO: rethink starting and restarting, blocking and  non-blocking, check corner cases
     def start(self, blocking=True):
-        response = self.asys.ask(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
+        self.asys.tell(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
+        self.log("Sent StartEnvMsg(notify_on_end=blocking) to the GameManager")
+        response = self.asys.listen()
         if blocking:
             return self._start_blocking(response)
         else:
@@ -77,6 +87,7 @@ class EnvironmentServer:
 
     def _start_non_blocking(self, response):
         """Non-blocking call, returns immediately after EnvironmentServer has started environment"""
+        self.log(f"Received response: {response} in _start_non_blocking")
         if isinstance(response, EnvStartedMsg):
             return
         elif isinstance(response, EnvNotReadyToStartMsg):
@@ -85,34 +96,42 @@ class EnvironmentServer:
 
     def _start_blocking(self, response):
         """Blocking call, returns after completing or restarting of the episode started by this access-object"""
+        self.log(f"Received first response: {response} in _start_blocking")
         if isinstance(response, EnvNotReadyToStartMsg):
             raise EnvironmentNotReadyToStartError
         elif isinstance(response, EnvStartedMsg):
             response = self.asys.listen()
+            self.log(f"Received second response: {response} in _start_blocking")
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return True
         raise UnexpectedMessageError(response)
 
     def restart(self, blocking=True):
-        response = self.asys.ask(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
+        self.asys.tell(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
+        self.log("Sent RestartEnvMsg(notify_on_end=blocking) to the GameManager")
+        response = self.asys.listen()
         if blocking:
             return self._restart_blocking(response)
         else:
             return self._restart_non_blocking(response)
 
     def _restart_non_blocking(self, response):
+        self.log(f"Received response: {response} in _restart_non_blocking")
         if isinstance(response, EnvRestartedMsg):
             return
         raise UnexpectedMessageError(response)
 
     def _restart_blocking(self, response):
+        self.log(f"Received first response: {response} in _restart_blocking")
         if isinstance(response, EnvRestartedMsg):
             response = self.asys.listen()
+            self.log(f"Received second response: {response} in _restart_blocking")
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return
         raise UnexpectedMessageError(response)
 
     def shutdown(self):
+        self.log(f"Performing shutdown")
         self.asys.shutdown()
 
     def log(self, text):
