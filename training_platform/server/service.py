@@ -28,7 +28,6 @@ class GameManager(Actor):
 
     def receiveMessage(self, msg, sender):
         if isinstance(msg, InitGameManagerMsg):
-            self.log(f"Received InitGameManagerMsg message")
             self.environment = msg.environment
             self.match_maker_addr = self.createActor(MatchMaker, globalName="MatchMaker")
             self.logger_addr = self.createActor(Logger, globalName="Logger")
@@ -40,9 +39,10 @@ class GameManager(Actor):
             self.initialized = True
             self.log("Initialization done")
             self.send(self.creator, GameManagerInitializedMsg())
+            self.log(f"Sent GameManagerInitializedMsg to {self.creator}")
 
         elif isinstance(msg, AreYouInitializedMsg):
-            self.log(f"Received AreYouInitializedMsg message")
+            # self.log(f"Received AreYouInitializedMsg message")
             if self.initialized:
                 response = GameManagerInitializedMsg(self.environment)
             else:
@@ -64,7 +64,7 @@ class GameManager(Actor):
             self.who_started_game = sender
             self.log(f"New who_started_game={self.who_started_game}")
             self.notify_on_end = msg.notify_on_end
-            self.log(f"New self.notify_on_end={self.self.notify_on_end}")
+            self.log(f"New self.notify_on_end={self.notify_on_end}")
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             self.environment.reset()
@@ -108,7 +108,7 @@ class GameManager(Actor):
             self.who_started_game = sender
             self.log(f"New who_started_game={self.who_started_game}")
             self.notify_on_end = msg.notify_on_end
-            self.log(f"New self.notify_on_end={self.self.notify_on_end}")
+            self.log(f"New self.notify_on_end={self.notify_on_end}")
             self.environment.reset()
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
@@ -119,6 +119,7 @@ class GameManager(Actor):
                 self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+            self.log(f"Sent YourTurnMsg to client: {current_client}")
 
         elif isinstance(msg, ActorExitRequest):
             self.log(f"Received ActorExitRequest")
