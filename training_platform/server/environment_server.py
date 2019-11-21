@@ -107,6 +107,7 @@ class EnvironmentServer:
 
     def _restart_blocking(self, response):
         if isinstance(response, EnvRestartedMsg):
+            response = self.asys.listen()
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return
         raise UnexpectedMessageError(response)
