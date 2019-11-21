@@ -42,7 +42,6 @@ class GameManager(Actor):
             self.log(f"Sent GameManagerInitializedMsg to {self.creator}")
 
         elif isinstance(msg, AreYouInitializedMsg):
-            # self.log(f"Received AreYouInitializedMsg message")
             if self.initialized:
                 response = GameManagerInitializedMsg(self.environment)
             else:
@@ -89,7 +88,6 @@ class GameManager(Actor):
                         self.send(client, RewardMsg(self.environment.rewards[player]))
                     self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
                 self.ready_to_start = True
-                print("Change self.ready_to_start = True")
                 if self.notify_on_end:
                     self.send(self.who_started_game, GameOverMsg())
                     self.log(f"Sent GameOverMsg to self.who_started_game: {self.who_started_game}")
