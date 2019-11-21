@@ -117,7 +117,7 @@ class EnvironmentServerTestCase(unittest.TestCase):
     def test_start_non_blocking_(self):
         with self.assertRaises(EnvironmentNotReadyToStartError):
             for i in range(10):
-                self.server.start(False)
+                self.server.start(blocking=False)
 
     def test_restart_non_blocking(self):
         self.server.start(blocking=False)
