@@ -10,6 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
+from training_platform.server.logger import Logger
 
 
 class EnvironmentNotReadyToStartError(Exception):
@@ -37,6 +38,7 @@ class EnvironmentServer:
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
+        self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         self._connect()
 
     def _connect(self):
@@ -111,3 +113,7 @@ class EnvironmentServer:
 
     def shutdown(self):
         self.asys.shutdown()
+
+    def log(self, text):
+        if self.logger_addr is not None:
+            self.asys.tell(self.logger_addr, LogMsg(text, "EnvironmentServer"))
