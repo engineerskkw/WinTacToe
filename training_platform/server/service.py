@@ -89,6 +89,7 @@ class GameManager(Actor):
                         self.send(client, RewardMsg(self.environment.rewards[player]))
                     self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
                 self.ready_to_start = True
+                print("Change self.ready_to_start = True")
                 if self.notify_on_end:
                     self.send(self.who_started_game, GameOverMsg())
                     self.log(f"Sent GameOverMsg to self.who_started_game: {self.who_started_game}")
@@ -114,9 +115,9 @@ class GameManager(Actor):
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
-            if self.notify_on_end:
-                self.send(self.who_started_game, EnvRestartedMsg())
-                self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
+            # if self.notify_on_end:
+            self.send(self.who_started_game, EnvRestartedMsg())
+            self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
             self.log(f"Sent YourTurnMsg to client: {current_client}")
