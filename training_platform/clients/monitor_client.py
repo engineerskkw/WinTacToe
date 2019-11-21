@@ -13,6 +13,7 @@ from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 import heapq
+import numpy as np
 
 
 def clear():
@@ -42,7 +43,7 @@ class MonitorClient:
         while True:
             msg = self.asys.listen()
             if isinstance(msg, LogMsg):
-                heapq.heappush(self.m_tuples, (msg.time.timestamp(), msg))
+                heapq.heappush(self.m_tuples, (msg.time.timestamp(), np.random.rand(), msg))
                 clear()
                 for msg_tuple in heapq.nsmallest(len(self.m_tuples), self.m_tuples, lambda m_tuple: m_tuple[0]):
-                    print(msg_tuple[1])
+                    print(msg_tuple[2])
