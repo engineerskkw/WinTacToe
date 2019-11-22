@@ -87,7 +87,6 @@ class EnvironmentServer:
     def _start_non_blocking(self, response):
         """Non-blocking call, returns immediately after EnvironmentServer has started environment"""
         self.log(f"Received response: {response} in _start_non_blocking")
-        print(f"Received response: {response} in _start_non_blocking")
         if isinstance(response, EnvStartedMsg):
             return
         elif isinstance(response, EnvNotReadyToStartMsg):

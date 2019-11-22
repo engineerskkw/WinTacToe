@@ -17,12 +17,9 @@ import numpy as np
 
 
 def clear():
-    if name == 'nt':
-        # for windows
+    if name == 'nt':  # for windows
         system('cls')
-
-    else:
-        # for mac and linux(here, os.name is 'posix')
+    else:  # for mac and linux(here, os.name is 'posix')
         system('clear')
 
 
@@ -33,7 +30,6 @@ class MonitorClient:
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         self.m_tuples = []
-
 
     def start_monitoring(self):
         response = self.asys.ask(self.logger_addr, JoinMonitorMsg())

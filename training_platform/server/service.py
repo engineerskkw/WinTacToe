@@ -113,7 +113,6 @@ class GameManager(Actor):
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
-            # if self.notify_on_end:
             self.send(self.who_started_game, EnvRestartedMsg())
             self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
             current_client = self.players_clients[self.environment.current_player]
