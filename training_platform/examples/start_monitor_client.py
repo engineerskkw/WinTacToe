@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from training_platform import MonitorClient
-from training_platform.server.common import LoggingLevel
+from training_platform.common import LoggingLevel
 
 if __name__ == '__main__':
     # Every log message has it logging level

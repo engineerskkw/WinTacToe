@@ -10,7 +10,7 @@ import signal
 from parse import parse
 from thespian.actors import *
 
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.clients.terminal_human_player.terminal_human_player_agent import HumanPlayerAgent
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger

@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform import EnvironmentServer
 
 

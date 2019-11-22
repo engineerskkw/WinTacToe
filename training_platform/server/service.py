@@ -8,9 +8,9 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from thespian.actors import *
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.server.logger import Logger
-from training_platform.server.common import LOGGING
+from training_platform.common import LOGGING
 
 class GameManager(Actor):
     def __init__(self):

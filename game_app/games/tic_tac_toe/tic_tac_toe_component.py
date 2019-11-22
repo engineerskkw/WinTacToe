@@ -15,10 +15,10 @@ from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.server.service import MatchMaker, GameManager
 from training_platform.server.logger import Logger
-from training_platform.server.common import LOGGING
+from training_platform.common import LOGGING
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent

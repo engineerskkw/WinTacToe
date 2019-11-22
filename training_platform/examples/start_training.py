@@ -37,7 +37,7 @@ if __name__ == '__main__':
     print("Clients have joined server!")
 
     start = time.time()
-    episodes_number = 1000
+    episodes_number = 10
     print("Please wait...")
     for i in range(episodes_number):
         # print(f"Game number: {i}")

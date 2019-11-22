@@ -12,7 +12,7 @@ import heapq
 import numpy as np
 from os import system, name
 from thespian.actors import *
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 
