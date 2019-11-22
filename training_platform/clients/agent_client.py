@@ -20,13 +20,16 @@ class InitClientActorMsg:
         self.game_manager_addr = game_manager_addr
         self.logger_addr = logger_addr
 
+
 class GetAgentMsg:
     pass
+
 
 class AgentMsg:
     def __init__(self, agent, Gs):
         self.agent = agent
         self.Gs = Gs
+
 
 class AgentClientActor(Actor):
     def __init__(self):
@@ -111,8 +114,7 @@ class AgentClient:
         response = self.asys.ask(self.client_actor_address, GetAgentMsg())
         if isinstance(response, AgentMsg):
             return response.agent
-        raise UnexpectedMessageError
-
+        raise UnexpectedMessageError(response)
 
     def join(self, player):
         if self.joined:
@@ -125,7 +127,7 @@ class AgentClient:
         elif isinstance(response, JoinAcknowledgementsMsg):
             self.joined = True
             return True
-        raise UnexpectedMessageError
+        raise UnexpectedMessageError(response)
 
 
 class RejoiningError(Exception):
