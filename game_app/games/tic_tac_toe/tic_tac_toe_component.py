@@ -90,7 +90,7 @@ class TicTacToeClientActor(Actor):
         elif isinstance(msg, JoinServerMsg):
             self.log(f"Received JoinServerMsg message from {sender}")
             self.player = msg.player
-            self.send(self.match_maker_addr, JoinMsg(self.player))
+            self.send(self.match_maker_addr, JoinMsg(self.player, True))
 
         elif isinstance(msg, MatchMakerUninitializedMsg):
             self.log(f"Received MatchMakerUninitializedMsg message from {sender}")
@@ -117,9 +117,6 @@ class TicTacToeClientActor(Actor):
             self.log(f"Received MoveMsg message from {sender}")
             self.send(self.game_manager_addr, TakeActionMsg(msg.action))
             self.log(f"Sent TakeActionMsg message to GameManager {self.game_manager_addr}")
-
-        elif isinstance(msg, RewardMsg):
-            pass
 
         elif isinstance(msg, GameOverMsg):
             self.log(f"Received GameOverMsg message from {sender}")

@@ -22,14 +22,16 @@ class InitMatchMakerMsg:
 
 
 class PlayerClientsMsg:
-    def __init__(self, players_clients):
+    def __init__(self, players_clients, gui_clients):
         self.players_clients = players_clients
+        self.gui_clients = gui_clients
 
 
 # AgentClient <-> AgentClientActor <-> MatchMaker communication
 class JoinMsg:
-    def __init__(self, player):
+    def __init__(self, player, gui_client=False):
         self.player = player
+        self.gui_client = gui_client
 
 
 class InvalidPlayerMsg:

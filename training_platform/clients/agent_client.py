@@ -82,9 +82,6 @@ class AgentClientActor(Actor):
         elif isinstance(msg, GameOverMsg):
             self.agent.exit(msg.state)
 
-        elif isinstance(msg, StateUpdateMsg):
-            pass
-
         # Exiting
         elif isinstance(msg, ActorExitRequest):
             self.log("Exiting")

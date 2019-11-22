@@ -17,6 +17,7 @@ class GameManager(Actor):
         super().__init__()
         self.environment = None
         self.players_clients = None
+        self.gui_clients = []  # Used to determine which client send StateUpdate or RewardMsg messages to
         self.match_maker_addr = None
         self.logger_addr = None
         self.before_first_move = {}
@@ -51,6 +52,7 @@ class GameManager(Actor):
         elif isinstance(msg, PlayerClientsMsg):
             self.log(f"Received PlayerClientsMsg message with the following players_clients: {msg.players_clients}")
             self.players_clients = msg.players_clients
+            self.gui_clients = msg.gui_clients
             self.ready_to_start = True
 
         elif isinstance(msg, StartEnvMsg):
@@ -78,14 +80,14 @@ class GameManager(Actor):
             self.log(f"Received TakeActionMsg")
             self.before_first_move[self.environment.current_player] = False
             self.environment.make_move(msg.action)  # It implicitly makes next player current player
-            # State update for GUI clients TODO: send StateUpdateMsg only to GUI clients
-            for client in self.players_clients.values():
+            for client in self.gui_clients:
                 self.send(client, StateUpdateMsg(self.environment.current_board))
 
             if self.environment.ended:
                 for player, client in self.players_clients.items():
                     if not self.before_first_move[player]:
-                        self.send(client, RewardMsg(self.environment.rewards[player]))
+                        if client not in self.gui_clients:
+                            self.send(client, RewardMsg(self.environment.rewards[player]))
                     self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
                 self.ready_to_start = True
                 if self.notify_on_end:
@@ -96,7 +98,8 @@ class GameManager(Actor):
                 current_player = self.environment.current_player
                 current_client = self.players_clients[current_player]
                 if not self.before_first_move[current_player]:
-                    self.send(current_client, RewardMsg(self.environment.rewards[current_player]))
+                    if current_client not in self.gui_clients:
+                        self.send(current_client, RewardMsg(self.environment.rewards[current_player]))
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
@@ -137,6 +140,7 @@ class MatchMaker(Actor):
     def __init__(self):
         super().__init__()
         self.players_clients = {}
+        self.gui_clients = []
         self.game_manager_addr = None
         self.logger_addr = None
         self.initialized = False
@@ -160,6 +164,8 @@ class MatchMaker(Actor):
 
             if self.players_clients.get(msg.player) == "available":
                 self.players_clients[msg.player] = sender
+                if msg.gui_client:
+                    self.gui_clients.append(sender)
                 self.send(sender, JoinAcknowledgementsMsg())
                 self.log(f"Current players <-> clients mapping: {self.players_clients}")
 
@@ -170,10 +176,12 @@ class MatchMaker(Actor):
 
                 # Send player_clients mapping to the GameManager
                 self.log("Clients for all players have joined!")
-                self.send(self.game_manager_addr, PlayerClientsMsg(self.players_clients))
+                self.send(self.game_manager_addr, PlayerClientsMsg(self.players_clients, self.gui_clients))
 
             elif self.players_clients.get(msg.player) == "replaceable":
                 self.players_clients[msg.player] = sender
+                if msg.gui_client:
+                    self.gui_clients.append(sender)
                 self.send(sender, JoinAcknowledgementsMsg())
                 self.log(f"Current players <-> clients mapping: {self.players_clients}")
 
@@ -184,7 +192,7 @@ class MatchMaker(Actor):
 
                 # Relaunch a game
                 self.log("Relaunching the game!")
-                self.send(self.game_manager_addr, PlayerClientsMsg(self.players_clients))
+                self.send(self.game_manager_addr, PlayerClientsMsg(self.players_clients, self.gui_clients))
 
             else:
                 self.log("Invalid player received during joining client handling")
@@ -202,6 +210,9 @@ class MatchMaker(Actor):
                 if client == sender:
                     self.players_clients[player] = "replaceable"
                     self.log(f"Current players <-> clients mapping: {self.players_clients}")
+
+            if sender in self.gui_clients:
+                self.gui_clients.remove(sender)
 
         elif isinstance(msg, ActorExitRequest):
             self.log("Exiting")
