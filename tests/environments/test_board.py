@@ -1,5 +1,5 @@
 from unittest import TestCase
-from tic_tac_toe_engine import _Board
+from environments.tic_tac_toe.tic_tac_toe_engine import _Board
 
 
 class TestBoard(TestCase):
