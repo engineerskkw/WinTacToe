@@ -25,12 +25,13 @@ def clear():
 
 
 class MonitorClient:
-    def __init__(self):
+    def __init__(self, handled_logging_levels):
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         self.m_tuples = []
+        self.handled_logging_levels = handled_logging_levels
 
     def start_monitoring(self):
         response = self.asys.ask(self.logger_addr, JoinMonitorMsg())
@@ -44,4 +45,6 @@ class MonitorClient:
                 heapq.heappush(self.m_tuples, (msg.time.timestamp(), np.random.rand(), msg))
                 clear()
                 for msg_tuple in heapq.nsmallest(len(self.m_tuples), self.m_tuples, lambda m_tuple: m_tuple[0]):
-                    print(msg_tuple[2])
+                    msg = msg_tuple[2]
+                    if msg.logging_level in self.handled_logging_levels:
+                        print(msg)

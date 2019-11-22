@@ -118,13 +118,13 @@ class GameManager(Actor):
         else:
             raise UnexpectedMessageError(msg)
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            super().send(self.logger_addr, LogMsg(text, "GameManager"))
+            super().send(self.logger_addr, LogMsg(text, "GameManager", logging_level))
 
     def send(self, target_address, message):
         super().send(target_address, message)
-        self.log(f"Sent {message} to {target_address}")
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
 
 class MatchMaker(Actor):
@@ -211,10 +211,10 @@ class MatchMaker(Actor):
         else:
             raise UnexpectedMessageError(msg)
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            super().send(self.logger_addr, LogMsg(text, "MatchMaker"))
+            super().send(self.logger_addr, LogMsg(text, "MatchMaker", logging_level))
 
     def send(self, target_address, message):
         super().send(target_address, message)
-        self.log(f"Sent {message} to {target_address}")
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)

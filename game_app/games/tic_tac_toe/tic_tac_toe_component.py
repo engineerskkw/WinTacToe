@@ -10,7 +10,6 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from thespian.actors import *
 import pygame
 from pygame.locals import MOUSEBUTTONUP
-from enum import Enum
 
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
@@ -59,9 +58,11 @@ class JoinServerMsg:
 class GetEventsToPostMsg:
     pass
 
+
 class EventsToPostMsg:
     def __init__(self, events_to_post):
         self.events_to_post = events_to_post
+
 
 class TicTacToeClientActor(Actor):
     def __init__(self):
@@ -75,7 +76,7 @@ class TicTacToeClientActor(Actor):
 
     def receiveMessage(self, msg, sender):
         if not isinstance(msg, GetEventsToPostMsg):
-            self.log(f"Received {msg} from {sender}")
+            self.log(f"Received {msg} from {sender}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         # Message exchanged between GUI and client at every tic of application
         if isinstance(msg, GetEventsToPostMsg):
             self.send(sender, EventsToPostMsg(self._events_to_post.copy()))
@@ -127,14 +128,14 @@ class TicTacToeClientActor(Actor):
         else:
             raise UnexpectedMessageError(msg)
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            super().send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}"))
+            super().send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}", logging_level))
 
     def send(self, target_address, message):
         super().send(target_address, message)
         if not isinstance(message, EventsToPostMsg):
-            self.log(f"Sent {message} to {target_address}")
+            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
 
 class TicTacToeComponent(AbstractComponent):
@@ -225,19 +226,19 @@ class TicTacToeComponent(AbstractComponent):
         self.server.shutdown()
         self._app.switch_component(Components.MAIN_MENU)
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            self.asys.tell(self.logger_addr, LogMsg(text, "TicTacToeComponent"))
+            self.asys.tell(self.logger_addr, LogMsg(text, "TicTacToeComponent", logging_level))
 
     def tell(self, target_address, message):
         self.asys.tell(target_address, message)
         if not isinstance(message, GetEventsToPostMsg):
-            self.log(f"Sent {message} to {target_address}")
+            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
     def listen(self):
         response = self.asys.listen()
         if not isinstance(response, EventsToPostMsg):
-            self.log(f"Received {response}")
+            self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         return response
 
     def ask(self, target_address, message):

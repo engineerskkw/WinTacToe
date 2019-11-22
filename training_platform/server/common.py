@@ -9,9 +9,16 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import datetime
 import configparser
+from enum import Enum, auto
 config = configparser.ConfigParser()
 config.read(os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "config.ini"))
 ACTOR_SYSTEM_BASE = config["TRAINING PLATFORM PARAMETERS"]["actorsystembase"]
+
+
+class LoggingLevel(Enum):
+    PLATFORM_COMMUNICATION_MESSAGES = auto()
+    GAME_EVENTS = auto()
+    DEBUG = auto()
 
 # MESSAGES
 
@@ -171,10 +178,11 @@ class MonitorJoinAcknowledgement:
 
 
 class LogMsg:
-    def __init__(self, text, author=None):
+    def __init__(self, text, author, logging_level):
         self.text = text
         self.author = author
         self.time = datetime.datetime.now()
+        self.logging_level = logging_level
 
     def __str__(self):
         return f"{self.time.__str__()} [{self.author}]: {self.text}"

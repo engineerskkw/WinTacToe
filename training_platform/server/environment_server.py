@@ -78,7 +78,6 @@ class EnvironmentServer:
 
     def _start_non_blocking(self, response):
         """Non-blocking call, returns immediately after EnvironmentServer has started environment"""
-        self.log(f"Received response: {response} in _start_non_blocking")
         if isinstance(response, EnvStartedMsg):
             return
         elif isinstance(response, EnvNotReadyToStartMsg):
@@ -118,17 +117,17 @@ class EnvironmentServer:
         self.log(f"Performing shutdown")
         self.asys.shutdown()
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint"))
+            self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint", logging_level))
 
     def tell(self, target_address, message):
         self.asys.tell(target_address, message)
-        self.log(f"Sent {message} to {target_address}")
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
     def listen(self):
         response = self.asys.listen()
-        self.log(f"Received {response}")
+        self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         return response
 
     def ask(self, target_address, message):

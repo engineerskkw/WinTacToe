@@ -42,7 +42,7 @@ class AgentClientActor(Actor):
         self.player = "Unjoined"
 
     def receiveMessage(self, msg, sender):
-        self.log(f"Received {msg} from {sender}")
+        self.log(f"Received {msg} from {sender}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         # Initialization
         if isinstance(msg, InitClientActorMsg):
             self.agent = msg.agent
@@ -93,13 +93,13 @@ class AgentClientActor(Actor):
         else:
             raise UnexpectedMessageError(msg)
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            super().send(self.logger_addr, LogMsg(text, f"client:{self.player}"))
+            super().send(self.logger_addr, LogMsg(text, f"client:{self.player}", logging_level))
 
     def send(self, target_address, message):
         super().send(target_address, message)
-        self.log(f"Sent {message} to {target_address}")
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
 
 class AgentClient:
@@ -135,17 +135,18 @@ class AgentClient:
             return True
         raise UnexpectedMessageError(response)
 
-    def log(self, text):
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
-            self.asys.tell(self.logger_addr, LogMsg(text, f"AgentClientEndpoint of {self.client_actor_address} client"))
+            log_msg = LogMsg(text, f"AgentClientEndpoint of {self.client_actor_address} client", logging_level)
+            self.asys.tell(self.logger_addr, log_msg)
 
     def tell(self, target_address, message):
         self.asys.tell(target_address, message)
-        self.log(f"Sent {message} to {target_address}")
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
     def listen(self):
         response = self.asys.listen()
-        self.log(f"Received {response}")
+        self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         return response
 
     def ask(self, target_address, message):
