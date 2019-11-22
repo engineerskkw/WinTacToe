@@ -82,6 +82,9 @@ class AgentClientActor(Actor):
         elif isinstance(msg, GameOverMsg):
             self.agent.exit(msg.state)
 
+        elif isinstance(msg, EnvRestartedMsg):
+            self.agent.restart()
+
         elif isinstance(msg, StateUpdateMsg):
             pass
 

@@ -131,6 +131,9 @@ class TicTacToeClientActor(Actor):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
             self._events_to_post += [state_changed_event]
 
+        elif isinstance(msg, EnvRestartedMsg):
+            pass
+
         # Exiting
         elif isinstance(msg, ActorExitRequest):
             self.log(f"Received ActorExitRequest message from {sender}")

@@ -113,6 +113,8 @@ class GameManager(Actor):
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
                 self.send(client, StateUpdateMsg(self.environment.current_board))
+            for client in self.players_clients.values():  # TODO(after merging): send to non-gui clients
+                self.send(client, EnvRestartedMsg())
             self.send(self.who_started_game, EnvRestartedMsg())
             self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
             current_client = self.players_clients[self.environment.current_player]
