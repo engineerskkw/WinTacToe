@@ -42,10 +42,7 @@ class EnvironmentServer:
         self._connect()
 
     def _connect(self):
-        self.asys.tell(self.game_manager_addr, AreYouInitializedMsg())
-        self.log("Sent AreYouInitializedMsg() to the GameManager")
-        response = self.asys.listen()
-        self.log(f"Received response: {response}")
+        response = self.ask(self.game_manager_addr, AreYouInitializedMsg())
         if self.engine is None:
             if isinstance(response, GameManagerInitializedMsg):
                 self.engine = response.environment
@@ -57,10 +54,7 @@ class EnvironmentServer:
             if isinstance(response, GameManagerInitializedMsg):
                 raise EnvServerReinitializingError
             elif isinstance(response, GameManagerUninitializedMsg):
-                self.asys.tell(self.game_manager_addr, InitGameManagerMsg(self.engine))
-                self.log("Sent InitGameManagerMsg(self.engine) to the GameManager")
-                response = self.asys.listen()
-                self.log(f"Received response: {response}")
+                response = self.ask(self.game_manager_addr, InitGameManagerMsg(self.engine))
                 if not isinstance(response, GameManagerInitializedMsg):
                     raise UnexpectedMessageError(response)
             else:
@@ -76,9 +70,7 @@ class EnvironmentServer:
         return client.join(player)
 
     def start(self, blocking=True):
-        self.asys.tell(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
-        self.log(f"Sent StartEnvMsg(notify_on_end={blocking}) to the GameManager")
-        response = self.asys.listen()
+        response = self.ask(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
         if blocking:
             return self._start_blocking(response)
         else:
@@ -95,36 +87,29 @@ class EnvironmentServer:
 
     def _start_blocking(self, response):
         """Blocking call, returns after completing or restarting of the episode started by this access-object"""
-        self.log(f"Received first response: {response} in _start_blocking")
         if isinstance(response, EnvNotReadyToStartMsg):
             raise EnvironmentNotReadyToStartError
         elif isinstance(response, EnvStartedMsg):
-            response = self.asys.listen()
-            self.log(f"Received second response: {response} in _start_blocking")
+            response = self.listen()
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return True
         raise UnexpectedMessageError(response)
 
     def restart(self, blocking=True):
-        self.asys.tell(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
-        self.log(f"Sent RestartEnvMsg(notify_on_end={blocking}) to the GameManager")
-        response = self.asys.listen()
+        response = self.ask(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
         if blocking:
             return self._restart_blocking(response)
         else:
             return self._restart_non_blocking(response)
 
     def _restart_non_blocking(self, response):
-        self.log(f"Received response: {response} in _restart_non_blocking")
         if isinstance(response, EnvRestartedMsg):
             return
         raise UnexpectedMessageError(response)
 
     def _restart_blocking(self, response):
-        self.log(f"Received first response: {response} in _restart_blocking")
         if isinstance(response, EnvRestartedMsg):
-            response = self.asys.listen()
-            self.log(f"Received second response: {response} in _restart_blocking")
+            response = self.listen()
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return
         raise UnexpectedMessageError(response)
@@ -135,4 +120,17 @@ class EnvironmentServer:
 
     def log(self, text):
         if self.logger_addr is not None:
-            self.asys.tell(self.logger_addr, LogMsg(text, "EnvironmentServer"))
+            self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint"))
+
+    def tell(self, target_address, message):
+        self.asys.tell(target_address, message)
+        self.log(f"Sent {message} to {target_address}")
+
+    def listen(self):
+        response = self.asys.listen()
+        self.log(f"Received {response}")
+        return response
+
+    def ask(self, target_address, message):
+        self.tell(target_address, message)
+        return self.listen()
