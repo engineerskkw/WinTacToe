@@ -82,22 +82,32 @@ class InitGameManagerMsg:
 
 
 class StartEnvMsg:
-    pass
+    def __init__(self, notify_on_end):
+        # Used by blocking start method in environment server to inform game manager if
+        # it should or not send GameOverMsg or EnvRestartedMsg to who started (or restarted a game) on
+        # game ending (both game over and restart cases)
+        self.notify_on_end = notify_on_end
 
 
 class EnvStartedMsg:
     pass
 
 
-class EnvNotReadyToStartMsg:
-    pass
-
-
 class RestartEnvMsg:
-    pass
+    def __init__(self, notify_on_end):
+        # Used by blocking restart method in environment server to inform game manager if
+        # it should or not send GameOverMsg or EnvRestartedMsg to who started (or restarted a game) on
+        # game ending (both game over and restart cases)
+        self.notify_on_end = notify_on_end
+
 
 class EnvRestartedMsg:
     pass
+
+
+class EnvNotReadyToStartMsg:
+    pass
+
 
 # Logger & Monitor
 class InitLoggerMsg:
