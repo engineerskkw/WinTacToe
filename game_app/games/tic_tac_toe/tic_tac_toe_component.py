@@ -215,6 +215,9 @@ class TicTacToeComponent(AbstractComponent):
         self.tell(self.client_actor_address, MoveMsg(action))
 
     def restart(self):
+        self.turn = TurnState.NOT_YOUR_TURN
+        self.winnings = []
+        self._scene = TicTacToeScene(self, self._app.screen, self._board_size)
         self.server.restart(blocking=False)
         self.log("Restarted server")
 
