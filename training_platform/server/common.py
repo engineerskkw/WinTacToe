@@ -21,7 +21,7 @@ class InitMatchMakerMsg:
         self.players = players
 
     def __str__(self):
-        return f"{self.__class__.__name__}: players: {self.players}"
+        return f"{self.__class__.__name__}(players={self.players})"
 
 
 class PlayerClientsMsg:
@@ -30,7 +30,7 @@ class PlayerClientsMsg:
         self.gui_clients = gui_clients
 
     def __str__(self):
-        return f"{self.__class__.__name__}: players_clients: {self.players_clients}, gui_clients: {self.gui_clients}"
+        return f"{self.__class__.__name__}(players_clients={self.players_clients}, gui_clients={self.gui_clients})"
 
 
 # AgentClient <-> AgentClientActor <-> MatchMaker communication
@@ -40,7 +40,7 @@ class JoinMsg:
         self.gui_client = gui_client
 
     def __str__(self):
-        return f"{self.__class__.__name__}: player: {self.player}, gui_client: {self.gui_client}"
+        return f"{self.__class__.__name__}(player={self.player}, gui_client={self.gui_client})"
 
 
 class InvalidPlayerMsg:
@@ -48,7 +48,7 @@ class InvalidPlayerMsg:
         self.available_or_replaceable_players = available_or_replaceable_players
 
     def __str__(self):
-        return f"{self.__class__.__name__}: available_or_replaceable_players: {self.available_or_replaceable_players}"
+        return f"{self.__class__.__name__}(available_or_replaceable_players={self.available_or_replaceable_players})"
 
 
 class JoinAcknowledgementsMsg:
@@ -73,7 +73,7 @@ class YourTurnMsg:
         self.action_space = action_space
 
     def __str__(self):
-        return f"{self.__class__.__name__}: state: {self.state}, action_space: {self.action_space}"
+        return f"{self.__class__.__name__}(state={self.state}, action_space={self.action_space})"
 
 
 class TakeActionMsg:
@@ -81,14 +81,14 @@ class TakeActionMsg:
         self.action = action
 
     def __str__(self):
-        return f"{self.__class__.__name__}: action: {self.action}"
+        return f"{self.__class__.__name__}(action={self.action})"
 
 class RewardMsg:
     def __init__(self, reward):
         self.reward = reward
 
     def __str__(self):
-        return f"{self.__class__.__name__}: reward: {self.reward}"
+        return f"{self.__class__.__name__}(reward={self.reward})"
 
 
 class GameOverMsg:
@@ -97,7 +97,7 @@ class GameOverMsg:
         self.winnings = winnings
 
     def __str__(self):
-        return f"{self.__class__.__name__}: state: {self.state}, winnings: {self.winnings}"
+        return f"{self.__class__.__name__}(state={self.state}, winnings={self.winnings})"
 
 
 class StateUpdateMsg:
@@ -105,7 +105,7 @@ class StateUpdateMsg:
         self.state = state
 
     def __str__(self):
-        return f"{self.__class__.__name__}: state: {self.state}"
+        return f"{self.__class__.__name__}(state={self.state})"
 
 
 # EnvironmentServer <-> GameManager communication
@@ -114,7 +114,7 @@ class InitGameManagerMsg:
         self.environment = environment
 
     def __str__(self):
-        return f"{self.__class__.__name__}: environment: {self.environment}"
+        return f"{self.__class__.__name__}(environment={self.environment})"
 
 
 class StartEnvMsg:
@@ -125,7 +125,7 @@ class StartEnvMsg:
         self.notify_on_end = notify_on_end
 
     def __str__(self):
-        return f"{self.__class__.__name__}: notify_on_end: {self.notify_on_end}"
+        return f"{self.__class__.__name__}(notify_on_end={self.notify_on_end})"
 
 
 class EnvStartedMsg:
@@ -141,7 +141,7 @@ class RestartEnvMsg:
         self.notify_on_end = notify_on_end
 
     def __str__(self):
-        return f"{self.__class__.__name__}: notify_on_end: {self.notify_on_end}"
+        return f"{self.__class__.__name__}(notify_on_end={self.notify_on_end})"
 
 
 class EnvRestartedMsg:
@@ -191,7 +191,7 @@ class GameManagerInitializedMsg:
         self.environment = environment
 
     def __str__(self):
-        return f"{self.__class__.__name__}: environment: {self.environment}"
+        return f"{self.__class__.__name__}(environment={self.environment})"
 
 
 class GameManagerUninitializedMsg:
@@ -205,6 +205,11 @@ class MatchMakerInitializedMsg:
 
 
 class MatchMakerUninitializedMsg:
+    def __str__(self):
+        return f"{self.__class__.__name__}"
+
+
+class AgentClientActorInitializedMsg:
     def __str__(self):
         return f"{self.__class__.__name__}"
 
