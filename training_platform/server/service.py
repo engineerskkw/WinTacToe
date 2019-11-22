@@ -17,7 +17,7 @@ class GameManager(Actor):
         super().__init__()
         self.environment = None
         self.players_clients = None
-        self.gui_clients = []  # Used to determine which client send StateUpdate or RewardMsg messages to
+        self.gui_clients = []
         self.match_maker_addr = None
         self.logger_addr = None
         self.before_first_move = {}
@@ -28,6 +28,7 @@ class GameManager(Actor):
         self.notify_on_end = None
 
     def receiveMessage(self, msg, sender):
+        self.log(f"Received {msg} from {sender}")
         if isinstance(msg, InitGameManagerMsg):
             self.environment = msg.environment
             self.match_maker_addr = self.createActor(MatchMaker, globalName="MatchMaker")
@@ -36,11 +37,10 @@ class GameManager(Actor):
             self.send(self.match_maker_addr, InitMatchMakerMsg(self.environment.players))
 
         elif isinstance(msg, MatchMakerInitializedMsg):
-            self.log(f"Received MatchMakerInitializedMsg message")
             self.initialized = True
             self.log("Initialization done")
-            self.send(self.creator, GameManagerInitializedMsg())
-            self.log(f"Sent GameManagerInitializedMsg to {self.creator}")
+            msg_to_send = GameManagerInitializedMsg()
+            self.send(self.creator, msg_to_send)
 
         elif isinstance(msg, AreYouInitializedMsg):
             if self.initialized:
@@ -50,34 +50,27 @@ class GameManager(Actor):
             self.send(sender, response)
 
         elif isinstance(msg, PlayerClientsMsg):
-            self.log(f"Received PlayerClientsMsg message with the following players_clients: {msg.players_clients}")
             self.players_clients = msg.players_clients
             self.gui_clients = msg.gui_clients
             self.ready_to_start = True
 
         elif isinstance(msg, StartEnvMsg):
-            self.log(f"Received StartEnvMsg")
             if not self.ready_to_start:
                 self.send(sender, EnvNotReadyToStartMsg())
-                self.log(f"Sent EnvNotReadyToStartMsg to sender")
                 return
             self.ready_to_start = False
             self.who_started_game = sender
-            self.log(f"New who_started_game={self.who_started_game}")
             self.notify_on_end = msg.notify_on_end
-            self.log(f"New self.notify_on_end={self.notify_on_end}")
+            self.log(f"New who_started_game={self.who_started_game} and new self.notify_on_end={self.notify_on_end}")
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             self.environment.reset()
             self.log(f"Started game with following players and clients: {self.players_clients}")
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
-            self.log(f"Sent YourTurnMsg to current_client: {current_client}")
             self.send(self.who_started_game, EnvStartedMsg())
-            self.log(f"Sent EnvStartedMsg to self.who_started_game: {self.who_started_game}")
 
         elif isinstance(msg, TakeActionMsg):
-            self.log(f"Received TakeActionMsg")
             self.before_first_move[self.environment.current_player] = False
             self.environment.make_move(msg.action)  # It implicitly makes next player current player
             for client in self.gui_clients:
@@ -92,7 +85,6 @@ class GameManager(Actor):
                 self.ready_to_start = True
                 if self.notify_on_end:
                     self.send(self.who_started_game, GameOverMsg())
-                    self.log(f"Sent GameOverMsg to self.who_started_game: {self.who_started_game}")
                 self.log(f"Game over!\n{self.environment.current_board}")
             else:
                 current_player = self.environment.current_player
@@ -103,27 +95,21 @@ class GameManager(Actor):
                 self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
-            self.log(f"Received RestartEnvMsg")
             if self.notify_on_end:
                 self.send(self.who_started_game, EnvRestartedMsg())
-                self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
             self.who_started_game = sender
-            self.log(f"New who_started_game={self.who_started_game}")
             self.notify_on_end = msg.notify_on_end
-            self.log(f"New self.notify_on_end={self.notify_on_end}")
+            self.log(f"New who_started_game={self.who_started_game} and new self.notify_on_end={self.notify_on_end}")
             self.environment.reset()
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
-            for client in self.players_clients.values():
+            for client in self.gui_clients:
                 self.send(client, StateUpdateMsg(self.environment.current_board))
             self.send(self.who_started_game, EnvRestartedMsg())
-            self.log(f"Sent EnvRestartedMsg to self.who_started_game: {self.who_started_game}")
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
-            self.log(f"Sent YourTurnMsg to client: {current_client}")
 
         elif isinstance(msg, ActorExitRequest):
-            self.log(f"Received ActorExitRequest")
             for client in self.players_clients.values():
                 self.send(client, ActorExitRequest())
             self.send(self.match_maker_addr, ActorExitRequest())
@@ -133,7 +119,12 @@ class GameManager(Actor):
             raise UnexpectedMessageError(msg)
 
     def log(self, text):
-        self.send(self.logger_addr, LogMsg(text, "GameManager"))
+        if self.logger_addr is not None:
+            super().send(self.logger_addr, LogMsg(text, "GameManager"))
+
+    def send(self, target_address, message):
+        super().send(target_address, message)
+        self.log(f"Sent {message} to {target_address}")
 
 
 class MatchMaker(Actor):
@@ -146,6 +137,7 @@ class MatchMaker(Actor):
         self.initialized = False
 
     def receiveMessage(self, msg, sender):
+        self.log(f"Received {msg} from {sender}")
         if isinstance(msg, InitMatchMakerMsg):
             self.game_manager_addr = self.createActor(GameManager, globalName="GameManager")
             self.logger_addr = self.createActor(Logger, globalName="Logger")
@@ -179,6 +171,7 @@ class MatchMaker(Actor):
                 self.send(self.game_manager_addr, PlayerClientsMsg(self.players_clients, self.gui_clients))
 
             elif self.players_clients.get(msg.player) == "replaceable":
+                # TODO: refactor duplicated code
                 self.players_clients[msg.player] = sender
                 if msg.gui_client:
                     self.gui_clients.append(sender)
@@ -204,8 +197,6 @@ class MatchMaker(Actor):
 
         elif isinstance(msg, DetachMsg):
             # TODO: finish implementation of detaching in all places
-            self.log(f"Detaching client: {sender}")
-
             for player, client in self.players_clients.items():
                 if client == sender:
                     self.players_clients[player] = "replaceable"
@@ -222,4 +213,8 @@ class MatchMaker(Actor):
 
     def log(self, text):
         if self.logger_addr is not None:
-            self.send(self.logger_addr, LogMsg(text, "MatchMaker"))
+            super().send(self.logger_addr, LogMsg(text, "MatchMaker"))
+
+    def send(self, target_address, message):
+        super().send(target_address, message)
+        self.log(f"Sent {message} to {target_address}")
