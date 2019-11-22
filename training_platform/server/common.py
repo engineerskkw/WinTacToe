@@ -7,6 +7,15 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+# BEGIN---------------------GETTING-LOGGING-FROM_CONFIG------------------------#
+import configparser
+config = configparser.RawConfigParser()
+config_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "config.ini")
+
+config.read(config_file_path)
+LOGGING = config["TRAINING PLATFORM PARAMETERS"]["logging"]
+# --------------------------GETTING-LOGGING-FROM_CONFIG---------------------END#
+
 import datetime
 import configparser
 from enum import Enum, auto
@@ -126,10 +135,10 @@ class InitGameManagerMsg:
 
 class StartEnvMsg:
     def __init__(self, notify_on_end):
-        # Used by blocking start method in environment server to inform game manager if
+        self.notify_on_end = notify_on_end
+        # Filed used by blocking start method in environment server to inform game manager if
         # it should or not send GameOverMsg or EnvRestartedMsg to who started (or restarted a game) on
         # game ending (both game over and restart cases)
-        self.notify_on_end = notify_on_end
 
     def __str__(self):
         return f"{self.__class__.__name__}(notify_on_end={self.notify_on_end})"
@@ -142,10 +151,10 @@ class EnvStartedMsg:
 
 class RestartEnvMsg:
     def __init__(self, notify_on_end):
-        # Used by blocking restart method in environment server to inform game manager if
+        self.notify_on_end = notify_on_end
+        # Filed used by blocking restart method in environment server to inform game manager if
         # it should or not send GameOverMsg or EnvRestartedMsg to who started (or restarted a game) on
         # game ending (both game over and restart cases)
-        self.notify_on_end = notify_on_end
 
     def __str__(self):
         return f"{self.__class__.__name__}(notify_on_end={self.notify_on_end})"

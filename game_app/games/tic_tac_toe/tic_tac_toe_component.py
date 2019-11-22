@@ -18,6 +18,7 @@ from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.server.common import *
 from training_platform.server.service import MatchMaker, GameManager
 from training_platform.server.logger import Logger
+from training_platform.server.common import LOGGING
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
@@ -129,6 +130,8 @@ class TicTacToeClientActor(Actor):
             raise UnexpectedMessageError(msg)
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
         if self.logger_addr is not None:
             super().send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}", logging_level))
 
@@ -227,6 +230,8 @@ class TicTacToeComponent(AbstractComponent):
         self._app.switch_component(Components.MAIN_MENU)
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
         if self.logger_addr is not None:
             self.asys.tell(self.logger_addr, LogMsg(text, "TicTacToeComponent", logging_level))
 

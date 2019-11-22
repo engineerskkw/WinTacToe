@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.logger import Logger
-
+from training_platform.server.common import LOGGING
 
 class GameManager(Actor):
     def __init__(self):
@@ -28,7 +28,7 @@ class GameManager(Actor):
         self.notify_on_end = None
 
     def receiveMessage(self, msg, sender):
-        self.log(f"Received {msg} from {sender}")
+        self.log(f"Received {msg} from {sender}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         if isinstance(msg, InitGameManagerMsg):
             self.environment = msg.environment
             self.match_maker_addr = self.createActor(MatchMaker, globalName="MatchMaker")
@@ -39,8 +39,7 @@ class GameManager(Actor):
         elif isinstance(msg, MatchMakerInitializedMsg):
             self.initialized = True
             self.log("Initialization done")
-            msg_to_send = GameManagerInitializedMsg()
-            self.send(self.creator, msg_to_send)
+            self.send(self.creator, GameManagerInitializedMsg())
 
         elif isinstance(msg, AreYouInitializedMsg):
             if self.initialized:
@@ -119,6 +118,8 @@ class GameManager(Actor):
             raise UnexpectedMessageError(msg)
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
         if self.logger_addr is not None:
             super().send(self.logger_addr, LogMsg(text, "GameManager", logging_level))
 
@@ -212,6 +213,8 @@ class MatchMaker(Actor):
             raise UnexpectedMessageError(msg)
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
         if self.logger_addr is not None:
             super().send(self.logger_addr, LogMsg(text, "MatchMaker", logging_level))
 

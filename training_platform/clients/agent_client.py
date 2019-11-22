@@ -11,6 +11,8 @@ from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
+from training_platform.server.common import LOGGING
+
 
 
 class InitClientActorMsg:
@@ -94,6 +96,8 @@ class AgentClientActor(Actor):
             raise UnexpectedMessageError(msg)
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
         if self.logger_addr is not None:
             super().send(self.logger_addr, LogMsg(text, f"client:{self.player}", logging_level))
 
@@ -137,6 +141,8 @@ class AgentClient:
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if self.logger_addr is not None:
+            if not LOGGING:
+                return
             log_msg = LogMsg(text, f"AgentClientEndpoint of {self.client_actor_address} client", logging_level)
             self.asys.tell(self.logger_addr, log_msg)
 

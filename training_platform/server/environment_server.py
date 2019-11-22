@@ -11,6 +11,7 @@ from thespian.actors import *
 from training_platform.server.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
+from training_platform.server.common import LOGGING
 
 
 class EnvironmentNotReadyToStartError(Exception):
@@ -118,6 +119,8 @@ class EnvironmentServer:
         self.asys.shutdown()
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
         if self.logger_addr is not None:
             self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint", logging_level))
 
