@@ -104,7 +104,8 @@ class TicTacToeState(AbstractState):
 
 class TicTacToeAction(AbstractAction):
     def __init__(self, row, col):
-        self.row, self.col = row, col
+        self.row = row
+        self.col = col
 
     def __str__(self):
         return f"({self.row}, {self.col})"
@@ -112,8 +113,14 @@ class TicTacToeAction(AbstractAction):
     def __hash__(self):
         return hash((self.row, self.col))
 
+    def __eq__(self, other):
+        return self.row == other.row and self.col == other.col
+
 
 class TicTacToeActionSpace(AbstractActionSpace):
+    """
+    actions: Set
+    """
     def __init__(self, actions):
         self.actions = actions
 
@@ -125,12 +132,18 @@ class TicTacToeActionSpace(AbstractActionSpace):
 
     @property
     def random_action(self):
-        return choice(self.actions)
+        return choice(list(self.actions))
 
     @property
     def random_actions(self, no_of_actions=None):
         no_of_actions = randrange(1, len(self.actions)) if not no_of_actions else no_of_actions
-        return sample(self.actions, no_of_actions)
+        return sample(list(self.actions), no_of_actions)
+
+    def __eq__(self, other):
+        return self.actions == other.actions
+
+    def __str__(self):
+        return str(self.actions)
 
 
 class IllegalMoveError(Exception):
