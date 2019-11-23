@@ -42,6 +42,25 @@ class EnvironmentServer:
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         self._connect()
 
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint", logging_level))
+
+    def tell(self, target_address, message):
+        self.asys.tell(target_address, message)
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+
+    def listen(self):
+        response = self.asys.listen()
+        self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+        return response
+
+    def ask(self, target_address, message):
+        self.tell(target_address, message)
+        return self.listen()
+    
     def _connect(self):
         response = self.ask(self.game_manager_addr, AreYouInitializedMsg())
         if self.engine is None:
@@ -117,22 +136,3 @@ class EnvironmentServer:
     def shutdown(self):
         self.log(f"Performing shutdown")
         self.asys.shutdown()
-
-    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
-        if not LOGGING:
-            return
-        if self.logger_addr is not None:
-            self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint", logging_level))
-
-    def tell(self, target_address, message):
-        self.asys.tell(target_address, message)
-        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
-
-    def listen(self):
-        response = self.asys.listen()
-        self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
-        return response
-
-    def ask(self, target_address, message):
-        self.tell(target_address, message)
-        return self.listen()
