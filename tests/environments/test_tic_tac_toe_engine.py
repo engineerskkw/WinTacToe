@@ -107,6 +107,7 @@ class TestTicTacToeEngine(TestCase):
         # self.assertEqual(self.engine.current_player, Player("Player 2", 2))
 
     def test_undo_last_move(self):
+        self.engine.randomize_board()
         pass
         # self.engine.make_move(TicTacToeAction(0, 0))
         # self.assertTrue(self.engine.current_player == Player("Player 1", 1))
