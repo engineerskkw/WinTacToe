@@ -25,6 +25,7 @@ if __name__ == '__main__':
     # logging_levels = [LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES]
     # And it's example of list usefull for debuging
     # logging_levels = [LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES, LoggingLevel.DEBUG]
+    
     logging_levels = [LoggingLevel.GAME_EVENTS]
     monitor = MonitorClient(logging_levels)
     print("Monitor Client has started!")
