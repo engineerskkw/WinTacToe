@@ -3,7 +3,8 @@ from unittest import TestCase
 from itertools import product
 
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
-from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, Winning, IllegalMoveError, TicTacToeAction, TicTacToeActionSpace
+from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, Winning, IllegalMoveError, TicTacToeAction, \
+    TicTacToeActionSpace
 
 
 class TestTicTacToeEngine(TestCase):
@@ -17,8 +18,12 @@ class TestTicTacToeEngine(TestCase):
             [TicTacToeAction(row, col) for row, col in [(0, 0), (1, 0), (2, 0), (0, 1), (1, 4), (2, 3)]]
         self.full_move_sequence = \
             [TicTacToeAction(row, col) for row, col in list(product(range(self.board_size), range(self.board_size)))]
-        self.winning_move_sequence = \
-            [TicTacToeAction(row, col) for row, col in  [(0, 0), (1, 0), (2, 0), (0, 1), (1, 4), (2, 3), (0, 2)]]
+        self.player_0_winning_move_sequence = \
+            [TicTacToeAction(row, col) for row, col in [(0, 0), (1, 0), (2, 0), (0, 1), (1, 4), (2, 3), (0, 2)]]
+        self.player_1_winning_move_sequence = \
+            [TicTacToeAction(row, col) for row, col in [(4, 4), (2, 1), (4, 3), (4, 2), (2, 2), (4, 1), (3, 1), (2, 3)]]
+        self.player_2_winning_move_sequence = \
+            [TicTacToeAction(row, col) for row, col in [(0, 0), (0, 1), (4, 4), (0, 2), (0, 3), (3, 3), (0, 4), (2, 1), (2, 2)]]
 
     def init_board(self, actions):
         for action in actions:
@@ -29,7 +34,7 @@ class TestTicTacToeEngine(TestCase):
         self.assertTrue(self.engine.players == [Player("Player 0", 0), Player("Player 1", 1), Player("Player 2", 2)])
         self.assertTrue(self.engine.current_player == Player("Player 0", 0))
         self.assertTrue(np.array_equal(self.engine.current_board.board, np.full((5, 5), -1)))
-        # self.assertTrue(self.engine.allowed_actions == TicTacToeActionSpace(list(product(range(self.board_size), range(self.board_size)))))
+        self.assertTrue(self.engine.allowed_actions == TicTacToeActionSpace(set(self.full_move_sequence)))
         self.assertTrue(self.engine.rewards ==
                         {Player("Player 0", 0): 0, Player("Player 1", 1): 0, Player("Player 2", 2): 0})
         self.assertFalse(self.engine.ended)
@@ -64,22 +69,37 @@ class TestTicTacToeEngine(TestCase):
         self.assertRaises(IndexError, self.engine.make_move, TicTacToeAction(5, 5))
 
     def test_winnings_and_ended(self):
-        self.init_board(self.winning_move_sequence)  # Player 0 should win
+        self.init_board(self.player_0_winning_move_sequence)
         self.assertTrue(self.engine.winnings == [Winning(0, [(0, 0), (0, 1), (0, 2)])])
         self.assertTrue(self.engine.ended)
-
         self.assertTrue(self.engine.rewards ==
                         {Player("Player 0", 0): 1, Player("Player 1", 1): -1, Player("Player 2", 2): -1})
 
+        self.engine.reset()
+
+        self.init_board(self.player_1_winning_move_sequence)
+        self.assertTrue(self.engine.winnings == [Winning(1, [(2, 1), (2, 2), (2, 3)])])
+        self.assertTrue(self.engine.ended)
+        self.assertTrue(self.engine.rewards ==
+                        {Player("Player 0", 0): -1, Player("Player 1", 1): 1, Player("Player 2", 2): -1})
+
+        self.engine.reset()
+
+        self.init_board(self.player_2_winning_move_sequence)
+        self.assertTrue(self.engine.winnings == [Winning(2, [(2, 2), (3, 3), (4, 4)])])
+        self.assertTrue(self.engine.ended)
+        self.assertTrue(self.engine.rewards ==
+                        {Player("Player 0", 0): -1, Player("Player 1", 1): -1, Player("Player 2", 2): 1})
+
     def test_allowed_actions_normally(self):
-        pass
-        # self.init_board(self.partial_move_sequence)
-        # expected_allowed_actions = set(self.full_move_sequence).difference(set(self.partial_move_sequence))
-        # self.assertTrue(set(self.engine.allowed_actions) == expected_allowed_actions)
+        self.init_board(self.partial_move_sequence)
+        expected_allowed_actions = TicTacToeActionSpace(
+            set(self.full_move_sequence).difference(set(self.partial_move_sequence)))
+        self.assertTrue(self.engine.allowed_actions == expected_allowed_actions)
 
     def test_allowed_actions_with_no_actions(self):
         self.init_board(self.full_move_sequence)
-        self.assertFalse(set(self.engine.allowed_actions.actions))
+        self.assertFalse(self.engine.allowed_actions.actions)
 
     def test_reset(self):
         self.init_board(self.full_move_sequence)
@@ -91,42 +111,5 @@ class TestTicTacToeEngine(TestCase):
 
         self.assertFalse(self.engine.winnings)
         self.assertFalse(self.engine.ended)
-
-    def test_set_proper_player(self):
-        pass
-        # # self.engine._rewind_last_player(None)
-        # # self.assertEqual(self.engine.current_player, Player("Player 0", 0))
-        #
-        # self.engine._rewind_last_player(0)
-        # self.assertEqual(self.engine.current_player, Player("Player 0", 0))
-        #
-        # self.engine._rewind_last_player(1)
-        # self.assertEqual(self.engine.current_player, Player("Player 1", 1))
-        #
-        # self.engine._rewind_last_player(2)
-        # self.assertEqual(self.engine.current_player, Player("Player 2", 2))
-
-    def test_undo_last_move(self):
-        self.engine.randomize_board()
-        pass
-        # self.engine.make_move(TicTacToeAction(0, 0))
-        # self.assertTrue(self.engine.current_player == Player("Player 1", 1))
-        # self.assertFalse(self.engine.winnings)
-        # self.assertFalse(self.engine.ended)
-        #
-        # self.engine._undo_last_move()
-        #
-        # self.assertTrue(self.engine.current_player == Player("Player 0", 0))
-        # self.assertFalse(self.engine.winnings)
-        # self.assertFalse(self.engine.ended)
-        #
-        # self.init_board(self.winning_move_sequence)
-        # self.assertTrue(self.engine.current_player == Player("Player 1", 1))
-        # self.assertTrue(self.engine.winnings == {Winning(0, [(0, 0), (0, 1), (0, 2)])})
-        # self.assertTrue(self.engine.ended)
-        #
-        # self.engine._undo_last_move()
-        #
-        # self.assertTrue(self.engine.current_player == Player("Player 2", 2))
-        # self.assertFalse(self.engine.winnings)
-        # self.assertFalse(self.engine.ended)
+        self.assertTrue(self.engine._board._points_placed)
+        self.assertTrue(self.engine._board._marks_placed)
