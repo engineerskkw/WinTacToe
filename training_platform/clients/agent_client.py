@@ -8,9 +8,11 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from thespian.actors import *
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
+from training_platform.common import LOGGING
+
 
 
 class InitClientActorMsg:
@@ -20,13 +22,16 @@ class InitClientActorMsg:
         self.game_manager_addr = game_manager_addr
         self.logger_addr = logger_addr
 
+
 class GetAgentMsg:
     pass
+
 
 class AgentMsg:
     def __init__(self, agent, Gs):
         self.agent = agent
         self.Gs = Gs
+
 
 class AgentClientActor(Actor):
     def __init__(self):
@@ -36,9 +41,10 @@ class AgentClientActor(Actor):
         self.game_manager_addr = None
         self.logger_addr = None
         self.client_endpoint = None
-        self.player = None
+        self.player = "Unjoined"
 
     def receiveMessage(self, msg, sender):
+        self.log(f"Received {msg} from {sender}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         # Initialization
         if isinstance(msg, InitClientActorMsg):
             self.agent = msg.agent
@@ -46,7 +52,7 @@ class AgentClientActor(Actor):
             self.game_manager_addr = msg.game_manager_addr
             self.logger_addr = msg.logger_addr
             self.client_endpoint = sender
-            self.send(self.client_endpoint, GameManagerInitializedMsg())
+            self.send(self.client_endpoint, AgentClientActorInitializedMsg())
 
         # Joining server
         elif isinstance(msg, JoinMsg):
@@ -95,8 +101,15 @@ class AgentClientActor(Actor):
         else:
             raise UnexpectedMessageError(msg)
 
-    def log(self, text):
-        self.send(self.logger_addr, LogMsg(text, f"client:{self.player}"))
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            super().send(self.logger_addr, LogMsg(text, f"client:{self.player}", logging_level))
+
+    def send(self, target_address, message):
+        super().send(target_address, message)
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
 
 class AgentClient:
@@ -108,22 +121,21 @@ class AgentClient:
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         msg = InitClientActorMsg(agent, self.match_maker_addr, self.game_manager_addr, self.logger_addr)
-        response = self.asys.ask(self.client_actor_address, msg)
-        if not isinstance(response, GameManagerInitializedMsg):
+        response = self.ask(self.client_actor_address, msg)
+        if not isinstance(response, AgentClientActorInitializedMsg):
             raise UnexpectedMessageError(response)
 
     @property
     def agent(self):
-        response = self.asys.ask(self.client_actor_address, GetAgentMsg())
+        response = self.ask(self.client_actor_address, GetAgentMsg())
         if isinstance(response, AgentMsg):
             return response.agent
-        raise UnexpectedMessageError
-
+        raise UnexpectedMessageError(response)
 
     def join(self, player):
         if self.joined:
             raise RejoiningError
-        response = self.asys.ask(self.client_actor_address, JoinMsg(player))
+        response = self.ask(self.client_actor_address, JoinMsg(player))
         if isinstance(response, MatchMakerUninitializedMsg):
             raise MatchMakerUninitializedError
         elif isinstance(response, InvalidPlayerMsg):
@@ -131,7 +143,27 @@ class AgentClient:
         elif isinstance(response, JoinAcknowledgementsMsg):
             self.joined = True
             return True
-        raise UnexpectedMessageError
+        raise UnexpectedMessageError(response)
+
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if self.logger_addr is not None:
+            if not LOGGING:
+                return
+            log_msg = LogMsg(text, f"AgentClientEndpoint of {self.client_actor_address} client", logging_level)
+            self.asys.tell(self.logger_addr, log_msg)
+
+    def tell(self, target_address, message):
+        self.asys.tell(target_address, message)
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+
+    def listen(self):
+        response = self.asys.listen()
+        self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+        return response
+
+    def ask(self, target_address, message):
+        self.tell(target_address, message)
+        return self.listen()
 
 
 class RejoiningError(Exception):
