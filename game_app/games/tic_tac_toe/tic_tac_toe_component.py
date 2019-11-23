@@ -74,6 +74,17 @@ class TicTacToeClientActor(Actor):
         self.game_manager_addr = None
         self.logger_addr = None
         self.player = None
+    
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            super().send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}", logging_level))
+
+    def send(self, target_address, message):
+        super().send(target_address, message)
+        if not isinstance(message, EventsToPostMsg):
+            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
     def receiveMessage(self, msg, sender):
         if not isinstance(msg, GetEventsToPostMsg):
@@ -129,17 +140,6 @@ class TicTacToeClientActor(Actor):
         else:
             raise UnexpectedMessageError(msg)
 
-    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
-        if not LOGGING:
-            return
-        if self.logger_addr is not None:
-            super().send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}", logging_level))
-
-    def send(self, target_address, message):
-        super().send(target_address, message)
-        if not isinstance(message, EventsToPostMsg):
-            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
-
 
 class TicTacToeComponent(AbstractComponent):
     def __init__(self, app, number_of_players=2, board_size=3, marks_required=3, mark=1):
@@ -187,6 +187,27 @@ class TicTacToeComponent(AbstractComponent):
 
         resource_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3")
         MusicSwitcher(resource_path).start()
+    
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            self.asys.tell(self.logger_addr, LogMsg(text, "TicTacToeComponent", logging_level))
+
+    def tell(self, target_address, message):
+        self.asys.tell(target_address, message)
+        if not isinstance(message, GetEventsToPostMsg):
+            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+
+    def listen(self):
+        response = self.asys.listen()
+        if not isinstance(response, EventsToPostMsg):
+            self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+        return response
+
+    def ask(self, target_address, message):
+        self.tell(target_address, message)
+        return self.listen()
 
     def render(self):
         self._scene.render()
@@ -228,24 +249,3 @@ class TicTacToeComponent(AbstractComponent):
     def back_to_menu(self):
         self.server.shutdown()
         self._app.switch_component(Components.MAIN_MENU)
-
-    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
-        if not LOGGING:
-            return
-        if self.logger_addr is not None:
-            self.asys.tell(self.logger_addr, LogMsg(text, "TicTacToeComponent", logging_level))
-
-    def tell(self, target_address, message):
-        self.asys.tell(target_address, message)
-        if not isinstance(message, GetEventsToPostMsg):
-            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
-
-    def listen(self):
-        response = self.asys.listen()
-        if not isinstance(response, EventsToPostMsg):
-            self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
-        return response
-
-    def ask(self, target_address, message):
-        self.tell(target_address, message)
-        return self.listen()
