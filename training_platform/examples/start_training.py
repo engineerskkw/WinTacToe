@@ -14,46 +14,45 @@ from training_platform import EnvironmentServer
 from training_platform import AgentClient
 from reinforcement_learning.abstract.abstract_agent import Agent
 import time
+import matplotlib.pyplot as plt
+
+def correct(x, y):
+    return (x == -1. and y == 1.) or (x == 1. and y == -1.) or (x == 0. and y == 0.)
 
 if __name__ == '__main__':
-    server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
+    server = EnvironmentServer(TicTacToeEngine(2, 5, 3))
     print("Environment Server has started!")
 
     players = server.players
     p0 = players[0]
     p1 = players[1]
 
-    # agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
-    # agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
+    agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
+    agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
     #
-    # a0 = Agent.load(agent_0_file_path)
-    # a1 = Agent.load(agent_1_file_path)
+    a0 = Agent.load(agent_0_file_path)
+    a1 = Agent.load(agent_1_file_path)
 
-    c0 = AgentClient(QLearningAgent(0.1, 0.05, 0.9))
-    c1 = AgentClient(QLearningAgent(0.1, 0.05, 0.9))
+    c0 = AgentClient(a0)
+    c1 = AgentClient(a1)
 
     server.join(c0, p0)
     server.join(c1, p1)
     print("Clients have joined server!")
 
-
     start = time.time()
     episodes_number = 10
     print("Please wait...")
     for i in range(episodes_number):
-        # print(f"Game number: {i}")
         server.start()
     end = time.time()
     print(f"{episodes_number} episodes finished in {end-start}")
 
-    # c0.agent.save(agent_0_file_path)
-    # c1.agent.save(agent_1_file_path)
+    c0.agent.save(agent_0_file_path)
+    c1.agent.save(agent_1_file_path)
 
     a0 = c0.agent
     a1 = c1.agent
-
-    print(a0.performance_measure)
-    print(a1.performance_measure)
 
     server.shutdown()
     print("Training platform has been shutdowned!")

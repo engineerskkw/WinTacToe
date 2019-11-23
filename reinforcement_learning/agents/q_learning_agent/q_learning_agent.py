@@ -42,7 +42,6 @@ class QLearningAgent(Agent):
     def exit(self, terminal_state):
         self._update(terminal_state)
         self.performance_measure.append(self._current_episode_return)
-        # self.get_performance_graph(10)
         self._reset_prev_info()
 
     def _update(self, new_state):
@@ -58,25 +57,21 @@ class QLearningAgent(Agent):
         self._prev_reward = None
         self._current_episode_return = 0
 
-    # def get_performance_graph(self, no_of_buckets):
-    #     no_of_episodes = len(self.performance_measure)
-    #     bucket_size = no_of_episodes // no_of_buckets
-    #     bins = np.array(range(0, no_of_episodes, bucket_size))
-    #
-    #     bin_numbers = np.digitize(self.performance_measure, bins)
-    #     buckets = [[] for _ in range(no_of_buckets)]
-    #
-    #     for bin_no, value in zip(bin_numbers, self.performance_measure):
-    #         buckets[bin_no - 1].append(value)
-    #
-    #     print(buckets)
-    #
-    #     ret = []
-    #
-    #     for bucket in buckets:
-    #         ret.append(np.average(bucket))
-    #
-    #     return ret
+    def get_performance_graph(self, no_of_buckets):
+        no_of_episodes = len(self.performance_measure)
+        bucket_size = no_of_episodes // no_of_buckets
+
+        tmp = [[] for i in range(no_of_buckets)]
+
+        j = 0
+        for i in range(no_of_buckets):
+            for _ in range(bucket_size):
+                tmp[i].append(self.performance_measure[j])
+                j += 1
+
+        averages = [np.mean(i) for i in tmp]
+        return averages
+
 
 
 
