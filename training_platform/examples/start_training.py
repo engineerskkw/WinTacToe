@@ -13,6 +13,7 @@ from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLea
 from training_platform import EnvironmentServer
 from training_platform import AgentClient
 from reinforcement_learning.abstract.abstract_agent import Agent
+import time
 
 if __name__ == '__main__':
     server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
@@ -35,10 +36,15 @@ if __name__ == '__main__':
     server.join(c1, p1)
     print("Clients have joined server!")
 
-    for i in range(1):
-        print(f"Game number: {i}")
+
+    start = time.time()
+    episodes_number = 10
+    print("Please wait...")
+    for i in range(episodes_number):
+        # print(f"Game number: {i}")
         server.start()
-    print("All episodes finished")
+    end = time.time()
+    print(f"{episodes_number} episodes finished in {end-start}")
 
     # c0.agent.save(agent_0_file_path)
     # c1.agent.save(agent_1_file_path)
