@@ -214,6 +214,10 @@ class TicTacToeEngine:
         """
         if self.ended:
             winning_marks = map(lambda winning: winning.mark, self._winnings)
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+            print(self._players)
+            print(list(winning_marks))
+            print("!!!!!!!!!!!!!!!!!!!!!!!!!!DEBUG!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
             rewards = map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players)
             return {player: reward for player, reward in zip(self._players, rewards)}
         else:

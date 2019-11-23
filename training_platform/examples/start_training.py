@@ -35,7 +35,7 @@ if __name__ == '__main__':
     server.join(c1, p1)
     print("Clients have joined server!")
 
-    for i in range(100):
+    for i in range(1):
         print(f"Game number: {i}")
         server.start()
     print("All episodes finished")
