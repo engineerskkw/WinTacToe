@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-
+import pickle
 from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeComponent
 from game_app.menus.main_menu.main_menu_component import MainMenuComponent
 from game_app.menus.settings.settings_component import SettingsComponent
@@ -29,11 +29,8 @@ class Application:
         self.screen = None
         self._size = 1280, 720
         self._block_events = False
-        self.settings = {
-            Settings.COLOR: ColorMode.DARK,
-            Settings.MUSIC: True,
-            Settings.SOUNDS: True,
-        }
+        with open(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/settings.cfg"), 'rb') as settings_file:
+            self.settings = pickle.load(settings_file)
 
     def _launch(self):
         pygame.mixer.init(buffer=256)

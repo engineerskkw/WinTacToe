@@ -1,6 +1,5 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -10,6 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from pygame.locals import *
 from game_app.common_helper import Components, ColorMode, Settings, MusicSwitcher
 from game_app.common.buttons import RectangularTextButton, RoundIconButton
+import pickle
 
 
 class SettingsLogic:
@@ -45,14 +45,15 @@ class SettingsLogic:
                                   (380, 100)),
         ]
 
-        self._save_settings_button = RectangularTextButton("Save settings",
-                                                           self.save_selected_settings,
-                                                           settings,
-                                                           (450, 620),
-                                                           (380, 100))
+        self._save_settings_button = RoundIconButton(
+            self._resolve_save_icon_path(settings[Settings.COLOR]),
+            self.save_selected_settings,
+            settings,
+            (1240, 40),
+            30)
 
         self._back_to_menu_button = RoundIconButton(
-            self._resolve_back_arrow_image_path(settings[Settings.COLOR]),
+            self._resolve_back_arrow_icon_path(settings[Settings.COLOR]),
             self.switch_back_to_main_menu,
             settings,
             (40, 40),
@@ -60,11 +61,17 @@ class SettingsLogic:
 
         self.all_buttons = [self._save_settings_button, self._back_to_menu_button] + self._settings_buttons
 
-    def _resolve_back_arrow_image_path(self, color_mode):
+    def _resolve_back_arrow_icon_path(self, color_mode):
         if color_mode == ColorMode.DARK:
             return 'game_app/resources/images/common/left_arrow_white.png'
         else:
             return 'game_app/resources/images/common/left_arrow_black.png'
+
+    def _resolve_save_icon_path(self, color_mode):
+        if color_mode == ColorMode.DARK:
+            return 'game_app/resources/images/settings/save_icon_white.png'
+        else:
+            return 'game_app/resources/images/settings/save_icon_black.png'
 
     def _reinitialize_buttons(self, settings):
         self._initialize_buttons(settings)
@@ -106,7 +113,8 @@ class SettingsLogic:
         self._reinitialize_buttons(self._app.settings)
 
     def save_selected_settings(self):
-        print("TODO")
+        with open(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/settings.cfg"), 'wb') as settings_file:
+            pickle.dump(self._app.settings, settings_file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def switch_back_to_main_menu(self):
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)
