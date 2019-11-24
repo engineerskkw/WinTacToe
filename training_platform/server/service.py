@@ -104,6 +104,8 @@ class GameManager(Actor):
                 self.before_first_move[player] = True
             for client in self.gui_clients:
                 self.send(client, StateUpdateMsg(self.environment.current_board))
+            for client in self.players_clients.values():  # TODO(after merging): send to non-gui clients
+                self.send(client, EnvRestartedMsg())
             self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
