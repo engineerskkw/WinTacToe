@@ -3,6 +3,7 @@ import numpy as np
 from reinforcement_learning.abstract.abstract_agent import Agent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common.agent_utils import bucketify
 
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 REL_PROJECT_ROOT_PATH = "./../../../"
@@ -10,6 +11,7 @@ ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
 
 class QLearningAgent(Agent):
     def __init__(self, step_size, epsilon, discount):
@@ -42,6 +44,8 @@ class QLearningAgent(Agent):
     def exit(self, terminal_state):
         self._update(terminal_state)
         self.performance_measure.append(self._current_episode_return)
+
+    def restart(self):
         self._reset_prev_info()
 
     def _update(self, new_state):
@@ -51,27 +55,13 @@ class QLearningAgent(Agent):
         self.action_value[self._prev_state, self._prev_action] = prev_action_value + error
 
     def _reset_prev_info(self):
-        # print(self._current_episode_return)
         self._prev_action = None
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
 
     def get_performance_graph(self, no_of_buckets):
-        no_of_episodes = len(self.performance_measure)
-        bucket_size = no_of_episodes // no_of_buckets
-
-        tmp = [[] for i in range(no_of_buckets)]
-
-        j = 0
-        for i in range(no_of_buckets):
-            for _ in range(bucket_size):
-                tmp[i].append(self.performance_measure[j])
-                j += 1
-
-        averages = [np.mean(i) for i in tmp]
-        return averages
-
+        return bucketify(self.performance_measure, no_of_buckets, np.mean)
 
 
 
