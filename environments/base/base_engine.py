@@ -24,18 +24,18 @@ class BaseEngine(ABC):
     @abstractmethod
     def players(self):
         """
-        Get list of currently participating players.
+        Get a list of currently participating players.
 
         Returns
         -------
-            list[AbstractPlayer(not implemented)
+            list[AbstractPlayer(not implemented)]
         """
         pass
 
     @abstractmethod
     def current_state(self):
         """
-        Get current state of the environment.
+        Get a current state of the environment.
 
         Returns
         -------
@@ -57,7 +57,7 @@ class BaseEngine(ABC):
     @abstractmethod
     def allowed_actions(self):
         """
-        Get current allowed actions
+        Get current allowed actions.
 
         Returns
         -------
@@ -68,7 +68,7 @@ class BaseEngine(ABC):
     @abstractmethod
     def rewards(self):
         """
-        Get rewards hash per player.
+        Get a rewards hash per player.
 
         Returns
         -------
@@ -78,7 +78,7 @@ class BaseEngine(ABC):
     @abstractmethod
     def ended(self):
         """
-        Check if the episode or game has ended
+        Check if the episode or game has ended.
 
         Returns
         -------
@@ -100,7 +100,7 @@ class BaseEngine(ABC):
 
     def randomize(self, seed):
         """
-        Randomizes initial state of the environment
+        Randomize an initial state of the environment.
 
         Parameters
         ----------
@@ -111,5 +111,5 @@ class BaseEngine(ABC):
         pass
 
     def reset(self):
-        """Resets the environment"""
+        """Reset the environment."""
         pass
