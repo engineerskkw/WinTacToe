@@ -85,16 +85,16 @@ class BasicAgent(BaseAgent):
 
             G = gamma * G + R  # Calculate discounted return
 
-            # Update rule according to the Monte Carlo first-step approach
-            unique = True
+            # Update rule according to the Monte Carlo first-visit approach
+            first_visit = True
             for i in reversed(range(t)):
                 temp_S = episode[i]
                 temp_A = episode[i+1]
                 if (S, A) == (temp_S, temp_A):
-                    unique = False
+                    first_visit = False
                     break
 
-            if not unique:
+            if first_visit:
                 # Policy evaluation
                 self.returns[S, A].append(G)
                 self.action_value[S, A] = np.mean(self.returns[S, A])  # Improve policy of both agents
