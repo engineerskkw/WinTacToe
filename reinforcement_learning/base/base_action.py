@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 
 
-class AbstractAction(ABC):
+class BaseAction(ABC):
     """
     Class implements action taken by reinforcement learning agent.
 
@@ -47,7 +47,7 @@ class AbstractAction(ABC):
         Bool
             True if actions are equal, false otherwise.
         """
-        if not isinstance(other, AbstractAction):
+        if not isinstance(other, BaseAction):
             return False
         return hash(self) == hash(other)
 

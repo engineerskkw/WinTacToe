@@ -13,7 +13,7 @@ from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAge
 from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLearningAgent
 from training_platform import EnvironmentServer
 from training_platform import AgentClient
-from reinforcement_learning.abstract.abstract_agent import Agent
+from reinforcement_learning.base.base_agent import BaseAgent
 
 if __name__ == '__main__':
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")

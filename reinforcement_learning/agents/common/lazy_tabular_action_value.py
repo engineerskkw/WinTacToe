@@ -12,10 +12,10 @@ from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleStat
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
-from reinforcement_learning.abstract.abstract_action_value import AbstractActionValue
+from reinforcement_learning.base.base_action_value import BaseActionValue
 
 
-class LazyTabularActionValue(AbstractActionValue):
+class LazyTabularActionValue(BaseActionValue):
     MIN_PEN_WIDTH = 1
     MAX_PEN_WIDTH = 4
 
@@ -23,7 +23,7 @@ class LazyTabularActionValue(AbstractActionValue):
         self.action_value_dict = dict()
 
     def __getitem__(self, key: tuple):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
 
@@ -36,7 +36,7 @@ class LazyTabularActionValue(AbstractActionValue):
         return float(self.action_value_dict[state][action])
 
     def __setitem__(self, key, value):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
 
@@ -105,7 +105,7 @@ class LazyTabularActionValue(AbstractActionValue):
 
 if __name__ == '__main__':
     # SimpleAction-value test
-    av = ActionValue()
+    av = LazyTabularActionValue()
 
     s = SimpleState([[-1, -1], [-1, 1]])
 

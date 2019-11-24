@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 import pickle
 
-class Agent(ABC):
+class BaseAgent(ABC):
     @abstractmethod
     def take_action(self, state, allowed_actions):
         """
@@ -18,14 +18,14 @@ class Agent(ABC):
 
         Parameters
         ----------
-        state : AbstractState
+        state : BaseState
             A state of the environment.
-        allowed_actions : AbstractActionSpace
+        allowed_actions : BaseActionSpace
             A list of the actions that agent can take.
 
         Returns
         -------
-        AbstractAction
+        BaseAction
             An action taken by the agent.
         """
         pass
@@ -33,7 +33,7 @@ class Agent(ABC):
     @abstractmethod
     def receive_reward(self, reward):
         """
-        Give the agent a reward. Should be overridden only in case of the RL Agent
+        Give the agent a reward. Should be overridden only in case of the RL BaseAgent
 
         Parameters
         ----------
@@ -58,7 +58,7 @@ class Agent(ABC):
 
         Parameters
         ----------
-        terminal_state : AbstractState
+        terminal_state : BaseState
             Terminal state of the environment.
         """
         pass

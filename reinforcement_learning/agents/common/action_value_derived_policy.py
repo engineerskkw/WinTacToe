@@ -10,16 +10,16 @@ import random
 
 from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
-from reinforcement_learning.abstract.abstract_policy import AbstractPolicy
+from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
 
-class ActionValueDerivedPolicy(AbstractPolicy):
+class ActionValueDerivedPolicy(BasePolicy):
     def __init__(self, action_value):
         self.action_value = action_value
 
     def __getitem__(self, key):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
 

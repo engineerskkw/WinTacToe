@@ -12,7 +12,7 @@ from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAge
 from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLearningAgent
 from training_platform import EnvironmentServer
 from training_platform import AgentClient
-from reinforcement_learning.abstract.abstract_agent import Agent
+from reinforcement_learning.base.base_agent import BaseAgent
 import time
 import matplotlib.pyplot as plt
 
@@ -29,9 +29,9 @@ if __name__ == '__main__':
 
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
     agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
-    #
-    a0 = Agent.load(agent_0_file_path)
-    a1 = Agent.load(agent_1_file_path)
+
+    a0 = BaseAgent.load(agent_0_file_path)
+    a1 = BaseAgent.load(agent_1_file_path)
 
     c0 = AgentClient(a0)
     c1 = AgentClient(a1)

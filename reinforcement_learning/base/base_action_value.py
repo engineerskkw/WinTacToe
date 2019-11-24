@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 
 
-class AbstractActionValue(ABC):
+class BaseActionValue(ABC):
     """
     Class implements action value function of the reinforcement learning agent.
 
@@ -38,7 +38,7 @@ class AbstractActionValue(ABC):
 
         Parameters
         ----------
-        key : Tuple(AbstractState, AbstractAction)
+        key : Tuple(BaseState, BaseAction)
             Pair of the state and action.
 
         Returns
@@ -55,7 +55,7 @@ class AbstractActionValue(ABC):
 
         Parameters
         ----------
-        key : Tuple(AbstractState, AbstractAction)
+        key : Tuple(BaseState, BaseAction)
             Pair of the state and action.
         value : Double
             Expected return.
@@ -70,7 +70,7 @@ class AbstractActionValue(ABC):
 
         Parameters
         ----------
-        state : AbstractState
+        state : BaseState
             State of the environment.
 
         Returns
@@ -88,12 +88,12 @@ class AbstractActionValue(ABC):
 
         Parameters
         ----------
-        state : AbstractState
+        state : BaseState
             State of the environment.
 
         Returns
         -------
-        Set[AbstractAction]
+        Set[BaseAction]
             Set of actions that maximize expected return.
         """
         pass

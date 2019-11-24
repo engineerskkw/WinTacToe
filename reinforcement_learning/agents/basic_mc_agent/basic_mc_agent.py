@@ -9,19 +9,18 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import numpy as np
 
-from reinforcement_learning.abstract.abstract_agent import Agent
+from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.basic_mc_agent.episode import Episode
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
-from reinforcement_learning.abstract.abstract_state import AbstractState
 
 
-class BasicAgent(Agent):
+class BasicAgent(BaseAgent):
     def __init__(self):
-        # Agent's building blocks
+        # BaseAgent's building blocks
         self.action_value = LazyTabularActionValue()
         self.policy = ActionValueDerivedPolicy(self.action_value)
         self.returns = Returns()
@@ -124,7 +123,6 @@ class BasicAgent(Agent):
         self.last_action = None
 
     def reset_agent(self):
-        self.reset_policy()
         self.reset_action_value()
         self.reset_returns()
         self.reset_episode()

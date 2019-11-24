@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from parse import parse
 
-from reinforcement_learning.abstract.abstract_agent import Agent
+from reinforcement_learning.base.base_agent import BaseAgent
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 
 
@@ -32,7 +32,7 @@ def pretty_print(board):
     print(representation)
 
 
-class HumanPlayerAgent(Agent):
+class HumanPlayerAgent(BaseAgent):
     def __init__(self):
         pass
 
