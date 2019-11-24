@@ -12,7 +12,7 @@ import pygame
 from pygame.locals import MOUSEBUTTONUP
 
 from game_app.abstract_component import AbstractComponent
-from game_app.common_helper import MusicSwitcher, Components, Settings
+from game_app.common_helper import TurnState, MusicSwitcher, Components, Settings
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.common import *
@@ -23,11 +23,6 @@ from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
-
-class TurnState(Enum):
-    NOT_YOUR_TURN = 0
-    YOUR_TURN = 1
-    NEW_YOUR_TURN = 2
 
 
 class UserEventTypes(Enum):
@@ -73,7 +68,7 @@ class TicTacToeClientActor(Actor):
         self.game_manager_addr = None
         self.logger_addr = None
         self.player = None
-    
+
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if not LOGGING:
             return
@@ -119,7 +114,7 @@ class TicTacToeClientActor(Actor):
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
-            turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.NEW_YOUR_TURN}
+            turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.YOUR_TURN}
             self._events_to_post += [state_changed_event, turn_changed_event]
 
         elif isinstance(msg, MoveMsg):
@@ -144,14 +139,13 @@ class TicTacToeClientActor(Actor):
 
 
 class TicTacToeComponent(AbstractComponent):
-    def __init__(self, app, number_of_players=2, board_size=3, marks_required=3, mark=1):
+    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, number_of_players=2):
         self._app = app
-
-        # TODO stworzyc menu ktore pozwala wpisac te parametry (albo wybrac z proponowanych)
         self._number_of_players = number_of_players
         self._board_size = board_size
         self._marks_required = marks_required
-        self._mark = mark
+        self._player_mark = player_mark
+        self._opponent_mark = opponent_mark
 
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
@@ -170,11 +164,11 @@ class TicTacToeComponent(AbstractComponent):
         players = self.server.players
 
         # TicTacToeClientActor server joining
-        p0 = players[0]
+        p0 = players[self._player_mark]
         self.tell(self.client_actor_address, JoinServerMsg(p0))
 
         # Opponent joining
-        p1 = players[1]
+        p1 = players[self._opponent_mark]
         c1 = AgentClient(BasicAgent())
         self.server.join(c1, p1)
         self.log(f"Joined opponent")
@@ -183,7 +177,8 @@ class TicTacToeComponent(AbstractComponent):
         self.server.start(blocking=False)
         self.log("Started server")
 
-        self._scene = TicTacToeScene(self, app.screen, self._board_size)
+        self._scene = TicTacToeScene(self, app.screen, self._board_size, app.settings, self._player_mark,
+                                     self._opponent_mark)
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
 
@@ -191,7 +186,7 @@ class TicTacToeComponent(AbstractComponent):
             os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"),
             app.settings[Settings.MUSIC],
         ).start()
-    
+
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if not LOGGING:
             return
@@ -224,9 +219,8 @@ class TicTacToeComponent(AbstractComponent):
         elif event.type == UserEventTypes.GAME_OVER.value:
             self.winnings = event.new_winnings
         elif event.type == MOUSEBUTTONUP:
-            buttons = [self._scene.restart_button, self._scene.main_menu_button]
-            if self.turn != TurnState.NOT_YOUR_TURN:
-                buttons += sum(self._scene.buttons, [])
+            buttons = [self._scene.restart_button, self._scene.main_menu_button] + \
+                      sum(self._scene.tic_tac_toe_buttons, [])
             for button in filter(lambda b: b.contains_point(event.pos), buttons):
                 button.on_pressed()
 
@@ -246,7 +240,8 @@ class TicTacToeComponent(AbstractComponent):
     def restart(self):
         self.turn = TurnState.NOT_YOUR_TURN
         self.winnings = []
-        self._scene = TicTacToeScene(self, self._app.screen, self._board_size)
+        self._scene = TicTacToeScene(self, self._app.screen, self._board_size, self._app.settings, self._player_mark,
+                                     self._opponent_mark)
         self.server.restart(blocking=False)
         self.log("Restarted server")
 

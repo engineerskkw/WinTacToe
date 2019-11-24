@@ -14,6 +14,11 @@ from enum import Enum
 from pygame.mixer import Sound
 
 
+class TurnState(Enum):
+    NOT_YOUR_TURN = 0
+    YOUR_TURN = 1
+
+
 class Components(Enum):
     MAIN_MENU = 1
     TIC_TAC_TOE_LAUNCH_MENU = 2

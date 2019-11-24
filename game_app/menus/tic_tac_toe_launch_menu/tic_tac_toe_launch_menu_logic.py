@@ -8,10 +8,9 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from pygame.locals import *
-from pygame.mixer import Sound
 
 from game_app.common_helper import Components, ColorMode, Settings
-from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RectangularChoiceButton, \
+from game_app.common.buttons import RectangularChoiceButton, \
     DisableableRectangularTextButton, RoundIconButton
 
 
@@ -147,5 +146,8 @@ class TicTacToeLaunchMenuLogic:
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)
 
     def switch_to_tic_tac_toe(self):
-        self._app.switch_component(Components.TIC_TAC_TOE, board_size=self._board_size,
-                                   marks_required=self._marks_required, mark=self._mark)
+        self._app.switch_component(Components.TIC_TAC_TOE,
+                                   board_size=self._board_size,
+                                   marks_required=self._marks_required,
+                                   player_mark=self._mark,
+                                   opponent_mark=abs(self._mark - 1))

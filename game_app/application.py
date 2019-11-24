@@ -30,7 +30,7 @@ class Application:
         self._size = 1280, 720
         self._block_events = False
         self.settings = {
-            Settings.COLOR: ColorMode.LIGHT,
+            Settings.COLOR: ColorMode.DARK,
             Settings.MUSIC: True,
             Settings.SOUNDS: True,
         }

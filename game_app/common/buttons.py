@@ -1,9 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-
-from pygame.mixer import Sound
-
-REL_PROJECT_ROOT_PATH = "./../../../"
+REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -11,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import pygame
 from pygame import Rect
+from pygame.mixer import Sound
 from abc import ABC, abstractmethod
 from game_app.common_helper import ColorMode, Settings
 
@@ -91,7 +89,7 @@ class DisableableRectangularTextButton(RectangularTextButton):
         self._enabled_text = enabled_text
         self._disabled_text = disabled_text
         self._disabled_click_sound = Sound(os.path.join(
-            ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe_launch_menu/disabled_button_sound.wav"))
+            ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/disabled_button_sound.wav"))
 
     def _get_color(self, mouse_position, is_mouse_pressed):
         if self._disabled:
