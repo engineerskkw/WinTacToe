@@ -6,9 +6,9 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from reinforcement_learning.abstract.abstract_state import AbstractState
-from reinforcement_learning.abstract.abstract_action import AbstractAction
-from reinforcement_learning.abstract.abstract_action_space import AbstractActionSpace
+from reinforcement_learning.base.base_state import BaseState
+from reinforcement_learning.base.base_action import BaseAction
+from reinforcement_learning.base.base_action_space import BaseActionSpace
 
 from random import choice, sample, randrange
 
@@ -91,7 +91,7 @@ class Winning:
         return hash((self.mark, *self.points_included))
 
 
-class TicTacToeState(AbstractState):
+class TicTacToeState(BaseState):
     def __init__(self, board):
         self.board = board
 
@@ -102,7 +102,7 @@ class TicTacToeState(AbstractState):
         return hash(str(self.board))
 
 
-class TicTacToeAction(AbstractAction):
+class TicTacToeAction(BaseAction):
     def __init__(self, row, col):
         self.row = row
         self.col = col
@@ -117,7 +117,7 @@ class TicTacToeAction(AbstractAction):
         return self.row == other.row and self.col == other.col
 
 
-class TicTacToeActionSpace(AbstractActionSpace):
+class TicTacToeActionSpace(BaseActionSpace):
     """
     actions: Set
     """

@@ -1,6 +1,7 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys
 import os
+
 REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -11,6 +12,7 @@ from thespian.actors import *
 from training_platform.common import *
 from training_platform.server.logger import Logger
 from training_platform.common import LOGGING
+
 
 class GameManager(Actor):
     def __init__(self):
@@ -105,7 +107,8 @@ class GameManager(Actor):
             for client in self.gui_clients:
                 self.send(client, StateUpdateMsg(self.environment.current_board))
             for client in self.players_clients.values():  # TODO(after merging): send to non-gui clients
-                self.send(client, EnvRestartedMsg())
+                if client not in self.gui_clients:
+                    self.send(client, EnvRestartedMsg())
             self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))

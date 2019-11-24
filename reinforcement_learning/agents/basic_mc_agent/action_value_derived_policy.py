@@ -10,11 +10,11 @@ import random
 
 from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
-from reinforcement_learning.abstract.abstract_policy import AbstractPolicy
+from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value import LazyTabularActionValue
 
 
-class ActionValueDerivedPolicy(AbstractPolicy):
+class ActionValueDerivedPolicy(BasePolicy):
     def __init__(self, action_value):
         super().__init__()
         self.action_value = action_value

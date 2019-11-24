@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 
 
-class AbstractModel(ABC):
+class BaseModel(ABC):
     """
     Class implements reinforcement model.
 
@@ -39,12 +39,12 @@ class AbstractModel(ABC):
 
         Parameters
         ----------
-        key : Tuple(AbstractState, AbstractAction)
+        key : Tuple(BaseState, BaseAction)
             Pair of the state and the action.
 
         Returns
         -------
-        Tuple(AbstractState, Int)
+        Tuple(BaseState, Int)
             Pair of the next state and the reward
         """
         pass
@@ -56,9 +56,9 @@ class AbstractModel(ABC):
 
         Parameters
         ----------
-        key : Tuple(AbstractState, AbstractAction)
+        key : Tuple(BaseState, BaseAction)
             Pair of the state and the action.
-        value : Tuple(AbstractState, Double)
+        value : Tuple(BaseState, Double)
             Pair of the next state and the reward
         """
         pass

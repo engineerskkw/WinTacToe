@@ -12,10 +12,10 @@ from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleStat
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
-from reinforcement_learning.abstract.abstract_action_value import AbstractActionValue
+from reinforcement_learning.base.base_action_value import BaseActionValue
 
 
-class LazyTabularActionValue(AbstractActionValue):
+class LazyTabularActionValue(BaseActionValue):
     MIN_PEN_WIDTH = 1
     MAX_PEN_WIDTH = 4
 
@@ -34,7 +34,7 @@ class LazyTabularActionValue(AbstractActionValue):
             return float(self.action_value_dict[state][action])
         else:
             raise Exception(f"Invalid key in __getitem___ mehod of ActionValue: {key}, "
-                            f"should be tuple(AbstractState, AbstractAction)")
+                            f"should be tuple(BaseState, BaseAction)")
 
     def __setitem__(self, key, value):
         state, action = key

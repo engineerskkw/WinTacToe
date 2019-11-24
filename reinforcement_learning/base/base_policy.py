@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 
 
-class AbstractPolicy(ABC):
+class BasePolicy(ABC):
     """Class implements reinforcement learning policy.
 
     A policy defines the learning agent’s way of behaving at a given time.
@@ -38,7 +38,7 @@ class AbstractPolicy(ABC):
 
         Parameters
         ----------
-        key : Tuple(AbstractState, AbstractAction)
+        key : Tuple(BaseState, BaseAction)
             Pair of the state and action.
 
         Returns
@@ -55,9 +55,9 @@ class AbstractPolicy(ABC):
 
         Parameters
         ----------
-        state : AbstractState
+        state : BaseState
             State of the environment.
-        action_space : AbstractActionSpace
+        action_space : BaseActionSpace
             Space of all possible actions the in given state
         epsilon : Double
             Epsilon - value used when determining the selection of a greedy
@@ -65,7 +65,7 @@ class AbstractPolicy(ABC):
 
         Returns
         -------
-        AbstractAction
+        BaseAction
             Greedy action
         """
         pass
