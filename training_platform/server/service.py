@@ -61,7 +61,7 @@ class GameManager(Actor):
             self.environment.reset()
             self.log(f"Launched game with following players and clients: {self.players_clients}")
             current_client = self.players_clients[self.environment.current_player]
-            self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+            self.send(current_client, YourTurnMsg(self.environment.current_state, self.environment.allowed_actions))
             self.send(self.who_started_game, EnvStartedMsg())
 
 
@@ -70,22 +70,22 @@ class GameManager(Actor):
             self.environment.make_move(msg.action)  # It implicitly makes next player current player
             # State update for GUI clients TODO: send StateUpdateMsg only to GUI clients
             for client in self.players_clients.values():
-                self.send(client, StateUpdateMsg(self.environment.current_board))
+                self.send(client, StateUpdateMsg(self.environment.current_state))
 
             if self.environment.ended:
                 for player, client in self.players_clients.items():
                     if not self.before_first_move[player]:
                         self.send(client, RewardMsg(self.environment.rewards[player]))
-                    self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
+                    self.send(client, GameOverMsg(self.environment.current_state, self.environment.winnings))
                 self.ready_to_start = True
                 self.send(self.who_started_game, GameOverMsg())
-                self.log(f"Game over!\n{self.environment.current_board}")
+                self.log(f"Game over!\n{self.environment.current_state}")
             else:
                 current_player = self.environment.current_player
                 current_client = self.players_clients[current_player]
                 if not self.before_first_move[current_player]:
                     self.send(current_client, RewardMsg(self.environment.rewards[current_player]))
-                self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+                self.send(current_client, YourTurnMsg(self.environment.current_state, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
             self.send(self.who_started_game, EnvRestartedMsg())
@@ -94,10 +94,10 @@ class GameManager(Actor):
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
             for client in self.players_clients.values():
-                self.send(client, StateUpdateMsg(self.environment.current_board))
+                self.send(client, StateUpdateMsg(self.environment.current_state))
             self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
-            self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+            self.send(current_client, YourTurnMsg(self.environment.current_state, self.environment.allowed_actions))
 
         elif isinstance(msg, ActorExitRequest):
             for client in self.players_clients.values():

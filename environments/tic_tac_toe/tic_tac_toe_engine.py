@@ -4,6 +4,7 @@ from itertools import cycle
 
 from environments.tic_tac_toe.gather_winnings_strategies import *
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
+from environments.base.base_engine import BaseEngine
 
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 REL_PROJECT_ROOT_PATH = "./../../../../"
@@ -74,7 +75,7 @@ class _Board:
             self._marks_placed.pop()
 
 
-class TicTacToeEngine:
+class TicTacToeEngine(BaseEngine):
     """Class containing a Tic Tac Toe logic.
 
     It contains all the necessary methods to run an instance of the game
@@ -169,7 +170,7 @@ class TicTacToeEngine:
         return self._players
 
     @property
-    def current_board(self):
+    def current_state(self):
         """Get an state representing current state of the board.
 
         Returns
@@ -242,7 +243,7 @@ class TicTacToeEngine:
         Raises
         ------
         IllegalMoveError
-            If there is an illegal move made, that is coordinates row, col are already taken or there is an illegal mark.
+            If there is an illegal move made, that is coordinates row, col are already taken or there is an illegal mark
         IndexError
             If there are invalid coordinates.
 
@@ -251,7 +252,7 @@ class TicTacToeEngine:
         self._current_player = next(self._player_generator)
         self._gather_winnings()
 
-    def randomize_board(self, seed=None):
+    def randomize(self, seed=None):
         """Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
 
         Parameters
@@ -337,5 +338,5 @@ class TicTacToeEngine:
             pass
 
     def _rewind_last_player(self, last_mark):
-        while self.current_player.mark != self._board.last_mark:
+        while self.current_player.mark != last_mark:
             self._current_player = next(self._player_generator)
