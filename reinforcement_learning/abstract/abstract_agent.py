@@ -43,6 +43,13 @@ class Agent(ABC):
         pass
 
     @abstractmethod
+    def restart(self):
+        """
+        This method allows agent to prepare for restart of the environment.
+        """
+        pass
+
+    @abstractmethod
     def exit(self, terminal_state):
         """
         This method allows agent to prepare for shutdown.

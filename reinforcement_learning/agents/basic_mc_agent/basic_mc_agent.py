@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -15,6 +16,7 @@ from reinforcement_learning.agents.common.action_value_derived_policy import Act
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
+from reinforcement_learning.abstract.abstract_state import AbstractState
 
 
 class BasicAgent(Agent):
@@ -51,6 +53,13 @@ class BasicAgent(Agent):
 
     def receive_reward(self, reward):
         self.last_episode.append(reward)
+
+    def restart(self):
+        # Preparation for a new episode
+        self.last_episode = Episode()
+        self.last_state = None
+        self.last_action = None
+
 
     def exit(self, terminal_state):
         # Episode ending
