@@ -25,6 +25,7 @@ matplotlib = "*"
 graphviz = "*"
 parse = "*"
 bidict = "*"
+progress = "*"
 
 [requires]
 python_version = "3.7"
