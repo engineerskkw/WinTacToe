@@ -63,6 +63,13 @@ class BaseAgent(ABC):
         """
         pass
 
+    @abstractmethod
+    def performance_measure(self):
+        """
+        This method should return something that tells the RL developer if the agent is learning.
+        """
+        pass
+
     def save(self, file_path):
         with open(file_path, 'wb') as file:
             pickle.dump(self, file)

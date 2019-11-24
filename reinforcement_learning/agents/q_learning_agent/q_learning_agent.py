@@ -1,9 +1,9 @@
 import sys, os
 import numpy as np
-from reinforcement_learning.abstract.abstract_agent import Agent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.common.agent_utils import bucketify
+from reinforcement_learning.base.base_agent import BaseAgent
 
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 REL_PROJECT_ROOT_PATH = "./../../../"
@@ -13,14 +13,15 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 
-class QLearningAgent(Agent):
+class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
         self.action_value = LazyTabularActionValue()
         self.policy = ActionValueDerivedPolicy(self.action_value)
         self.step_size = step_size
         self.epsilon = epsilon
         self.discount = discount
-        self.performance_measure = []
+
+        self._returns = []
 
         self._prev_action = None
         self._prev_state = None
@@ -43,7 +44,7 @@ class QLearningAgent(Agent):
 
     def exit(self, terminal_state):
         self._update(terminal_state)
-        self.performance_measure.append(self._current_episode_return)
+        self._returns.append(self._current_episode_return)
 
     def restart(self):
         self._reset_prev_info()
@@ -60,8 +61,8 @@ class QLearningAgent(Agent):
         self._prev_reward = None
         self._current_episode_return = 0
 
-    def get_performance_graph(self, no_of_buckets):
-        return bucketify(self.performance_measure, no_of_buckets, np.mean)
+    def performance_measure(self):
+        return bucketify(self._returns, len(self._returns) // 10, np.mean)
 
 
 
