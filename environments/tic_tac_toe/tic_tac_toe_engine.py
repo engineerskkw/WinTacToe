@@ -4,6 +4,7 @@ from itertools import cycle
 
 from environments.tic_tac_toe.gather_winnings_strategies import *
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
+from environments.base.base_engine import BaseEngine
 
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 REL_PROJECT_ROOT_PATH = "./../../../../"
@@ -74,7 +75,7 @@ class _Board:
             self._marks_placed.pop()
 
 
-class TicTacToeEngine:
+class TicTacToeEngine(BaseEngine):
     """Class containing a Tic Tac Toe logic.
 
     It contains all the necessary methods to run an instance of the game
@@ -99,7 +100,7 @@ class TicTacToeEngine:
         Get a player that is currently supposed to make a move.
     players()
         Get a list of player objects representing players.
-    current_board()
+    current_state()
         Get an state representing current state of the board.
     winnings()
         Get a list of current winnings.
@@ -169,7 +170,7 @@ class TicTacToeEngine:
         return self._players
 
     @property
-    def current_board(self):
+    def current_state(self):
         """Get an state representing current state of the board.
 
         Returns
@@ -242,7 +243,7 @@ class TicTacToeEngine:
         Raises
         ------
         IllegalMoveError
-            If there is an illegal move made, that is coordinates row, col are already taken or there is an illegal mark.
+            If there is an illegal move made, that is coordinates row, col are already taken or there is an illegal mark
         IndexError
             If there are invalid coordinates.
 
@@ -251,7 +252,7 @@ class TicTacToeEngine:
         self._current_player = next(self._player_generator)
         self._gather_winnings()
 
-    def randomize_board(self, seed=None):
+    def randomize(self, seed=None):
         """Randomly and uniformly initialize board, without a game-ending scenario or illegal states.
 
         Parameters
@@ -325,17 +326,18 @@ class TicTacToeEngine:
         last_point = self._board.last_point
 
         self._board.remove_last_mark()
-        self._remove_last_winning(last_mark, last_point)
-        self._rewind_last_player(last_mark)
+        self._remove_winning(last_mark, last_point)
+        self._rewind_to_player(last_mark)
 
-    def _remove_last_winning(self, last_mark, last_point):
+    def _remove_winning(self, mark, point):
         try:
-            last_winning = next(filter(lambda winning: winning.mark == last_mark and
-                                                       last_point in winning.points_included, self._winnings))
+            last_winning = next(filter(lambda winning: winning.mark == mark and
+                                                       point in winning.points_included, self._winnings))
             self._winnings.remove(last_winning)
         except StopIteration:
             pass
 
-    def _rewind_last_player(self, last_mark):
-        while self.current_player.mark != self._board.last_mark:
-            self._current_player = next(self._player_generator)
+    def _rewind_to_player(self, mark):
+        if mark is not None:
+            while self.current_player.mark != mark:
+                self._current_player = next(self._player_generator)
