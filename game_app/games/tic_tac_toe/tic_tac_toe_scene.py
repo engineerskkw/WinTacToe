@@ -76,7 +76,7 @@ class TicTacToeScene:
             [button.set_disabled() for button in sum(self.tic_tac_toe_buttons, [])]
             for winning in self._component.winnings:
                 [self.tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
-            self._display_victory_message(self._component.winnings[0].mark)
+            self._display_game_over_message(self._component.winnings[0].mark)
 
             #TODO ogarnij co zrobic z sound playerem
             if self._component.winnings[0].mark == self._player_mark:
@@ -95,8 +95,11 @@ class TicTacToeScene:
         font = pygame.font.Font(None, 50)
         self._screen.blit(font.render(text, True, self._message_color), (5, 5))
 
-    def _display_victory_message(self, winners_mark):
-        self._display_mesasge("The winner is: " + symbols[winners_mark])
+    def _display_game_over_message(self, winners_mark):
+        if winners_mark == self._player_mark:
+            self._display_mesasge("You win!  :D")
+        else:
+            self._display_mesasge("You lose  :(")
 
     def handle_state_changed(self, new_game_state):
         new_game_board = new_game_state.board

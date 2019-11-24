@@ -133,6 +133,26 @@ class RectangularChoiceButton(RectangularTextButton):
         self._chosen = True
 
 
+class RectangularTextButtonWithIcon(RectangularTextButton):
+    def __init__(self, text, icon_path, action, settings, position, size):
+        super().__init__(text, action, settings, position, size)
+        self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, icon_path))
+
+    def _get_text_position(self):
+        x = self._position[0] + self._size[0] // 2 - self._text.get_width() // 2 - self._icon.get_size()[0] // 2
+        y = self._position[1] + self._size[1] // 2 - self._text.get_height() // 2
+        return x, y
+
+    def _get_icon_position(self):
+        x = self._position[0] + self._size[0] - self._icon.get_size()[0] * 3 // 2
+        y = self._position[1] + self._size[1] // 2 - self._icon.get_size()[1] // 2
+        return x, y
+
+    def render(self, screen, mouse_position, is_mouse_pressed):
+        super().render(screen, mouse_position, is_mouse_pressed)
+        screen.blit(self._icon, self._get_icon_position())
+
+
 class RoundButton(AbstractButton):
     def __init__(self, action, settings, center_position, radius):
         super().__init__(action, settings)
@@ -151,7 +171,6 @@ class RoundButton(AbstractButton):
 class RoundIconButton(RoundButton):
     def __init__(self, icon_path, action, settings, position, size):
         super().__init__(action, settings, position, size)
-
         self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, icon_path))
 
     def _get_icon_position(self):
