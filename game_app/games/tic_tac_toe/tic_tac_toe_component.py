@@ -24,7 +24,6 @@ from training_platform import EnvironmentServer, AgentClient
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
 
-
 class TurnState(Enum):
     NOT_YOUR_TURN = 0
     YOUR_TURN = 1

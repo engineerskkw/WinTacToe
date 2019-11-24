@@ -117,7 +117,6 @@ class GameManager(Actor):
                 self.send(client, ActorExitRequest())
             self.send(self.match_maker_addr, ActorExitRequest())
             self.send(self.logger_addr, ActorExitRequest())
-
         else:
             raise UnexpectedMessageError(msg)
 
