@@ -33,7 +33,7 @@ class NStepAgent(BaseAgent):
 
     def take_action(self, state, allowed_actions):
         self._state_history.append(state)
-        self._update()
+        self._update(self._current_time_step - self.n + 1)
 
         action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
         self._action_history.append(action)
@@ -46,9 +46,11 @@ class NStepAgent(BaseAgent):
 
     def exit(self, terminal_state):
         self._state_history.append(terminal_state)
-        self._update()
         self._current_time_step += 1
         self._final_time_step = self._current_time_step
+
+        for tau in range(self._current_time_step - self.n + 1, self._final_time_step):  # +1 ?
+            self._update(tau)
 
     def restart(self):
         self._final_time_step = np.inf
@@ -57,9 +59,7 @@ class NStepAgent(BaseAgent):
         self._action_history = []
         self._reward_history = [None]  # There is no R0
 
-    def _update(self):
-        tau = self._current_time_step - self.n + 1
-
+    def _update(self, tau):
         if tau < 0:
             return
 
@@ -74,7 +74,7 @@ class NStepAgent(BaseAgent):
 
     def _calculate_estimated_return(self, tau):
         high_bound = min(tau + self.n, self._final_time_step)
-        elements = [np.power(self.discount, i-tau-1) * self._reward_history[i] for i in range(tau+1, high_bound+1)]
+        elements = [np.power(self.discount, i-tau-1) * self.safe_get(self._reward_history, i) for i in range(tau+1, high_bound+1)]
         estimated_return = np.sum(elements)
 
         if tau + self.n < self._final_time_step:
@@ -83,3 +83,6 @@ class NStepAgent(BaseAgent):
             estimated_return += np.power(self.discount, self.n) * self.action_value[last_state, last_action]
 
         return estimated_return
+
+    def safe_get(self, l, i):
+        return l[i] if i < len(i) else 0

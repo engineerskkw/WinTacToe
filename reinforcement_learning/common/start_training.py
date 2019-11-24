@@ -11,6 +11,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
+from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
 from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLearningAgent
 from reinforcement_learning.common.simple_training import SimpleTraining
 
@@ -19,7 +20,7 @@ if __name__ == '__main__':
     engine = TicTacToeEngine(2, 3, 3)
 
     # ...and agents:
-    agents = [BasicAgent(), QLearningAgent(0.3, 0.1, 0.9)]
+    agents = [NStepAgent(3, 0.3, 0.1, 0.8), BasicAgent()]
 
     # You can also load previously saved agents from files:
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
 
     # Training is as simple as it:
-    number_of_episodes = 100
+    number_of_episodes = 1
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
