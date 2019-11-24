@@ -10,15 +10,15 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from thespian.actors import *
 import pygame
 from pygame.locals import MOUSEBUTTONUP
-from enum import Enum
 
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import MusicSwitcher, Components
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.server.service import MatchMaker, GameManager
 from training_platform.server.logger import Logger
+from training_platform.common import LOGGING
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
@@ -59,9 +59,11 @@ class JoinServerMsg:
 class GetEventsToPostMsg:
     pass
 
+
 class EventsToPostMsg:
     def __init__(self, events_to_post):
         self.events_to_post = events_to_post
+
 
 class TicTacToeClientActor(Actor):
     def __init__(self):
@@ -72,8 +74,21 @@ class TicTacToeClientActor(Actor):
         self.game_manager_addr = None
         self.logger_addr = None
         self.player = None
+    
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            super().send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}", logging_level))
+
+    def send(self, target_address, message):
+        super().send(target_address, message)
+        if not isinstance(message, EventsToPostMsg):
+            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
 
     def receiveMessage(self, msg, sender):
+        if not isinstance(msg, GetEventsToPostMsg):
+            self.log(f"Received {msg} from {sender}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
         # Message exchanged between GUI and client at every tic of application
         if isinstance(msg, GetEventsToPostMsg):
             self.send(sender, EventsToPostMsg(self._events_to_post.copy()))
@@ -84,11 +99,12 @@ class TicTacToeClientActor(Actor):
             self.match_maker_addr = msg.match_maker_addr
             self.game_manager_addr = msg.game_manager_addr
             self.logger_addr = msg.logger_addr
+            self.log("Initialized")
 
         # Joining server
         elif isinstance(msg, JoinServerMsg):
             self.player = msg.player
-            self.send(self.match_maker_addr, JoinMsg(self.player))
+            self.send(self.match_maker_addr, JoinMsg(self.player, True))
 
         elif isinstance(msg, MatchMakerUninitializedMsg):
             self.log("Can't join server because MatchMaker hasn't ben initialized")
@@ -110,9 +126,6 @@ class TicTacToeClientActor(Actor):
         elif isinstance(msg, MoveMsg):
             self.send(self.game_manager_addr, TakeActionMsg(msg.action))
 
-        elif isinstance(msg, RewardMsg):
-            pass
-
         elif isinstance(msg, GameOverMsg):
             game_over_event = {"type": UserEventTypes.GAME_OVER.value, "new_winnings": msg.winnings}
             self._events_to_post.append(game_over_event)
@@ -123,15 +136,9 @@ class TicTacToeClientActor(Actor):
 
         # Exiting
         elif isinstance(msg, ActorExitRequest):
-            print("ActorExitRequest message")
-
+            self.log(f"Exiting")
         else:
-            print(f"unexpected message: {msg}")
-            print(f"unexpected message type: {type(msg)}")
             raise UnexpectedMessageError(msg)
-
-    def log(self, text):
-        self.send(self.logger_addr, LogMsg(text, f"GUI client:{self.player}"))
 
 
 class TicTacToeComponent(AbstractComponent):
@@ -144,32 +151,35 @@ class TicTacToeComponent(AbstractComponent):
         self._marks_required = marks_required
         self._mark = mark
 
-        # Training Platform initialization
-        engine = TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)
-        self.server = EnvironmentServer(engine)
+        self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
         # TicTacToeClientActor initialization
-        self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
         self.client_actor_address = self.asys.createActor(TicTacToeClientActor)
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         msg = InitTTTClientActorMsg(self.match_maker_addr, self.game_manager_addr, self.logger_addr)
-        self.asys.tell(self.client_actor_address, msg)
+        self.tell(self.client_actor_address, msg)
 
+        # Training Platform initialization
+        engine = TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)
+        self.server = EnvironmentServer(engine)
+        self.log(f"Spawned server")
         players = self.server.players
 
         # TicTacToeClientActor server joining
         p0 = players[0]
-        self.asys.tell(self.client_actor_address, JoinServerMsg(p0))
+        self.tell(self.client_actor_address, JoinServerMsg(p0))
 
         # Opponent joining
         p1 = players[1]
         c1 = AgentClient(BasicAgent())
         self.server.join(c1, p1)
+        self.log(f"Joined opponent")
 
         # Environment starting
         self.server.start(blocking=False)
+        self.log("Started server")
 
         self._scene = TicTacToeScene(self, app.screen, self._board_size)
         self.turn = TurnState.YOUR_TURN
@@ -177,6 +187,27 @@ class TicTacToeComponent(AbstractComponent):
 
         resource_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3")
         MusicSwitcher(resource_path).start()
+    
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            self.asys.tell(self.logger_addr, LogMsg(text, "TicTacToeComponent", logging_level))
+
+    def tell(self, target_address, message):
+        self.asys.tell(target_address, message)
+        if not isinstance(message, GetEventsToPostMsg):
+            self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+
+    def listen(self):
+        response = self.asys.listen()
+        if not isinstance(response, EventsToPostMsg):
+            self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+        return response
+
+    def ask(self, target_address, message):
+        self.tell(target_address, message)
+        return self.listen()
 
     def render(self):
         self._scene.render()
@@ -196,7 +227,7 @@ class TicTacToeComponent(AbstractComponent):
                 button.on_pressed()
 
     def loop(self):
-        msg = self.asys.ask(self.client_actor_address, GetEventsToPostMsg())
+        msg = self.ask(self.client_actor_address, GetEventsToPostMsg())
         for event in msg.events_to_post:
             event_type = event['type']
             del event['type']
@@ -206,10 +237,14 @@ class TicTacToeComponent(AbstractComponent):
         self.turn = TurnState.NOT_YOUR_TURN
         row, col = position
         action = TicTacToeAction(row, col)
-        self.asys.tell(self.client_actor_address, MoveMsg(action))
+        self.tell(self.client_actor_address, MoveMsg(action))
 
     def restart(self):
-        self.server.restart()
+        self.turn = TurnState.NOT_YOUR_TURN
+        self.winnings = []
+        self._scene = TicTacToeScene(self, self._app.screen, self._board_size)
+        self.server.restart(blocking=False)
+        self.log("Restarted server")
 
     def back_to_menu(self):
         self.server.shutdown()

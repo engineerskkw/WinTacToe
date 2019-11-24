@@ -11,7 +11,6 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 class BaseEngine(ABC):
     @abstractmethod
-    @property
     def current_player(self):
         """
         Get a current player.
@@ -23,7 +22,6 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    @property
     def players(self):
         """
         Get list of currently participating players.
@@ -35,7 +33,6 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    @property
     def current_state(self):
         """
         Get current state of the environment.
@@ -47,7 +44,6 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    @property
     def winnings(self):
         """
         Get winnings.
@@ -59,7 +55,6 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    @property
     def allowed_actions(self):
         """
         Get current allowed actions
@@ -71,7 +66,6 @@ class BaseEngine(ABC):
         pass
 
     @abstractmethod
-    @property
     def rewards(self):
         """
         Get rewards hash per player.
@@ -82,7 +76,6 @@ class BaseEngine(ABC):
         """
 
     @abstractmethod
-    @property
     def ended(self):
         """
         Check if the episode or game has ended

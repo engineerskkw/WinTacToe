@@ -10,7 +10,7 @@ import signal
 from parse import parse
 from thespian.actors import *
 
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.clients.terminal_human_player.terminal_human_player_agent import HumanPlayerAgent
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     logger_addr = asys.createActor(Logger, globalName="Logger")
 
     # EnvironmentServer joining
-    asys.tell(match_maker_addr, JoinMsg(player))
+    asys.tell(match_maker_addr, JoinMsg(player, gui_client=True))
     log("Attempt of server joining")
 
     # Messages dispatcher
@@ -82,9 +82,6 @@ if __name__ == '__main__':
         elif isinstance(msg, YourTurnMsg):
             asys.tell(game_manager_addr, TakeActionMsg(agent.take_action(msg.state, msg.action_space)))
             print("wait for other players to make a move...")
-
-        elif isinstance(msg, RewardMsg):
-            pass
 
         elif isinstance(msg, GameOverMsg):
             agent.exit(msg.state)

@@ -8,8 +8,13 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from training_platform import EnvironmentServer
+from training_platform.server.environment_server import AccessingUninitializedEnvServerError
 
 if __name__ == '__main__':
-    server = EnvironmentServer()
-    server.shutdown()
-    print("Training platform has been shutdowned!")
+    try:
+        server = EnvironmentServer()
+        server.shutdown()
+        print("Training platform shutdown completed successfully!")
+    except AccessingUninitializedEnvServerError:
+        print("Nothing to shutdown.")
+

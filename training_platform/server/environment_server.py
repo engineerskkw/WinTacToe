@@ -8,8 +8,10 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from thespian.actors import *
-from training_platform.server.common import *
+from training_platform.common import *
 from training_platform.server.service import GameManager, MatchMaker
+from training_platform.server.logger import Logger
+from training_platform.common import LOGGING
 
 
 class EnvironmentNotReadyToStartError(Exception):
@@ -37,10 +39,30 @@ class EnvironmentServer:
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
+        self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
         self._connect()
 
+    def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
+        if not LOGGING:
+            return
+        if self.logger_addr is not None:
+            self.asys.tell(self.logger_addr, LogMsg(text, f"EnvironmentServerEndpoint", logging_level))
+
+    def tell(self, target_address, message):
+        self.asys.tell(target_address, message)
+        self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+
+    def listen(self):
+        response = self.asys.listen()
+        self.log(f"Received {response}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+        return response
+
+    def ask(self, target_address, message):
+        self.tell(target_address, message)
+        return self.listen()
+    
     def _connect(self):
-        response = self.asys.ask(self.game_manager_addr, AreYouInitializedMsg())
+        response = self.ask(self.game_manager_addr, AreYouInitializedMsg())
         if self.engine is None:
             if isinstance(response, GameManagerInitializedMsg):
                 self.engine = response.environment
@@ -52,7 +74,7 @@ class EnvironmentServer:
             if isinstance(response, GameManagerInitializedMsg):
                 raise EnvServerReinitializingError
             elif isinstance(response, GameManagerUninitializedMsg):
-                response = self.asys.ask(self.game_manager_addr, InitGameManagerMsg(self.engine))
+                response = self.ask(self.game_manager_addr, InitGameManagerMsg(self.engine))
                 if not isinstance(response, GameManagerInitializedMsg):
                     raise UnexpectedMessageError(response)
             else:
@@ -60,14 +82,15 @@ class EnvironmentServer:
 
     @property
     def players(self):
+        self.log(f"Getting players")
         return self.engine.players
 
     def join(self, client, player):
+        self.log(f"Started joining client {client} to player {player} on server")
         return client.join(player)
 
-    # TODO: rethink starting and restarting, blocking and  non-blocking, check corner cases
     def start(self, blocking=True):
-        response = self.asys.ask(self.game_manager_addr, StartEnvMsg())
+        response = self.ask(self.game_manager_addr, StartEnvMsg(notify_on_end=blocking))
         if blocking:
             return self._start_blocking(response)
         else:
@@ -86,13 +109,13 @@ class EnvironmentServer:
         if isinstance(response, EnvNotReadyToStartMsg):
             raise EnvironmentNotReadyToStartError
         elif isinstance(response, EnvStartedMsg):
-            response = self.asys.listen()
+            response = self.listen()
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return True
         raise UnexpectedMessageError(response)
 
     def restart(self, blocking=True):
-        response = self.asys.ask(self.game_manager_addr, RestartEnvMsg())
+        response = self.ask(self.game_manager_addr, RestartEnvMsg(notify_on_end=blocking))
         if blocking:
             return self._restart_blocking(response)
         else:
@@ -105,9 +128,11 @@ class EnvironmentServer:
 
     def _restart_blocking(self, response):
         if isinstance(response, EnvRestartedMsg):
+            response = self.listen()
             if isinstance(response, GameOverMsg) or isinstance(response, EnvRestartedMsg):
                 return
         raise UnexpectedMessageError(response)
 
     def shutdown(self):
+        self.log(f"Performing shutdown")
         self.asys.shutdown()

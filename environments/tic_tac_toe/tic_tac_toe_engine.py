@@ -100,7 +100,7 @@ class TicTacToeEngine(BaseEngine):
         Get a player that is currently supposed to make a move.
     players()
         Get a list of player objects representing players.
-    current_board()
+    current_state()
         Get an state representing current state of the board.
     winnings()
         Get a list of current winnings.
@@ -201,7 +201,7 @@ class TicTacToeEngine(BaseEngine):
         TicTacToeActionSpace()
             Action space - list of actions containing tuples of the coordinates of the unoccupied fields on the board.
         """
-        return TicTacToeActionSpace([TicTacToeAction(row, col) for row, col in self._board.unoccupied_fields])
+        return TicTacToeActionSpace({TicTacToeAction(row, col) for row, col in self._board.unoccupied_fields})
 
     @property
     def rewards(self):
@@ -214,8 +214,8 @@ class TicTacToeEngine(BaseEngine):
                 A hash containing a reward for each player.
         """
         if self.ended:
-            winning_marks = map(lambda winning: winning.mark, self._winnings)
-            rewards = map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players)
+            winning_marks = list(map(lambda winning: winning.mark, self._winnings))
+            rewards = list(map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players))
             return {player: reward for player, reward in zip(self._players, rewards)}
         else:
             return {player: 0.0 for player in self._players}
