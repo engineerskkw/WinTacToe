@@ -30,8 +30,8 @@ class TicTacToeScene:
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
 
-        self._background_color = (0, 0, 0) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
-        self._message_color = (255, 255, 255) if settings[Settings.COLOR] == ColorMode.DARK else (0, 0, 0)
+        self._background_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
+        self._message_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
         self._game_over_displayed = False
 
         self._background_displayed = False
@@ -111,11 +111,11 @@ class TicTacToeScene:
 class RectangularTextFramedButton(RectangularTextButton):
     def __init__(self, text, action, settings, position, size, frame_size):
         super().__init__(text, action, settings, position, size)
-        self._base_color = (0, 0, 0) if settings[Settings.COLOR] == ColorMode.DARK else (255, 255, 255)
-        self._hovered_color = (50, 50, 50) if settings[Settings.COLOR] == ColorMode.DARK else (25, 212, 25)
-        self._pressed_color = (40, 40, 40) if settings[Settings.COLOR] == ColorMode.DARK else (111, 25, 25)
-        self._frame_color = (255, 255, 255) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
-        self._text_color = (255, 255, 255) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._base_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
+        self._hovered_color = (70, 70, 70) if settings[Settings.COLOR] == ColorMode.DARK else (200, 200, 200)
+        self._pressed_color = (32, 32, 32) if settings[Settings.COLOR] == ColorMode.DARK else (150, 150, 150)
+        self._frame_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._text_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
         self._frame_size = frame_size
 
     def render(self, screen, mouse_position, is_mouse_pressed):
@@ -136,9 +136,9 @@ class TicTacToeButton(RectangularTextFramedButton):
         self._font = pygame.font.Font(None, size)
         self._is_disabled = False
         self._is_winning = False
-        self._disabled_color = (0, 100, 0) if settings[Settings.COLOR] == ColorMode.DARK else (50, 4, 255)
-        self._winning_color = (100, 100, 100) if settings[Settings.COLOR] == ColorMode.DARK else (255, 0, 0)
-        self._mark_color = (255, 255, 255) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._disabled_color = (32, 32, 32) if settings[Settings.COLOR] == ColorMode.DARK else (150, 150, 150)
+        self._winning_color = (100, 100, 100) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
+        self._mark_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
         self._click_sound = Sound(
             os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav"))
         self._disabled_click_sound = Sound(os.path.join(
