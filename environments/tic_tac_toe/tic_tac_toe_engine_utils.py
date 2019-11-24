@@ -9,10 +9,12 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from reinforcement_learning.base.base_state import BaseState
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_action_space import BaseActionSpace
+from environments.base.base_engine_utils import BasePlayer, BaseWinning
 
 from random import choice, sample, randrange
 
-class Player:
+
+class Player(BasePlayer):
     """Class representing a Tic Tac Toe player.
 
     Parameters
@@ -41,9 +43,6 @@ class Player:
     def __str__(self):
         return f"{self.name}({self.mark})"
 
-    def __repr__(self):
-        return self.__str__()
-
     def __hash__(self):
         return hash((self.name, self.mark))
 
@@ -51,7 +50,7 @@ class Player:
         return hash(self) == hash(other)
 
 
-class Winning:
+class Winning(BaseWinning):
     """Class representing a Tic Tac Toe winning line.
 
     Parameters
