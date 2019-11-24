@@ -71,3 +71,15 @@ class BaseAgent(ABC):
     def load(file_path):
         with open(file_path, 'rb') as file:
             return pickle.load(file)
+
+    @abstractmethod
+    def __add__(self, other):
+        """
+        This method merge two agents into one.
+
+        Parameters
+        ----------
+        other : BaseAgent
+            New agent with policy that is a sum of component agents' policies.
+        """
+        pass

@@ -101,6 +101,43 @@ class BasicAgent(BaseAgent):
                 # Greedy policy improvement in the background (as a consequence of action_value change)
         return G
 
+    def __add__(self, other):
+        if not isinstance(other, BasicAgent):
+            raise Exception
+
+        # According to DRY rule:
+        sum_of_action_values = LazyTabularActionValue()
+        self._iterate_action_value(self, other, sum_of_action_values)
+        self._iterate_action_value(other, self, sum_of_action_values)
+
+        return sum_of_action_values
+
+
+    def _iterate_action_value(self, iteration_agent, check_agent, output_action_value):
+        """
+        Iterate through iteration_agents's action-value (state, action) pairs and
+        for each of them check if check_agent's action-value also has some value for it.
+        If has:
+            Assign weighted sum of iteration_agent and check_agent action-value values
+            (weightes comes from number of returns for given (state, action pair)) to the
+            (state, action) pair in the output action-value
+         If hasn't:
+            Assign iteration_agent's action-value value for the (state, action) pair to the
+            (state, action) pair in the output action-value.
+        """
+        for state, actions in iteration_agent.action_value.action_value_dict.items():
+            for action, value in actions.items():
+                if check_agent[state, action]:
+                    iteration_agent_visits_no = len(iteration_agent.returns[state, action])
+                    check_agent_visits_no = len(check_agent.returns[state, action])
+                    iteration_agent_part = iteration_agent.action_value[state, actions] * iteration_agent_visits_no
+                    check_agent_part = check_agent.action_value[state, actions] * check_agent_visits_no
+                    new_value = (iteration_agent_part + check_agent_part) / (iteration_agent_visits_no + check_agent_visits_no)
+                    output_action_value[state, actions] = new_value
+                else:
+                    output_action_value[state, actions] = value
+
+
     # Auxiliary methods
     def get_mdp(self):
         self.last_MDP = MDP(self.model, self.action_value)
