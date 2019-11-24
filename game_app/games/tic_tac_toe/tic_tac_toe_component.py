@@ -13,7 +13,7 @@ from enum import Enum
 import subprocess
 
 from game_app.abstract_component import AbstractComponent
-from game_app.common_helper import MusicSwitcher, Components
+from game_app.common_helper import MusicSwitcher, Components, Settings
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, TicTacToeAction
 from training_platform.server.common import *
@@ -178,7 +178,9 @@ class TicTacToeComponent(AbstractComponent):
         self.winnings = None
 
         MusicSwitcher(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3")).start()
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"),
+            app.settings[Settings.MUSIC],
+        ).start()
 
     def render(self):
         self._scene.render()

@@ -12,15 +12,17 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import pygame
 from pygame import Rect
 from abc import ABC, abstractmethod
+from game_app.common_helper import ColorMode, Settings
 
 
 class AbstractButton(ABC):
-    def __init__(self, action):
+    def __init__(self, action, settings):
         self._action = action
+        self._sounds_on = settings[Settings.SOUNDS]
 
-        self._base_color = (200, 0, 0)
-        self._hovered_color = (255, 0, 0)
-        self._pressed_color = (150, 0, 0)
+        self._base_color = (70, 70, 70) if settings[Settings.COLOR] == ColorMode.DARK else (190, 190, 190)
+        self._hovered_color = (60, 60, 60) if settings[Settings.COLOR] == ColorMode.DARK else (170, 170, 170)
+        self._pressed_color = (50, 50, 50) if settings[Settings.COLOR] == ColorMode.DARK else (155, 155, 155)
         self._click_sound = Sound(os.path.join(
             ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/button_click_sound.wav"))
 
@@ -38,13 +40,14 @@ class AbstractButton(ABC):
         return self._pressed_color if is_mouse_pressed else self._hovered_color
 
     def on_pressed(self):
-        self._click_sound.play()
+        if self._sounds_on:
+            self._click_sound.play()
         self._action()
 
 
 class RectangularButton(AbstractButton):
-    def __init__(self, action, position, size):
-        super().__init__(action)
+    def __init__(self, action, settings, position, size):
+        super().__init__(action, settings)
         self._position = position
         self._size = size
 
@@ -59,11 +62,11 @@ class RectangularButton(AbstractButton):
 
 
 class RectangularTextButton(RectangularButton):
-    def __init__(self, text, action, position, size):
-        super().__init__(action, position, size)
+    def __init__(self, text, action, settings, position, size):
+        super().__init__(action, settings, position, size)
 
         pygame.font.init()
-        self._text_color = (255, 255, 255)
+        self._text_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
         self._font = pygame.font.Font(None, 47)
         self._text = self._font.render(text, True, self._text_color)
 
@@ -81,10 +84,10 @@ class RectangularTextButton(RectangularButton):
 
 
 class DisableableRectangularTextButton(RectangularTextButton):
-    def __init__(self, enabled_text, disabled_text, action, position, size, disabled):
-        super().__init__(enabled_text, action, position, size)
+    def __init__(self, enabled_text, disabled_text, action, settings, position, size, disabled):
+        super().__init__(enabled_text, action, settings, position, size)
         self._disabled = disabled
-        self._disabled_color = (250, 100, 100)
+        self._disabled_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
         self._enabled_text = enabled_text
         self._disabled_text = disabled_text
         self._disabled_click_sound = Sound(os.path.join(
@@ -101,19 +104,20 @@ class DisableableRectangularTextButton(RectangularTextButton):
 
     def on_pressed(self):
         if self._disabled:
-            self._disabled_click_sound.play()
+            if self._sounds_on:
+                self._disabled_click_sound.play()
         else:
             super().on_pressed()
 
 
 class RectangularChoiceButton(RectangularTextButton):
-    def __init__(self, text, action, position, size, chosen):
-        super().__init__(text, action, position, size)
+    def __init__(self, text, action, settings, position, size, chosen):
+        super().__init__(text, action, settings, position, size)
         self._chosen = chosen
 
-        self._chosen_base_color = (0, 0, 0)
-        self._chosen_hovered_color = (30, 0, 0)
-        self._chosen_pressed_color = (50, 0, 0)
+        self._chosen_base_color = (15, 15, 15) if settings[Settings.COLOR] == ColorMode.DARK else (105, 105, 105)
+        self._chosen_hovered_color = (0, 0, 0) if settings[Settings.COLOR] == ColorMode.DARK else (90, 90, 90)
+        self._chosen_pressed_color = (0, 0, 0) if settings[Settings.COLOR] == ColorMode.DARK else (100, 100, 100)
 
     def _get_color(self, mouse_position, is_mouse_pressed):
         if self._chosen:
@@ -132,8 +136,8 @@ class RectangularChoiceButton(RectangularTextButton):
 
 
 class RoundButton(AbstractButton):
-    def __init__(self, action, center_position, radius):
-        super().__init__(action)
+    def __init__(self, action, settings, center_position, radius):
+        super().__init__(action, settings)
         self._center_position = center_position
         self._radius = radius
 
@@ -147,8 +151,8 @@ class RoundButton(AbstractButton):
 
 
 class RoundIconButton(RoundButton):
-    def __init__(self, icon_path, action, position, size):
-        super().__init__(action, position, size)
+    def __init__(self, icon_path, action, settings, position, size):
+        super().__init__(action, settings, position, size)
 
         self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, icon_path))
 
@@ -160,3 +164,6 @@ class RoundIconButton(RoundButton):
     def render(self, screen, mouse_position, is_mouse_pressed):
         super().render(screen, mouse_position, is_mouse_pressed)
         screen.blit(self._icon, self._get_icon_position())
+
+    def set_icon(self, new_icon_path):
+        self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, new_icon_path))

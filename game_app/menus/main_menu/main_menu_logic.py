@@ -18,14 +18,17 @@ class MainMenuLogic:
         self.buttons = [
             RectangularTextButton("Start game",
                                   self.switch_to_tic_tac_toe_launcher_menu,
+                                  app.settings,
                                   (450, 100),
                                   (380, 100)),
             RectangularTextButton("CreditsTODO",
                                   lambda: print("TODO"),
+                                  app.settings,
                                   (450, 300),
                                   (380, 100)),
             RectangularTextButton("Settings",
                                   self.switch_to_settings,
+                                  app.settings,
                                   (450, 500),
                                   (380, 100)),
         ]

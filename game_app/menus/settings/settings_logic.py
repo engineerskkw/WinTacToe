@@ -8,51 +8,105 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from pygame.locals import *
-from pygame.mixer import Sound
-
-from game_app.common_helper import Components
-from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RectangularChoiceButton, \
-    DisableableRectangularTextButton, RoundIconButton
+from game_app.common_helper import Components, ColorMode, Settings, MusicSwitcher
+from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RoundIconButton
 
 
 class SettingsLogic:
-    def __init__(self, app):
+    def __init__(self, component, app):
+        self._component = component
         self._app = app
         self._board_size = 3
         self._marks_required = 3
         self._mark = 0
+        self._initialize_buttons(app.settings)
 
+    def _initialize_buttons(self, settings):
         self._settings_buttons = [
-            RectangularTextButton("Music On/Off",
-                                  lambda: print("TODO"),
+            RectangularTextButton("Toggle color mode",
+                                  self.toggle_color_mode,
+                                  settings,
                                   (450, 100),
                                   (380, 100)),
-            RectangularTextButton("Sound On/Off",
-                                  lambda: print("TODO"),
+            RectangularTextButton("Toggle music",
+                                  self.toggle_music,
+                                  settings,
                                   (450, 300),
                                   (380, 100)),
-            RectangularTextButton("Dark mode",
-                                  lambda: print("TODO"),
+            RectangularTextButton("Toggle sounds",
+                                  self.toggle_sounds,
+                                  settings,
                                   (450, 500),
                                   (380, 100)),
             RectangularTextButton("Reset to defaults",
-                                  lambda: print("TODO"),
-                                  (450, 620),
+                                  self.reset_to_defaults,
+                                  settings,
+                                  (900, 620),
                                   (380, 100)),
         ]
 
+        self._save_settings_button = RectangularTextButton("Save settings",
+                                                           self.save_selected_settings,
+                                                           settings,
+                                                           (450, 620),
+                                                           (380, 100))
+
         self._back_to_menu_button = RoundIconButton(
-            'game_app/resources/images/tic_tac_toe_launch_menu/left_arrow_white.png',
-            lambda: self.switch_back_to_main_menu(),
+            self._resolve_back_arrow_image_path(settings[Settings.COLOR]),
+            self.switch_back_to_main_menu,
+            settings,
             (40, 40),
             30)
 
-        self.all_buttons = [self._back_to_menu_button] + self._settings_buttons
+        self.all_buttons = [self._save_settings_button, self._back_to_menu_button] + self._settings_buttons
+
+    def _resolve_back_arrow_image_path(self, color_mode):
+        if color_mode == ColorMode.DARK:
+            return 'game_app/resources/images/common/left_arrow_white.png'
+        else:
+            return 'game_app/resources/images/common/left_arrow_black.png'
+
+    def _reinitialize_buttons(self, settings):
+        self._initialize_buttons(settings)
+
+    def _switch_music(self, music_on):
+        MusicSwitcher(
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakySnitch.mp3"),
+            music_on,
+        ).start()
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
             for pressed_button in filter(lambda button: button.contains_point(event.pos), self.all_buttons):
                 pressed_button.on_pressed()
+
+    def toggle_color_mode(self):
+        if self._app.settings[Settings.COLOR] == ColorMode.LIGHT:
+            self._app.settings[Settings.COLOR] = ColorMode.DARK
+        else:
+            self._app.settings[Settings.COLOR] = ColorMode.LIGHT
+        self._component.rerender()
+        self._reinitialize_buttons(self._app.settings)
+
+    def toggle_music(self):
+        self._app.settings[Settings.MUSIC] = not self._app.settings[Settings.MUSIC]
+        self._switch_music(self._app.settings[Settings.MUSIC])
+
+    def toggle_sounds(self):
+        self._app.settings[Settings.SOUNDS] = not self._app.settings[Settings.SOUNDS]
+        self._reinitialize_buttons(self._app.settings)
+
+    def reset_to_defaults(self):
+        self._app.settings[Settings.COLOR] = ColorMode.LIGHT
+        if not self._app.settings[Settings.MUSIC]:
+            self._switch_music(True)
+        self._app.settings[Settings.MUSIC] = True
+        self._app.settings[Settings.SOUNDS] = True
+        self._component.rerender()
+        self._reinitialize_buttons(self._app.settings)
+
+    def save_selected_settings(self):
+        print("TODO")
 
     def switch_back_to_main_menu(self):
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)

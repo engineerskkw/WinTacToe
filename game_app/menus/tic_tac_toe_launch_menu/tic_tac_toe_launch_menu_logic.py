@@ -10,7 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from pygame.locals import *
 from pygame.mixer import Sound
 
-from game_app.common_helper import Components
+from game_app.common_helper import Components, ColorMode, Settings
 from game_app.menus.menus_scene_commons.buttons import RectangularTextButton, RectangularChoiceButton, \
     DisableableRectangularTextButton, RoundIconButton
 
@@ -24,31 +24,37 @@ class TicTacToeLaunchMenuLogic:
 
         self._size_buttons = [RectangularChoiceButton("3x3",
                                                       lambda: self.change_board_size(3),
+                                                      app.settings,
                                                       (150, 100),
                                                       (130, 100),
                                                       True),
                               RectangularChoiceButton("5x5",
                                                       lambda: self.change_board_size(5),
+                                                      app.settings,
                                                       (320, 100),
                                                       (130, 100),
                                                       False),
                               RectangularChoiceButton("10x10",
                                                       lambda: self.change_board_size(10),
+                                                      app.settings,
                                                       (490, 100),
                                                       (130, 100),
                                                       False),
                               RectangularChoiceButton("20x20",
                                                       lambda: self.change_board_size(20),
+                                                      app.settings,
                                                       (660, 100),
                                                       (130, 100),
                                                       False),
                               RectangularChoiceButton("30x30",
                                                       lambda: self.change_board_size(30),
+                                                      app.settings,
                                                       (830, 100),
                                                       (130, 100),
                                                       False),
                               RectangularChoiceButton("50x50",
                                                       lambda: self.change_board_size(50),
+                                                      app.settings,
                                                       (1000, 100),
                                                       (130, 100),
                                                       False),
@@ -56,16 +62,19 @@ class TicTacToeLaunchMenuLogic:
 
         self._marks_required_buttons = [RectangularChoiceButton("3",
                                                                 lambda: self.change_marks_required(3),
+                                                                app.settings,
                                                                 (400, 300),
                                                                 (130, 100),
                                                                 True),
                                         RectangularChoiceButton("4",
                                                                 lambda: self.change_marks_required(4),
+                                                                app.settings,
                                                                 (575, 300),
                                                                 (130, 100),
                                                                 False),
                                         RectangularChoiceButton("5",
                                                                 lambda: self.change_marks_required(5),
+                                                                app.settings,
                                                                 (750, 300),
                                                                 (130, 100),
                                                                 False),
@@ -73,11 +82,13 @@ class TicTacToeLaunchMenuLogic:
 
         self._mark_buttons = [RectangularChoiceButton("X",
                                                       lambda: self.change_mark(0),
+                                                      app.settings,
                                                       (490, 500),
                                                       (130, 100),
                                                       True),
                               RectangularChoiceButton("O",
                                                       lambda: self.change_mark(1),
+                                                      app.settings,
                                                       (660, 500),
                                                       (130, 100),
                                                       False),
@@ -85,19 +96,27 @@ class TicTacToeLaunchMenuLogic:
 
         self._start_button = DisableableRectangularTextButton("Let's go!",
                                                               "Bad params",
-                                                              lambda: self.switch_to_tic_tac_toe(),
+                                                              self.switch_to_tic_tac_toe,
+                                                              app.settings,
                                                               (1030, 590),
                                                               (230, 110),
                                                               False)
 
         self._back_to_menu_button = RoundIconButton(
-            'game_app/resources/images/tic_tac_toe_launch_menu/left_arrow_white.png',
-            lambda: self.switch_back_to_main_menu(),
+            self._resolve_back_arrow_image_path(app.settings[Settings.COLOR]),
+            self.switch_back_to_main_menu,
+            app.settings,
             (40, 40),
             30)
 
         self.all_buttons = [self._start_button, self._back_to_menu_button] + \
                            self._size_buttons + self._marks_required_buttons + self._mark_buttons
+
+    def _resolve_back_arrow_image_path(self, color_mode):
+        if color_mode == ColorMode.DARK:
+            return 'game_app/resources/images/common/left_arrow_white.png'
+        else:
+            return 'game_app/resources/images/common/left_arrow_black.png'
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:

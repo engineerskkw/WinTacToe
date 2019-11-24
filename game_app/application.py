@@ -15,7 +15,7 @@ from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeComponent
 from game_app.menus.main_menu.main_menu_component import MainMenuComponent
 from game_app.menus.settings.settings_component import SettingsComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
-from game_app.common_helper import Components
+from game_app.common_helper import Components, ColorMode, Settings
 from training_platform.server.service import GameManager
 
 
@@ -33,6 +33,11 @@ class Application:
         self.screen = None
         self._size = 1280, 720
         self._block_events = False
+        self.settings = {
+            Settings.COLOR: ColorMode.LIGHT,
+            Settings.MUSIC: True,
+            Settings.SOUNDS: True,
+        }
 
         self.actorSystem = ActorSystem('multiprocTCPBase')
         self.tic_tac_toe_game_manager = self.actorSystem.createActor(GameManager, globalName="GameManager")

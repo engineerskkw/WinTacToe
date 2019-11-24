@@ -16,7 +16,7 @@ class TicTacToeLaunchMenuComponent(AbstractMenuComponent):
     def __init__(self, app):
         self._app = app
         self._logic = TicTacToeLaunchMenuLogic(app)
-        self._scene = TicTacToeLaunchMenuScene(self, app.screen)
+        self._scene = TicTacToeLaunchMenuScene(self, app.screen, app.settings)
 
     def get_buttons(self):
         return self._logic.all_buttons
