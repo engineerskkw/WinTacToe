@@ -28,19 +28,19 @@ class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
         self.assertFalse(self.engine.winnings)
         self.assertTrue(self.engine.players == [Player("Player 0", 0), Player("Player 1", 1)])
         self.assertTrue(self.engine.current_player == Player("Player 0", 0))
-        self.assertTrue(np.array_equal(self.engine.current_board.board, np.full((3, 3), -1)))
+        self.assertTrue(np.array_equal(self.engine.current_state.board, np.full((3, 3), -1)))
         self.assertTrue(self.engine.allowed_actions == TicTacToeActionSpace(set(self.full_move_sequence)))
         self.assertTrue(self.engine.rewards == {Player("Player 0", 0): 0, Player("Player 1", 1): 0})
         self.assertFalse(self.engine.ended)
 
     def test_make_move(self):
         self.engine.make_move(TicTacToeAction(2, 2))  # Player 0
-        self.assertTrue(self.engine.current_board.board[2][2] == 0)
+        self.assertTrue(self.engine.current_state.board[2][2] == 0)
         self.assertTrue(self.engine.current_player == Player("Player 1", 1))
         self.assertFalse(self.engine.winnings)
 
         self.engine.make_move(TicTacToeAction(1, 1))  # Player 1
-        self.assertTrue(self.engine.current_board.board[1][1] == 1)
+        self.assertTrue(self.engine.current_state.board[1][1] == 1)
         self.assertTrue(self.engine.current_player == Player("Player 0", 0))
         self.assertFalse(self.engine.winnings)
 
@@ -53,6 +53,8 @@ class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
 
     def test_winnings_and_ended(self):
         self.init_board(self.player_0_winning_move_sequence)
+        self.assertEqual(len(self.engine.winnings), 1)
+
         self.assertTrue(self.engine.winnings == [Winning(0, [(0, 2), (1, 1), (2, 0)])])
         self.assertTrue(self.engine.ended)
         self.assertTrue(self.engine.rewards == {Player("Player 0", 0): 1, Player("Player 1", 1): -1})
@@ -60,6 +62,23 @@ class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
         self.engine.reset()
 
         self.init_board(self.player_1_winning_move_sequence)
+        self.assertEqual(len(self.engine.winnings), 1)
         self.assertTrue(self.engine.winnings == [Winning(1, [(0, 0), (0, 1), (0, 2)])])
         self.assertTrue(self.engine.ended)
         self.assertTrue(self.engine.rewards == {Player("Player 0", 0): -1, Player("Player 1", 1): 1})
+
+    def test_set_proper_player(self):
+        self.engine._rewind_to_player(None)
+        self.assertEqual(self.engine.current_player, Player("Player 0", 0))
+
+        self.engine._rewind_to_player(0)
+        self.assertEqual(self.engine.current_player, Player("Player 0", 0))
+
+        self.engine._rewind_to_player(1)
+        self.assertEqual(self.engine.current_player, Player("Player 1", 1))
+
+    def test_remove_winning(self):
+        pass
+
+    def test_undo_last_move(self):
+        pass

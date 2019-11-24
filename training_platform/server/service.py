@@ -68,32 +68,33 @@ class GameManager(Actor):
             self.environment.reset()
             self.log(f"Started game with following players and clients: {self.players_clients}")
             current_client = self.players_clients[self.environment.current_player]
-            self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+            self.send(current_client, YourTurnMsg(self.environment.current_state, self.environment.allowed_actions))
             self.send(self.who_started_game, EnvStartedMsg())
 
         elif isinstance(msg, TakeActionMsg):
             self.before_first_move[self.environment.current_player] = False
             self.environment.make_move(msg.action)  # It implicitly makes next player current player
+
             for client in self.gui_clients:
-                self.send(client, StateUpdateMsg(self.environment.current_board))
+                self.send(client, StateUpdateMsg(self.environment.current_state))
 
             if self.environment.ended:
                 for player, client in self.players_clients.items():
                     if not self.before_first_move[player]:
                         if client not in self.gui_clients:
                             self.send(client, RewardMsg(self.environment.rewards[player]))
-                    self.send(client, GameOverMsg(self.environment.current_board, self.environment.winnings))
+                    self.send(client, GameOverMsg(self.environment.current_state, self.environment.winnings))
                 self.ready_to_start = True
                 if self.notify_on_end:
                     self.send(self.who_started_game, GameOverMsg())
-                self.log(f"Game over!\n{self.environment.current_board}")
+                self.log(f"Game over!\n{self.environment.current_state}")
             else:
                 current_player = self.environment.current_player
                 current_client = self.players_clients[current_player]
                 if not self.before_first_move[current_player]:
                     if current_client not in self.gui_clients:
                         self.send(current_client, RewardMsg(self.environment.rewards[current_player]))
-                self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+                self.send(current_client, YourTurnMsg(self.environment.current_state, self.environment.allowed_actions))
 
         elif isinstance(msg, RestartEnvMsg):
             if self.notify_on_end:
@@ -104,21 +105,21 @@ class GameManager(Actor):
             self.environment.reset()
             for player in self.players_clients.keys():
                 self.before_first_move[player] = True
+
             for client in self.gui_clients:
-                self.send(client, StateUpdateMsg(self.environment.current_board))
+                self.send(client, StateUpdateMsg(self.environment.current_state))
             for client in self.players_clients.values():  # TODO(after merging): send to non-gui clients
                 if client not in self.gui_clients:
                     self.send(client, EnvRestartedMsg())
             self.send(self.who_started_game, EnvRestartedMsg())
             current_client = self.players_clients[self.environment.current_player]
-            self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
+            self.send(current_client, YourTurnMsg(self.environment.current_state, self.environment.allowed_actions))
 
         elif isinstance(msg, ActorExitRequest):
             for client in self.players_clients.values():
                 self.send(client, ActorExitRequest())
             self.send(self.match_maker_addr, ActorExitRequest())
             self.send(self.logger_addr, ActorExitRequest())
-
         else:
             raise UnexpectedMessageError(msg)
 
