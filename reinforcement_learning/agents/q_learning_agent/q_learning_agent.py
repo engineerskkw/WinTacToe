@@ -1,6 +1,6 @@
 import sys, os
 import numpy as np
-from reinforcement_learning.abstract.abstract_agent import Agent
+from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.common.agent_utils import bucketify
@@ -13,7 +13,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 
-class QLearningAgent(Agent):
+class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
         self.action_value = LazyTabularActionValue()
         self.policy = ActionValueDerivedPolicy(self.action_value)
