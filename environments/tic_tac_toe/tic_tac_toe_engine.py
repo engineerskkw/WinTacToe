@@ -326,17 +326,18 @@ class TicTacToeEngine(BaseEngine):
         last_point = self._board.last_point
 
         self._board.remove_last_mark()
-        self._remove_last_winning(last_mark, last_point)
-        self._rewind_last_player(last_mark)
+        self._remove_winning(last_mark, last_point)
+        self._rewind_to_player(last_mark)
 
-    def _remove_last_winning(self, last_mark, last_point):
+    def _remove_winning(self, mark, point):
         try:
-            last_winning = next(filter(lambda winning: winning.mark == last_mark and
-                                                       last_point in winning.points_included, self._winnings))
+            last_winning = next(filter(lambda winning: winning.mark == mark and
+                                                       point in winning.points_included, self._winnings))
             self._winnings.remove(last_winning)
         except StopIteration:
             pass
 
-    def _rewind_last_player(self, last_mark):
-        while self.current_player.mark != last_mark:
-            self._current_player = next(self._player_generator)
+    def _rewind_to_player(self, mark):
+        if mark is not None:
+            while self.current_player.mark != mark:
+                self._current_player = next(self._player_generator)
