@@ -105,38 +105,35 @@ class BasicAgent(BaseAgent):
         if not isinstance(other, BasicAgent):
             raise Exception
 
-        # According to DRY rule:
-        sum_of_action_values = LazyTabularActionValue()
-        self._iterate_action_value(self, other, sum_of_action_values)
-        self._iterate_action_value(other, self, sum_of_action_values)
+        new_agent = BasicAgent()
+        self._iterate_return(self, other, new_agent.returns)
+        self._iterate_return(other, self, new_agent.returns)
 
-        return sum_of_action_values
+        for state, actions in new_agent.returns.returns_dict.items():
+            for action, returns in actions.items():
+                self_visits_no = len(self.returns[state, action])
+                other_visits_no = len(other.returns[state, action])
+                self_part = self.action_value[state, actions] * self_visits_no
+                other_part = other.action_value[state, actions] * other_visits_no
+                new_value = (self_part + other_part) / (self_visits_no + other_visits_no)
+                new_agent.action_value[state, actions] = new_value
 
+        new_agent.policy = ActionValueDerivedPolicy(new_agent.action_value)
 
-    def _iterate_action_value(self, iteration_agent, check_agent, output_action_value):
-        """
-        Iterate through iteration_agents's action-value (state, action) pairs and
-        for each of them check if check_agent's action-value also has some value for it.
-        If has:
-            Assign weighted sum of iteration_agent and check_agent action-value values
-            (weightes comes from number of returns for given (state, action pair)) to the
-            (state, action) pair in the output action-value
-         If hasn't:
-            Assign iteration_agent's action-value value for the (state, action) pair to the
-            (state, action) pair in the output action-value.
-        """
-        for state, actions in iteration_agent.action_value.action_value_dict.items():
-            for action, value in actions.items():
-                if check_agent[state, action]:
-                    iteration_agent_visits_no = len(iteration_agent.returns[state, action])
-                    check_agent_visits_no = len(check_agent.returns[state, action])
-                    iteration_agent_part = iteration_agent.action_value[state, actions] * iteration_agent_visits_no
-                    check_agent_part = check_agent.action_value[state, actions] * check_agent_visits_no
-                    new_value = (iteration_agent_part + check_agent_part) / (iteration_agent_visits_no + check_agent_visits_no)
-                    output_action_value[state, actions] = new_value
-                else:
-                    output_action_value[state, actions] = value
+        self.last_episode = Episode()
+        self.model = StochasticModel()  # TODO: model merging
 
+        # Auxiliary attributes
+        self.last_state = None
+        self.last_action = None
+        self.last_MDP = None
+        self.Gs = []
+        return new_agent
+
+    def _iterate_return(self, iteration_agent, check_agent, output_returns):
+        for state, actions in iteration_agent.returns.items():
+            for action, returns in actions.items():
+                output_returns[state, action] = list(returns[state, action] + check_agent.returns[state, action])
 
     # Auxiliary methods
     def get_mdp(self):
