@@ -20,7 +20,7 @@ class BaseAgent(ABC):
         ----------
         state : BaseState
             A state of the environment.
-        allowed_actions : AbstractActionSpace
+        allowed_actions : BaseActionSpace
             A list of the actions that agent can take.
 
         Returns

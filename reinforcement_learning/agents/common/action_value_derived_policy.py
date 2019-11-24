@@ -19,7 +19,7 @@ class ActionValueDerivedPolicy(BasePolicy):
         self.action_value = action_value
 
     def __getitem__(self, key):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
 

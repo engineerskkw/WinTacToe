@@ -17,7 +17,7 @@ class BaseEngine(ABC):
 
         Returns
         -------
-            AbstractPlayer(not implemented)
+            BasePlayer(not implemented)
         """
         pass
 
@@ -28,7 +28,7 @@ class BaseEngine(ABC):
 
         Returns
         -------
-            list[AbstractPlayer(not implemented)]
+            list[BasePlayer(not implemented)]
         """
         pass
 
@@ -39,7 +39,7 @@ class BaseEngine(ABC):
 
         Returns
         -------
-            AbstractState
+            BaseState
         """
         pass
 
@@ -50,7 +50,7 @@ class BaseEngine(ABC):
 
         Returns
         -------
-            list[AbstractWinning (not implemented)]
+            list[BaseWinning (not implemented)]
         """
         pass
 
@@ -61,7 +61,7 @@ class BaseEngine(ABC):
 
         Returns
         -------
-            AbstractActionSpace
+            BaseActionSpace
         """
         pass
 
@@ -72,7 +72,7 @@ class BaseEngine(ABC):
 
         Returns
         -------
-            Hash(AbstractPlayer (not implemented): float)
+            Hash(BasePlayer (not implemented): float)
         """
 
     @abstractmethod
@@ -93,7 +93,7 @@ class BaseEngine(ABC):
 
         Parameters
         ----------
-        action: AbstractAction
+        action: BaseAction
 
         """
         pass

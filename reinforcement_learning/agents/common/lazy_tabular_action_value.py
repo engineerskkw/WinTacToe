@@ -23,7 +23,7 @@ class LazyTabularActionValue(BaseActionValue):
         self.action_value_dict = dict()
 
     def __getitem__(self, key: tuple):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
 
@@ -36,7 +36,7 @@ class LazyTabularActionValue(BaseActionValue):
         return float(self.action_value_dict[state][action])
 
     def __setitem__(self, key, value):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
 
@@ -105,7 +105,7 @@ class LazyTabularActionValue(BaseActionValue):
 
 if __name__ == '__main__':
     # SimpleAction-value test
-    av = ActionValue()
+    av = LazyTabularActionValue()
 
     s = SimpleState([[-1, -1], [-1, 1]])
 
