@@ -6,13 +6,15 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from reinforcement_learning.abstract.abstract_state import AbstractState
-from reinforcement_learning.abstract.abstract_action import AbstractAction
-from reinforcement_learning.abstract.abstract_action_space import AbstractActionSpace
+from reinforcement_learning.base.base_state import BaseState
+from reinforcement_learning.base.base_action import BaseAction
+from reinforcement_learning.base.base_action_space import BaseActionSpace
+from environments.base.base_engine_utils import BasePlayer, BaseWinning
 
 from random import choice, sample, randrange
 
-class Player:
+
+class Player(BasePlayer):
     """Class representing a Tic Tac Toe player.
 
     Parameters
@@ -41,9 +43,6 @@ class Player:
     def __str__(self):
         return f"{self.name}({self.mark})"
 
-    def __repr__(self):
-        return self.__str__()
-
     def __hash__(self):
         return hash((self.name, self.mark))
 
@@ -51,7 +50,7 @@ class Player:
         return hash(self) == hash(other)
 
 
-class Winning:
+class Winning(BaseWinning):
     """Class representing a Tic Tac Toe winning line.
 
     Parameters
@@ -91,7 +90,7 @@ class Winning:
         return hash((self.mark, *self.points_included))
 
 
-class TicTacToeState(AbstractState):
+class TicTacToeState(BaseState):
     def __init__(self, board):
         self.board = board
 
@@ -102,9 +101,10 @@ class TicTacToeState(AbstractState):
         return hash(str(self.board))
 
 
-class TicTacToeAction(AbstractAction):
+class TicTacToeAction(BaseAction):
     def __init__(self, row, col):
-        self.row, self.col = row, col
+        self.row = row
+        self.col = col
 
     def __str__(self):
         return f"({self.row}, {self.col})"
@@ -112,8 +112,14 @@ class TicTacToeAction(AbstractAction):
     def __hash__(self):
         return hash((self.row, self.col))
 
+    def __eq__(self, other):
+        return self.row == other.row and self.col == other.col
 
-class TicTacToeActionSpace(AbstractActionSpace):
+
+class TicTacToeActionSpace(BaseActionSpace):
+    """
+    actions: Set
+    """
     def __init__(self, actions):
         self.actions = actions
 
@@ -125,12 +131,18 @@ class TicTacToeActionSpace(AbstractActionSpace):
 
     @property
     def random_action(self):
-        return choice(self.actions)
+        return choice(list(self.actions))
 
     @property
     def random_actions(self, no_of_actions=None):
         no_of_actions = randrange(1, len(self.actions)) if not no_of_actions else no_of_actions
-        return sample(self.actions, no_of_actions)
+        return sample(list(self.actions), no_of_actions)
+
+    def __eq__(self, other):
+        return self.actions == other.actions
+
+    def __str__(self):
+        return str(self.actions)
 
 
 class IllegalMoveError(Exception):

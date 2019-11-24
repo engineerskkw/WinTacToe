@@ -8,9 +8,9 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
+import pickle
 
-
-class Agent(ABC):
+class BaseAgent(ABC):
     @abstractmethod
     def take_action(self, state, allowed_actions):
         """
@@ -18,14 +18,14 @@ class Agent(ABC):
 
         Parameters
         ----------
-        state : AbstractState
+        state : BaseState
             A state of the environment.
-        allowed_actions : list[AbstractAction]
+        allowed_actions : BaseActionSpace
             A list of the actions that agent can take.
 
         Returns
         -------
-        AbstractAction
+        BaseAction
             An action taken by the agent.
         """
         pass
@@ -33,12 +33,19 @@ class Agent(ABC):
     @abstractmethod
     def receive_reward(self, reward):
         """
-        Give the agent a reward. Should be overridden only in case of the RL Agent
+        Give the agent a reward. Should be overridden only in case of the RL BaseAgent
 
         Parameters
         ----------
         reward : Float
             Reinforcement learning reward.
+        """
+        pass
+
+    @abstractmethod
+    def restart(self):
+        """
+        This method allows agent to prepare for restart of the environment.
         """
         pass
 
@@ -51,7 +58,16 @@ class Agent(ABC):
 
         Parameters
         ----------
-        terminal_state : AbstractState
+        terminal_state : BaseState
             Terminal state of the environment.
         """
         pass
+
+    def save(self, file_path):
+        with open(file_path, 'wb') as file:
+            pickle.dump(self, file)
+
+    @staticmethod
+    def load(file_path):
+        with open(file_path, 'rb') as file:
+            return pickle.load(file)

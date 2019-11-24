@@ -7,36 +7,29 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import numpy as np
-import matplotlib.pyplot as plt
-from thespian.actors import *
-import subprocess
 
-from training_platform.server.service import GameManager
-from training_platform.server.common import *
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-import time
+from training_platform import EnvironmentServer
+from training_platform import AgentClient
 
 if __name__ == '__main__':
-    # Environment initialization
-    asys = ActorSystem('multiprocTCPBase')
-    game_manager = asys.createActor(GameManager, globalName="GameManager")
-    asys.tell(game_manager, InitGameManagerMsg(TicTacToeEngine(2, 3, 3)))
+    server = EnvironmentServer(TicTacToeEngine(2, 3, 3))
+    players = server.players
+    p0 = players[0]
+    p1 = players[1]
 
-    # Agents initialization
-    for i in range(2):
-        call_string = f"python rl_player_client.py \"Player {i}\" {i}"
-        cwd = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "clients", "basic_player_clients")
-        subprocess.Popen(call_string, shell=True, cwd=cwd)
+    c0 = AgentClient(BasicAgent())
+    c1 = AgentClient(BasicAgent())
 
-    episodes_number = 1
-    for i in range(episodes_number):
-        time.sleep(1)
-        asys.tell(game_manager, RestartEnvMsg())
+    server.join(c0, p0)
+    server.join(c1, p1)
 
-    asys.tell(game_manager, ActorExitRequest())
-    asys.shutdown()
+    for i in range(100):
+        print(i)
+        server.start()
+
+    server.shutdown()
 
     # # Plot
     # agent_data = mces.agent1_G

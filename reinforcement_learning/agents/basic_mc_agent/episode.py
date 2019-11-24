@@ -11,8 +11,8 @@ import uuid
 
 from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
-from reinforcement_learning.abstract.abstract_action import AbstractAction
-from reinforcement_learning.abstract.abstract_state import AbstractState
+from reinforcement_learning.base.base_action import BaseAction
+from reinforcement_learning.base.base_state import BaseState
 
 
 class Episode(list):
@@ -24,10 +24,10 @@ class Episode(list):
         for element in self:
             if isinstance(element, float):
                 representation += 'Reward:\n'
-            elif isinstance(element, AbstractState):
-                representation += 'SimpleState:\n'
-            elif isinstance(element, AbstractAction):
-                representation += 'SimpleAction:\n'
+            elif isinstance(element, BaseState):
+                representation += 'State:\n'
+            elif isinstance(element, BaseAction):
+                representation += 'Action:\n'
             else:
                 raise Exception("Ivalid episode's element error")
             representation += str(element)

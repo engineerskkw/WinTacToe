@@ -7,9 +7,9 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
-from reinforcement_learning.abstract.abstract_action import AbstractAction
+from reinforcement_learning.base.base_action import BaseAction
 
-class SimpleAction(AbstractAction):
+class SimpleAction(BaseAction):
     def __init__(self, array):
         self.array = np.array(array)
 

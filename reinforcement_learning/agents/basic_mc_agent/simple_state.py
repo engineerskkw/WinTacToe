@@ -8,9 +8,9 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 
 import numpy as np
-from reinforcement_learning.abstract.abstract_state import AbstractState
+from reinforcement_learning.base.base_state import BaseState
 
-class SimpleState(AbstractState):
+class SimpleState(BaseState):
     def __init__(self, array):
         self.array = np.array(array)
 

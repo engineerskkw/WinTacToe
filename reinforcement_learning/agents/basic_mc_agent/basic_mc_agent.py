@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -8,18 +9,18 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import numpy as np
 
-from reinforcement_learning.abstract.abstract_agent import Agent
-from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.basic_mc_agent.episode import Episode
-from reinforcement_learning.agents.basic_mc_agent.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
 
 
-class BasicAgent(Agent):
+class BasicAgent(BaseAgent):
     def __init__(self):
-        # Agent's building blocks
+        # BaseAgent's building blocks
         self.action_value = LazyTabularActionValue()
         self.policy = ActionValueDerivedPolicy(self.action_value)
         self.returns = Returns()
@@ -52,6 +53,13 @@ class BasicAgent(Agent):
     def receive_reward(self, reward):
         self.last_episode.append(reward)
 
+    def restart(self):
+        # Preparation for a new episode
+        self.last_episode = Episode()
+        self.last_state = None
+        self.last_action = None
+
+
     def exit(self, terminal_state):
         # Episode ending
         self.last_episode.append(terminal_state)
@@ -68,7 +76,6 @@ class BasicAgent(Agent):
     # RL Monte Carlo algorithm
     def pass_episode(self):
         episode = self.last_episode
-        print(f"EPISODE:\n{episode}")
         gamma = 0.9  # Discount factor
         G = 0.0  # Episode's accumulative discounted total reward/return
         steps_no = len(episode) // 3
@@ -116,7 +123,6 @@ class BasicAgent(Agent):
         self.last_action = None
 
     def reset_agent(self):
-        self.reset_policy()
         self.reset_action_value()
         self.reset_returns()
         self.reset_episode()

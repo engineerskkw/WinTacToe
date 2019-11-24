@@ -12,45 +12,46 @@ from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleStat
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
-from reinforcement_learning.abstract.abstract_action_value import AbstractActionValue
+from reinforcement_learning.base.base_action_value import BaseActionValue
 
 
-class LazyTabularActionValue(AbstractActionValue):
+class LazyTabularActionValue(BaseActionValue):
     MIN_PEN_WIDTH = 1
     MAX_PEN_WIDTH = 4
 
     def __init__(self):
-        super().__init__()
-        self.action_value_dict = {}
+        self.action_value_dict = dict()
 
-    # Lazy initialization
-    def __getitem__(self, key):
-        if type(key) == tuple and len(key) == 2:
-            state, action = key
-            if self.action_value_dict.get(state) is None:
-                self.action_value_dict[state] = {action: self._initial_cell_value}
-            elif self.action_value_dict[state].get(action) is None:
-                self.action_value_dict[state][action] = self._initial_cell_value
-            return float(self.action_value_dict[state][action])
-        else:
-            raise Exception(f"Invalid key in __getitem___ mehod of ActionValue: {key}, "
-                            f"should be tuple(AbstractState, AbstractAction)")
+    def __getitem__(self, key: tuple):
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
+
+        state, action = key
+
+        # Lazy initialization
+        if not self.action_value_dict.get(state):
+            self.action_value_dict[state] = {action: self._initial_cell_value}
+        elif not self.action_value_dict[state].get(action):
+            self.action_value_dict[state][action] = self._initial_cell_value
+
+        return float(self.action_value_dict[state][action])
 
     def __setitem__(self, key, value):
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
+
         state, action = key
-        if self.action_value_dict.get(state) is None:
-            self.action_value_dict[state] = {}
+
+        if not self.action_value_dict.get(state):
+            self.action_value_dict[state] = dict()
+
         self.action_value_dict[state][action] = float(value)
 
     def max_over_actions(self, state):
-        expected_returns = self.action_value_dict.get(state, {}).values()
-        if expected_returns:
-            return max(expected_returns)
-        return self._initial_cell_value
+        expected_returns = self.action_value_dict.get(state, dict()).values()
+        return max(expected_returns) if expected_returns else self._initial_cell_value
 
     def argmax_over_actions(self, state):
         max_value = float('-inf')
-        max_value_actions = {}
+        max_value_actions = set()
         for action, value in self.action_value_dict.get(state, {}).items():
             if value > max_value:
                 max_value = value
@@ -73,7 +74,7 @@ class LazyTabularActionValue(AbstractActionValue):
         return float(0)
 
     def returns_of_actions(self, state):
-        return self.action_value_dict.get(state, {})
+        return self.action_value_dict.get(state, dict())
 
     def __str__(self):
         return str(self.action_value_dict)
@@ -104,7 +105,7 @@ class LazyTabularActionValue(AbstractActionValue):
 
 if __name__ == '__main__':
     # SimpleAction-value test
-    av = ActionValue()
+    av = LazyTabularActionValue()
 
     s = SimpleState([[-1, -1], [-1, 1]])
 

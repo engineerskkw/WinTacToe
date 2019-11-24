@@ -8,15 +8,12 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-import subprocess
-from thespian.actors import ActorSystem
 
 from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeComponent
 from game_app.menus.main_menu.main_menu_component import MainMenuComponent
 from game_app.menus.settings.settings_component import SettingsComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
 from game_app.common_helper import Components, ColorMode, Settings
-from training_platform.server.service import GameManager
 
 
 class Application:
@@ -24,7 +21,6 @@ class Application:
         self._components = {
             Components.MAIN_MENU: MainMenuComponent,
             Components.SETTINGS: SettingsComponent,
-
             Components.TIC_TAC_TOE_LAUNCH_MENU: TicTacToeLaunchMenuComponent,
             Components.TIC_TAC_TOE: TicTacToeComponent,
         }
@@ -38,9 +34,6 @@ class Application:
             Settings.MUSIC: True,
             Settings.SOUNDS: True,
         }
-
-        self.actorSystem = ActorSystem('multiprocTCPBase')
-        self.tic_tac_toe_game_manager = self.actorSystem.createActor(GameManager, globalName="GameManager")
 
     def _launch(self):
         pygame.mixer.init(buffer=256)
@@ -68,7 +61,6 @@ class Application:
         self._current_component.render()
 
     def _cleanup(self):
-        ActorSystem('multiprocTCPBase').shutdown()
         pygame.quit()
 
     def switch_component(self, component, **args):

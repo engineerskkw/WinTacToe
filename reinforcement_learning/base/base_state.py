@@ -11,7 +11,7 @@ from abc import ABC, abstractmethod
 import numpy as np
 
 
-class AbstractState(ABC):
+class BaseState(ABC):
     """
     Class implements reinforcement learning state of the environment
 
@@ -48,7 +48,7 @@ class AbstractState(ABC):
         Bool
             True if states are equal, false otherwise.
         """
-        if not isinstance(other, AbstractState):
+        if not isinstance(other, BaseState):
             return False
         return hash(self) == hash(other)
 
