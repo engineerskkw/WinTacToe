@@ -20,7 +20,7 @@ class Agent(ABC):
         ----------
         state : AbstractState
             A state of the environment.
-        allowed_actions : list[AbstractAction]
+        allowed_actions : AbstractActionSpace
             A list of the actions that agent can take.
 
         Returns

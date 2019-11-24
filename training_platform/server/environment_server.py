@@ -13,7 +13,6 @@ from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 from training_platform.common import LOGGING
 
-
 class EnvironmentNotReadyToStartError(Exception):
     def __str__(self):
         return "EnvironmentServer not ready to start (not all clients have joined or game is already started)"
@@ -84,6 +83,7 @@ class EnvironmentServer:
     def players(self):
         self.log(f"Getting players")
         return self.engine.players
+
 
     def join(self, client, player):
         self.log(f"Started joining client {client} to player {player} on server")

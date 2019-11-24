@@ -57,7 +57,6 @@ if __name__ == '__main__':
         if isinstance(msg, MatchMakerUninitializedMsg):
             log("Can't join server because MatchMaker hasn't ben initialized")
             exit()
-
         elif isinstance(msg, InvalidPlayerMsg):
             log("Invalid player sent during joining client handling")
             print("Invalid player sent during joining client handling")

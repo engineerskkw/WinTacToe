@@ -11,28 +11,36 @@ import random
 from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.abstract.abstract_policy import AbstractPolicy
-from reinforcement_learning.agents.basic_mc_agent.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
 
 class ActionValueDerivedPolicy(AbstractPolicy):
     def __init__(self, action_value):
-        super().__init__()
         self.action_value = action_value
 
     def __getitem__(self, key):
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(AbstractState, AbstractAction)..."
+
+        state, action = key
+
         # Expected return of the given action in the given state
-        action_return = self.action_value[key]
+        action_return = self.action_value[state, action]
+
         # Sum of expected returns of all possible actions in the given state
-        sum_of_returns = sum(self.action_value.returns_of_actions(key[0]).values())
+        sum_of_returns = sum(self.action_value.returns_of_actions(state).values())
+
         return action_return/sum_of_returns
 
     def epsilon_greedy(self, state, action_space, epsilon=0.1):
         if random.random() >= epsilon:  # Choose action in the epsilon-greedy way
-            greedy_actions = self.action_value.argmax_over_actions(state)
+            greedy_actions = list(self.action_value.argmax_over_actions(state))
+
             if greedy_actions:  # Check if there are any chosen possibilities
                 action = random.choice(greedy_actions)  # Random drawback settlement
+
                 if action in action_space:  # Check action validity
                     return action
+
         return action_space.random_action  # Otherwise (in each case) get a random action
 
     def __str__(self):

@@ -66,6 +66,7 @@ class GameManager(Actor):
             self.environment.reset()
             self.log(f"Started game with following players and clients: {self.players_clients}")
             current_client = self.players_clients[self.environment.current_player]
+            self.log(f"Launched game with following players and clients: {self.players_clients}")
             self.send(current_client, YourTurnMsg(self.environment.current_board, self.environment.allowed_actions))
             self.send(self.who_started_game, EnvStartedMsg())
 
@@ -104,6 +105,7 @@ class GameManager(Actor):
                 self.before_first_move[player] = True
             for client in self.gui_clients:
                 self.send(client, StateUpdateMsg(self.environment.current_board))
+
             for client in self.players_clients.values():  # TODO(after merging): send to non-gui clients
                 self.send(client, EnvRestartedMsg())
             self.send(self.who_started_game, EnvRestartedMsg())
@@ -115,7 +117,6 @@ class GameManager(Actor):
                 self.send(client, ActorExitRequest())
             self.send(self.match_maker_addr, ActorExitRequest())
             self.send(self.logger_addr, ActorExitRequest())
-
         else:
             raise UnexpectedMessageError(msg)
 

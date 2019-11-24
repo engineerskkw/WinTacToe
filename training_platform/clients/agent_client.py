@@ -14,6 +14,23 @@ from training_platform.server.logger import Logger
 from training_platform.common import LOGGING
 
 
+class ServiceNotLaunchedError(Exception):
+    """Raised when client tries to join uninitialized server"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return str(self.message)
+
+class InvalidPlayerError(Exception):
+    """Raised when client tries to join server with invalid (or already allocated by other client) player"""
+
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return str(self.message)
 
 class InitClientActorMsg:
     def __init__(self, agent, match_maker_addr, game_manager_addr, logger_addr):
@@ -28,9 +45,8 @@ class GetAgentMsg:
 
 
 class AgentMsg:
-    def __init__(self, agent, Gs):
+    def __init__(self, agent):
         self.agent = agent
-        self.Gs = Gs
 
 
 class AgentClientActor(Actor):
@@ -72,7 +88,7 @@ class AgentClientActor(Actor):
             self.log("Successfully joined server!")
 
         elif isinstance(msg, GetAgentMsg):
-            self.send(self.client_endpoint, AgentMsg(self.agent, self.agent.Gs))
+            self.send(self.client_endpoint, AgentMsg(self.agent))
 
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):

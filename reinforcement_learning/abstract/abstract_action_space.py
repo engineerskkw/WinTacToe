@@ -50,3 +50,8 @@ class AbstractActionSpace(ABC):
             Random action allowed by the environment.
         """
         pass
+
+    @abstractmethod
+    def random_actions(self, no_of_actions):
+        pass
+
