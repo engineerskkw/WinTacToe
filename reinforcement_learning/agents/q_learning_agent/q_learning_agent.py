@@ -44,6 +44,7 @@ class QLearningAgent(BaseAgent):
     def exit(self, terminal_state):
         self._update(terminal_state)
         self.performance_measure.append(self._current_episode_return)
+        self.restart()
 
     def restart(self):
         self._reset_prev_info()

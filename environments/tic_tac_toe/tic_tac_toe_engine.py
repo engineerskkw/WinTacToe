@@ -214,8 +214,12 @@ class TicTacToeEngine(BaseEngine):
                 A hash containing a reward for each player.
         """
         if self.ended:
+            if not self.winnings:
+                return {player: 0 for player in self._players}
+
             winning_marks = list(map(lambda winning: winning.mark, self._winnings))
             rewards = list(map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players))
+
             return {player: reward for player, reward in zip(self._players, rewards)}
         else:
             return {player: 0.0 for player in self._players}

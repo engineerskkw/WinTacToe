@@ -20,7 +20,7 @@ if __name__ == '__main__':
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
     agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
 
-    NStepAgent(3, 0.3, 0.1, 0.8).save(agent_0_file_path)
-    BasicAgent().save(agent_1_file_path)
+    NStepAgent(4, 0.4, 0.1, 0.9).save(agent_0_file_path)
+    QLearningAgent(0.1, 0.1, 0.1).save(agent_1_file_path)
 
     print("Agents created")

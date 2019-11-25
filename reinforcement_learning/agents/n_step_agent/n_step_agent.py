@@ -12,7 +12,7 @@ from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
-from reinforcement_learning.agents.common.agent_utils import safe_return
+from reinforcement_learning.agents.common.agent_utils import safe_return, bucketify
 
 import numpy as np
 
@@ -31,7 +31,9 @@ class NStepAgent(BaseAgent):
         self._current_time_step = 0
         self._state_history = []
         self._action_history = []
-        self._reward_history = [None]  # There is no R0...
+        self._reward_history = [0]  # There is no R0...
+
+        self._all_episodes_rewards = []
 
     def take_action(self, state, allowed_actions):
         self._state_history.append(state)
@@ -45,6 +47,7 @@ class NStepAgent(BaseAgent):
     def receive_reward(self, reward):
         self._current_time_step += 1
         self._reward_history.append(reward)
+        # print(reward)
 
     def exit(self, terminal_state):
         self._state_history.append(terminal_state)
@@ -53,12 +56,15 @@ class NStepAgent(BaseAgent):
         for tau in range(self._current_time_step - self.n, self._final_time_step):
             self._update(tau)
 
+        self._all_episodes_rewards.append(np.sum(self._reward_history))
+        self.restart() # not called at all XD i have to do it manually
+
     def restart(self):
         self._final_time_step = np.inf
         self._current_time_step = 0
         self._state_history = []
         self._action_history = []
-        self._reward_history = [0]  # There is no R0
+        self._reward_history = [0]  # There is no R0....
 
     def _update(self, tau):
         if tau < 0:
@@ -85,4 +91,8 @@ class NStepAgent(BaseAgent):
             estimated_return += np.power(self.discount, self.n - 1) * self.action_value[last_state, last_action]
 
         return estimated_return
+
+    def get_performance_graph(self, no_of_buckets):
+        # print(self._all_episodes_rewards)
+        return bucketify(self._all_episodes_rewards, no_of_buckets, np.mean)
 
