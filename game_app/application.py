@@ -60,6 +60,9 @@ class Application:
     def _cleanup(self):
         pygame.quit()
 
+    def exit_application(self):
+        self._running = False
+
     def switch_component(self, component, **args):
         ev = pygame.event.Event(pygame.USEREVENT, {'new_game_state': 1})
         pygame.event.post(ev)
