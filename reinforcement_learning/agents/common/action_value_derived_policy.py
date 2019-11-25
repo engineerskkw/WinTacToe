@@ -33,7 +33,7 @@ class ActionValueDerivedPolicy(BasePolicy):
 
     def epsilon_greedy(self, state, action_space, epsilon=0.1):
         if random.random() >= epsilon:  # Choose action in the epsilon-greedy way
-            greedy_actions = list(self.action_value.argmax_over_actions(state))
+            greedy_actions = list(self.action_value.argmax_over_actions(state)) #asdsssss
 
             if greedy_actions:  # Check if there are any chosen possibilities
                 action = random.choice(greedy_actions)  # Random drawback settlement
