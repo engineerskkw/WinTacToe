@@ -23,7 +23,7 @@ class _Board:
         self._points_placed = []
         self._marks_placed = []
 
-        self._board = np.full((size, size), -1)
+        self._board = np.full((size, size), -1, dtype=np.int)
 
     @property
     def size(self):

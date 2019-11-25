@@ -8,8 +8,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import random
 
-from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
-from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
+from tests.mock.mock_state import SimpleState
+from tests.mock.mock_action import SimpleAction
 from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 

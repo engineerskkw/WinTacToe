@@ -9,7 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import numpy as np
 from reinforcement_learning.base.base_action import BaseAction
 
-class SimpleAction(BaseAction):
+
+class MockAction(BaseAction):
     def __init__(self, array):
         self.array = np.array(array)
 
