@@ -12,6 +12,8 @@ from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
+from reinforcement_learning.agents.common.agent_utils import safe_return
+
 import numpy as np
 
 
@@ -29,27 +31,26 @@ class NStepAgent(BaseAgent):
         self._current_time_step = 0
         self._state_history = []
         self._action_history = []
-        self._reward_history = [None]  # There is no R0
+        self._reward_history = [None]  # There is no R0...
 
     def take_action(self, state, allowed_actions):
         self._state_history.append(state)
-        self._update(self._current_time_step - self.n + 1)
-
         action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
         self._action_history.append(action)
-        self._current_time_step += 1
+
+        self._update(self._current_time_step - self.n)
 
         return action
 
     def receive_reward(self, reward):
+        self._current_time_step += 1
         self._reward_history.append(reward)
 
     def exit(self, terminal_state):
         self._state_history.append(terminal_state)
-        self._current_time_step += 1
         self._final_time_step = self._current_time_step
 
-        for tau in range(self._current_time_step - self.n + 1, self._final_time_step):  # +1 ?
+        for tau in range(self._current_time_step - self.n, self._final_time_step):
             self._update(tau)
 
     def restart(self):
@@ -57,7 +58,7 @@ class NStepAgent(BaseAgent):
         self._current_time_step = 0
         self._state_history = []
         self._action_history = []
-        self._reward_history = [None]  # There is no R0
+        self._reward_history = [0]  # There is no R0
 
     def _update(self, tau):
         if tau < 0:
@@ -74,15 +75,14 @@ class NStepAgent(BaseAgent):
 
     def _calculate_estimated_return(self, tau):
         high_bound = min(tau + self.n, self._final_time_step)
-        elements = [np.power(self.discount, i-tau-1) * self.safe_get(self._reward_history, i) for i in range(tau+1, high_bound+1)]
+        elements = [np.power(self.discount, i - tau - 1) * safe_return(self._reward_history, i)
+                    for i in range(tau + 1, high_bound + 1)]
         estimated_return = np.sum(elements)
 
         if tau + self.n < self._final_time_step:
             last_state = self._state_history[tau + self.n]
             last_action = self._action_history[tau + self.n]
-            estimated_return += np.power(self.discount, self.n) * self.action_value[last_state, last_action]
+            estimated_return += np.power(self.discount, self.n - 1) * self.action_value[last_state, last_action]
 
         return estimated_return
 
-    def safe_get(self, l, i):
-        return l[i] if i < len(i) else 0
