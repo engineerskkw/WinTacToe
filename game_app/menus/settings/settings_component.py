@@ -8,15 +8,18 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from game_app.common_helper import MusicSwitcher
 from game_app.menus.abstract_menu_component import AbstractMenuComponent
-from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_logic import TicTacToeLaunchMenuLogic
-from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_scene import TicTacToeLaunchMenuScene
+from game_app.menus.settings.settings_logic import SettingsLogic
+from game_app.menus.settings.settings_scene import SettingsScene
 
 
-class TicTacToeLaunchMenuComponent(AbstractMenuComponent):
+class SettingsComponent(AbstractMenuComponent):
     def __init__(self, app):
         self._app = app
-        self._logic = TicTacToeLaunchMenuLogic(app)
-        self._scene = TicTacToeLaunchMenuScene(self, app.screen, app.settings)
+        self._logic = SettingsLogic(self, app)
+        self._scene = SettingsScene(self, app.screen, app.settings)
 
     def get_buttons(self):
         return self._logic.all_buttons
+
+    def rerender(self):
+        self._scene.rerender_background(self._app.settings)
