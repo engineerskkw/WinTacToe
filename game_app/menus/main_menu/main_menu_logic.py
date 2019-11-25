@@ -31,6 +31,11 @@ class MainMenuLogic:
                                   app.settings,
                                   (450, 500),
                                   (380, 100)),
+            RectangularTextButton("Quit game",
+                                  lambda: print("TODO"),
+                                  app.settings,
+                                  (900, 500),
+                                  (380, 100)),
         ]
 
     def handle_event(self, event):
