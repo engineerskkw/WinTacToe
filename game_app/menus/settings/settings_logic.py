@@ -114,57 +114,40 @@ class SettingsLogic:
 
 
 def resolve_back_arrow_icon_path(color_mode):
-    if color_mode == ColorMode.DARK:
-        return os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/left_arrow_white.png')
-    else:
-        return os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/left_arrow_black.png')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
+    return os.path.join(resource_dir,
+                        'left_arrow_white.png' if color_mode == ColorMode.DARK else 'left_arrow_black.png')
 
 
 def resolve_save_icon_path(color_mode):
-    if color_mode == ColorMode.DARK:
-        return os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings/save_icon_white.png')
-    else:
-        return os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings/save_icon_black.png')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings')
+    return os.path.join(resource_dir, 'save_icon_white.png' if color_mode == ColorMode.DARK else 'save_icon_black.png')
 
 
 def resolve_color_mode_button_text_and_icon_path(color_mode):
-    if color_mode == ColorMode.DARK:
-        return ("Switch to light mode",
-                os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings/moon.png'))
-    else:
-        return ("Switch to dark mode",
-                os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings/sun.png'))
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings')
+    return "Switch to light mode", os.path.join(resource_dir, 'moon.png' if color_mode == ColorMode.DARK else 'sun.png')
 
 
 def resolve_music_button_text_and_icon_path(color_mode, music_on):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     if music_on:
-        if color_mode == ColorMode.DARK:
-            return ("Switch music off",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/music_on_white.png'))
-        else:
-            return ("Switch music off",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/music_on_black.png'))
+        return "Switch music off", os.path.join(resource_dir,
+                                                'music_on_white.png' if color_mode == ColorMode.DARK
+                                                else 'music_on_black.png')
     else:
-        if color_mode == ColorMode.DARK:
-            return ("Switch music on",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/music_off_white.png'))
-        else:
-            return ("Switch music on",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/music_off_black.png'))
+        return "Switch music on", os.path.join(resource_dir,
+                                               'music_off_white.png' if color_mode == ColorMode.DARK
+                                               else 'music_off_black.png')
 
 
 def resolve_sounds_button_text_and_icon_path(color_mode, sounds_on):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     if sounds_on:
-        if color_mode == ColorMode.DARK:
-            return ("Switch sounds off",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/sounds_on_white.png'))
-        else:
-            return ("Switch sounds off",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/sounds_on_black.png'))
+        return "Switch sounds off", os.path.join(resource_dir,
+                                                 'sounds_on_white.png' if color_mode == ColorMode.DARK
+                                                 else 'sounds_on_black.png')
     else:
-        if color_mode == ColorMode.DARK:
-            return ("Switch sounds on",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/sounds_off_white.png'))
-        else:
-            return ("Switch sounds on",
-                    os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common/sounds_off_black.png'))
+        return "Switch sounds off", os.path.join(resource_dir,
+                                                 'sounds_off_white.png' if color_mode == ColorMode.DARK
+                                                 else 'sounds_off_black.png')

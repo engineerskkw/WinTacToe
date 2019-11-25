@@ -102,7 +102,7 @@ class TicTacToeLaunchMenuLogic:
                                                               False)
 
         self._back_to_menu_button = RoundIconButton(
-            self._resolve_back_arrow_image_path(app.settings[Settings.COLOR]),
+            resolve_back_arrow_image_path(app.settings[Settings.COLOR]),
             self.switch_back_to_main_menu,
             app.settings,
             (40, 40),
@@ -110,12 +110,6 @@ class TicTacToeLaunchMenuLogic:
 
         self.all_buttons = [self._start_button, self._back_to_menu_button] + \
                            self._size_buttons + self._marks_required_buttons + self._mark_buttons
-
-    def _resolve_back_arrow_image_path(self, color_mode):
-        if color_mode == ColorMode.DARK:
-            return 'game_app/resources/images/common/left_arrow_white.png'
-        else:
-            return 'game_app/resources/images/common/left_arrow_black.png'
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
@@ -151,3 +145,9 @@ class TicTacToeLaunchMenuLogic:
                                    marks_required=self._marks_required,
                                    player_mark=self._mark,
                                    opponent_mark=abs(self._mark - 1))
+
+
+def resolve_back_arrow_image_path(color_mode):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
+    return os.path.join(resource_dir,
+                        'left_arrow_white.png' if color_mode == ColorMode.DARK else 'left_arrow_black.png')

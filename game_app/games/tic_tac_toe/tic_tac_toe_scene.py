@@ -104,7 +104,7 @@ class TicTacToeScene:
     def handle_state_changed(self, new_game_state):
         new_game_board = new_game_state.board
         for row, col in product(list(range(self._board_size)), repeat=2):
-            if new_game_board[row, col] != self.tic_tac_toe_buttons[row][col].mark:
+            if not new_game_board[row, col] == self.tic_tac_toe_buttons[row][col].mark:
                 if new_game_board[row, col] == -1:
                     self.tic_tac_toe_buttons[row][col].set_unmarked()
                 else:
