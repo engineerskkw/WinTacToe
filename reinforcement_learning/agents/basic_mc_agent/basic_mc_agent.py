@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
+import copy
 
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
@@ -34,7 +35,7 @@ class BasicAgent(BaseAgent):
         self.Gs = []
 
     def take_action(self, state, action_space):
-        # TODO: epsilon
+        state = copy.deepcopy(state) # TODO: understand why this fix works
 
         # Choose action in epsilon-greedy way
         action = self.policy.epsilon_greedy(state, action_space)
@@ -113,10 +114,10 @@ class BasicAgent(BaseAgent):
             for action, returns in actions.items():
                 self_visits_no = len(self.returns[state, action])
                 other_visits_no = len(other.returns[state, action])
-                self_part = self.action_value[state, actions] * self_visits_no
-                other_part = other.action_value[state, actions] * other_visits_no
+                self_part = self.action_value[state, action] * self_visits_no
+                other_part = other.action_value[state, action] * other_visits_no
                 new_value = (self_part + other_part) / (self_visits_no + other_visits_no)
-                new_agent.action_value[state, actions] = new_value
+                new_agent.action_value[state, action] = new_value
 
         new_agent.policy = ActionValueDerivedPolicy(new_agent.action_value)
 
@@ -131,9 +132,9 @@ class BasicAgent(BaseAgent):
         return new_agent
 
     def _iterate_return(self, iteration_agent, check_agent, output_returns):
-        for state, actions in iteration_agent.returns.items():
+        for state, actions in iteration_agent.returns.returns_dict.items():
             for action, returns in actions.items():
-                output_returns[state, action] = list(returns[state, action] + check_agent.returns[state, action])
+                output_returns[state, action] = list(returns + check_agent.returns[state, action])
 
     # Auxiliary methods
     def get_mdp(self):
