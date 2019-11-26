@@ -102,40 +102,6 @@ class BasicAgent(BaseAgent):
                 # Greedy policy improvement in the background (as a consequence of action_value change)
         return G
 
-    def __add__(self, other):
-        if not isinstance(other, BasicAgent):
-            raise Exception
-
-        new_agent = BasicAgent()
-        self._iterate_return(self, other, new_agent.returns)
-        self._iterate_return(other, self, new_agent.returns)
-
-        for state, actions in new_agent.returns.returns_dict.items():
-            for action, returns in actions.items():
-                self_visits_no = len(self.returns[state, action])
-                other_visits_no = len(other.returns[state, action])
-                self_part = self.action_value[state, action] * self_visits_no
-                other_part = other.action_value[state, action] * other_visits_no
-                new_value = (self_part + other_part) / (self_visits_no + other_visits_no)
-                new_agent.action_value[state, action] = new_value
-
-        new_agent.policy = ActionValueDerivedPolicy(new_agent.action_value)
-
-        self.last_episode = Episode()
-        self.model = StochasticModel()  # TODO: model merging
-
-        # Auxiliary attributes
-        self.last_state = None
-        self.last_action = None
-        self.last_MDP = None
-        self.Gs = []
-        return new_agent
-
-    def _iterate_return(self, iteration_agent, check_agent, output_returns):
-        for state, actions in iteration_agent.returns.returns_dict.items():
-            for action, returns in actions.items():
-                output_returns[state, action] = list(returns + check_agent.returns[state, action])
-
     # Auxiliary methods
     def get_mdp(self):
         self.last_MDP = MDP(self.model, self.action_value)
