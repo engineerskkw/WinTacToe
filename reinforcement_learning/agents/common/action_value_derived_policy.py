@@ -8,33 +8,35 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import random
 import numpy as np
-
+from scipy.special import softmax
 from tests.mock.mock_state import MockState
 from tests.mock.mock_action import MockAction
 from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+
+from tests.mock.mock_action import MockAction
+from tests.mock.mock_state import MockState
 
 
 class ActionValueDerivedPolicy(BasePolicy):
     def __init__(self, action_value):
         self.action_value = action_value
 
-    def __getitem__(self, key):
+    def __getitem__(self, key: tuple):
         assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
         state, action = key
+        self.action_value[state, action]  # Initialize state action value by defaultdict
+        expected_returns = self.action_value.action_returns(state)
 
-        # Expected return of the given action in the given state
-        action_return = self.action_value[state, action]
+        # Softmax on action returns gives the probability that they will be chosen
+        softmax_returns = dict(zip(expected_returns.keys(), softmax(list(expected_returns.values()))))
 
-        # Sum of expected returns of all possible actions in the given state
-        sum_of_returns = sum(self.action_value.returns_of_actions(state).values())
-
-        return action_return/sum_of_returns
+        return softmax_returns[action]
 
     def epsilon_greedy(self, state, action_space, epsilon=0.1):
-        if random.random() >= epsilon:  # Choose action in the epsilon-greedy way
-            greedy_actions = list(self.action_value.argmax_over_actions(state)) #asdsssss
+        if random.random() > epsilon:  # Choose action in the epsilon-greedy way
+            greedy_actions = list(self.action_value.argmax(state))
 
             if greedy_actions:  # Check if there are any chosen possibilities
                 action = random.choice(greedy_actions)  # Random drawback settlement
@@ -56,14 +58,15 @@ class ActionValueDerivedPolicy(BasePolicy):
     def view(self):
         return self.action_value.view()
 
+
 if __name__ == '__main__':
     av = LazyTabularActionValue()
 
-    s = MockState(np.array([[-1, -1], [-1, 1]]))
+    s = MockState([[-1, -1], [-1, 1]])
 
-    a1 = SimpleAction([0, 0])
-    a2 = SimpleAction([0, 1])
-    a3 = SimpleAction([1, 0])
+    a1 = MockAction([0, 0])
+    a2 = MockAction([0, 1])
+    a3 = MockAction([1, 0])
 
     av[s, a1] = 6
     av[s, a2] = 2.9

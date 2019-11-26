@@ -138,7 +138,7 @@ class TicTacToeActionSpace(BaseActionSpace):
     """
     actions: Set
     """
-    def __init__(self, actions):
+    def __init__(self, actions: set):
         self.actions = actions
 
     def __contains__(self, action):
