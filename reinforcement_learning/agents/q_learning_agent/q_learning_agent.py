@@ -1,17 +1,17 @@
-import sys, os
-import numpy as np
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import bucketify
-
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+import sys, os
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+import numpy as np
+from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common.agent_utils import bucketify
+import copy
 
 class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
@@ -28,6 +28,7 @@ class QLearningAgent(BaseAgent):
         self._current_episode_return = 0
 
     def take_action(self, state, allowed_actions):
+        state = copy.copy(state)
         if self._prev_state:
             self._update(state)
 
@@ -44,6 +45,7 @@ class QLearningAgent(BaseAgent):
     def exit(self, terminal_state):
         self._update(terminal_state)
         self.performance_measure.append(self._current_episode_return)
+        self.restart()
 
     def restart(self):
         self._reset_prev_info()
@@ -60,7 +62,7 @@ class QLearningAgent(BaseAgent):
         self._prev_reward = None
         self._current_episode_return = 0
 
-    def get_performance_graph(self, no_of_buckets):
+    def get_performance_measure(self, no_of_buckets):
         return bucketify(self.performance_measure, no_of_buckets, np.mean)
 
 

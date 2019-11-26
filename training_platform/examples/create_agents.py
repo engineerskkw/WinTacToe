@@ -14,12 +14,16 @@ from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLea
 from training_platform import EnvironmentServer
 from training_platform import AgentClient
 from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.random_agent.random_agent import RandomAgent
 
 if __name__ == '__main__':
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
     agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
 
     QLearningAgent(0.3, 0.1, 0.8).save(agent_0_file_path)
-    BasicAgent().save(agent_1_file_path)
+    # BasicAgent().save(agent_1_file_path)
+
+    # RandomAgent().save(agent_0_file_path)
+    RandomAgent().save(agent_1_file_path)
 
     print("Agents created")
