@@ -7,10 +7,9 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from thespian.actors import *
 import pygame
 from pygame.locals import MOUSEBUTTONUP
-
+from thespian.actors import *
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import TurnState, MusicSwitcher, Components, Settings
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
