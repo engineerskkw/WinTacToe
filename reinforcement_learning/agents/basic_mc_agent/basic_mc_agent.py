@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
+import copy
 
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
@@ -34,7 +35,7 @@ class BasicAgent(BaseAgent):
         self.Gs = []
 
     def take_action(self, state, action_space):
-        # TODO: epsilon
+        state = copy.deepcopy(state) # TODO: understand why this fix works
 
         # Choose action in epsilon-greedy way
         action = self.policy.epsilon_greedy(state, action_space)
@@ -85,16 +86,16 @@ class BasicAgent(BaseAgent):
 
             G = gamma * G + R  # Calculate discounted return
 
-            # Update rule according to the Monte Carlo first-step approach
-            unique = True
+            # Update rule according to the Monte Carlo first-visit approach
+            first_visit = True
             for i in reversed(range(t)):
                 temp_S = episode[i]
                 temp_A = episode[i+1]
                 if (S, A) == (temp_S, temp_A):
-                    unique = False
+                    first_visit = False
                     break
 
-            if not unique:
+            if first_visit:
                 # Policy evaluation
                 self.returns[S, A].append(G)
                 self.action_value[S, A] = np.mean(self.returns[S, A])  # Improve policy of both agents
