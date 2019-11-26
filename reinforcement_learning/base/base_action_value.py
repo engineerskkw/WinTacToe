@@ -63,7 +63,7 @@ class BaseActionValue(ABC):
         pass
 
     @abstractmethod
-    def max_over_actions(self, state):
+    def max(self, state):
         """
         Get a maximum expected return for the given state and for
         all actions that are possible to choose in this state.
@@ -81,7 +81,7 @@ class BaseActionValue(ABC):
         pass
 
     @abstractmethod
-    def argmax_over_actions(self, state):
+    def argmax(self, state):
         """
         Get a set of actions for which the expected return
         is maximum in the given state.
@@ -96,6 +96,10 @@ class BaseActionValue(ABC):
         Set[BaseAction]
             Set of actions that maximize expected return.
         """
+        pass
+
+    @abstractmethod
+    def action_returns(self, state):
         pass
 
     @abstractmethod

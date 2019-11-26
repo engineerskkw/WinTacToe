@@ -46,27 +46,29 @@ class TestLazyTabularActionValue(TestCase):
         self.action_value[self.mock_state1, self.mock_action1] = 2.0
         self.action_value[self.mock_state1, self.mock_action2] = 3.0
 
-        self.assertEqual(self.action_value.max_over_actions(self.mock_state1), 3.)
-        self.assertEqual(self.action_value.max_over_actions(self.mock_state2), 0.)
+        self.assertEqual(self.action_value.max(self.mock_state1), 3.)
+        self.assertEqual(self.action_value.max(self.mock_state2), 0.)
 
     def test_argmax_over_actions(self):
         self.action_value[self.mock_state1, self.mock_action1] = 2.0
         self.action_value[self.mock_state1, self.mock_action2] = 1.0
         self.action_value[self.mock_state1, self.mock_action3] = 2.0
 
-        self.assertEqual(self.action_value.argmax_over_actions(self.mock_state1),
+        self.assertEqual(self.action_value.argmax(self.mock_state1),
                          {MockAction([1, 2, 3]), MockAction([5, 6, 7])})
 
         # For empty state
-        self.assertFalse(self.action_value.argmax_over_actions(self.mock_state2))
+        self.assertFalse(self.action_value.argmax(self.mock_state2))
 
-    def test_returns_of_actions(self):
+    def test_action_returns(self):
         self.action_value[self.mock_state1, self.mock_action1] = 2.0
         self.action_value[self.mock_state1, self.mock_action2] = 1.0
         self.action_value[self.mock_state1, self.mock_action3] = 2.0
 
-        self.assertEqual(self.action_value.returns_of_actions(self.mock_state1),
+        self.assertEqual(self.action_value.action_returns(self.mock_state1),
                          {MockAction([1, 2, 3]): 2.0, MockAction([2, 3, 4]): 1.0, MockAction([5, 6, 7]): 2.0})
 
         # For empty state
-        self.assertFalse(self.action_value.returns_of_actions(self.mock_state2))
+        self.assertFalse(self.action_value.action_returns(self.mock_state2))
+
+        print(self.action_value.action_returns(self.mock_state1).values())
