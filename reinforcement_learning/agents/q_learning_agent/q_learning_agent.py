@@ -15,17 +15,19 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
-        self.action_value = LazyTabularActionValue()
-        self.policy = ActionValueDerivedPolicy(self.action_value)
         self.step_size = step_size
         self.epsilon = epsilon
         self.discount = discount
-        self.performance_measure = []
+
+        self.action_value = LazyTabularActionValue()
+        self.policy = ActionValueDerivedPolicy(self.action_value)
 
         self._prev_action = None
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
+
+        self._all_episodes_returns = []
 
     def take_action(self, state, allowed_actions):
         if self._prev_state:
@@ -43,11 +45,14 @@ class QLearningAgent(BaseAgent):
 
     def exit(self, terminal_state):
         self._update(terminal_state)
-        self.performance_measure.append(self._current_episode_return)
-        self.restart()
+        self._all_episodes_returns.append(self._current_episode_return)
+        self._reset_episode_info()
 
     def restart(self):
-        self._reset_prev_info()
+        self._reset_episode_info()
+
+    def get_performance(self, no_of_buckets):
+        return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
 
     def _update(self, new_state):
         prev_action_value = self.action_value[self._prev_state, self._prev_action]
@@ -55,14 +60,11 @@ class QLearningAgent(BaseAgent):
             (self._prev_reward + self.discount * self.action_value.max_over_actions(new_state) - prev_action_value)
         self.action_value[self._prev_state, self._prev_action] = prev_action_value + error
 
-    def _reset_prev_info(self):
+    def _reset_episode_info(self):
         self._prev_action = None
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
-
-    def get_performance_graph(self, no_of_buckets):
-        return bucketify(self.performance_measure, no_of_buckets, np.mean)
 
 
 
