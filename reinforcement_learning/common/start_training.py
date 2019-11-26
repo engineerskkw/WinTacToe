@@ -27,6 +27,7 @@ if __name__ == '__main__':
     agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
     agents_file_paths = [agent_0_file_path, agent_1_file_path]
     agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
+    # agents = [QLearningAgent(0.4, 0.1, 1), RandomAgent()]
 
     # Training is as simple as it:
     number_of_episodes = 100
@@ -37,7 +38,7 @@ if __name__ == '__main__':
     # At the end you can save your trained agents
     [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
 
-    plt.plot(agents[0].get_performance(50))
-    plt.plot(agents[1].get_performance(50))
+    plt.plot(agents[0].get_performance(20))
+    plt.plot(agents[1].get_performance(20))
     plt.gca().legend(("Q learning", "Random xd"))
     plt.show()
