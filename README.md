@@ -16,12 +16,14 @@ actorsystembase = simpleSystemBase
 logging = 0
 ```
 
-First you need an engine
+Firstly, you need an engine
 ```python
 engine = TicTacToeEngine(2, 3, 3)
 ```
-...and agents:
+Secondly, agents:
+```
 agents = [BasicAgent(), QLearningAgent(0.3, 0.1, 0.9)]
+```
 
 You can also load previously saved agents from files (these paths are examplary):
 ```python
@@ -34,9 +36,9 @@ agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
 Training is as simple as this:
 ```python
 number_of_episodes = 100
-  with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
-      # assignment is necessary, because training doesn't modify agents provided in constructor
-      agents = st.train(number_of_episodes)
+with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
+    # assignment is necessary, because training doesn't modify agents provided in constructor
+    agents = st.train(number_of_episodes)
 ```
 
 At the end you can save your trained agents
@@ -53,15 +55,18 @@ logging = 0
 ```
 In TicTacToeComponent in ```# Oponnent joing``` section:
 ```python
-        # Opponent joining
-        p1 = players[self._opponent_mark]
-        c1 = AgentClient(BasicAgent())
-        self.server.join(c1, p1)
-        self.log(f"Joined opponent")
+# Opponent joining
+p1 = players[self._opponent_mark]
+c1 = AgentClient(BasicAgent())
+self.server.join(c1, p1)
+self.log(f"Joined opponent")
 ```
 change ```BasicAgent()``` to ```BaseAgent.load(file_path)```
 where ```file_path``` is path to the file containing your saved RL agent.
-To start a game run file launch_application.py
+To start a game run launch_application.py typing in console started in project root:
+```
+python game_app/launch_application.py
+```
 
 # How to stop/start/restart the server and clients (distributed execution) with eny engine
 ```
@@ -76,5 +81,8 @@ actorsystembase = multiprocTCPBase
 logging = 1
 ```
 
-Firstly start a start_monitor.py
-Secondly start training or game player vs bot
+Firstly start a monitor:
+```
+python training_platform/examples/start_monitor_client.py
+```
+Secondly start your training or game player vs bot

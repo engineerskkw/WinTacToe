@@ -8,15 +8,17 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from graphviz import Digraph
 import uuid
+import copy
 
 
 class Returns:
     def __init__(self):
-        self.returns_dict = {}
+        self.returns_dict = dict()
 
     # Lazy initialization
     def __getitem__(self, key):
         state, action = key
+        state = copy.copy(state)
         if self.returns_dict.get(state) is None:
             self.returns_dict[state] = {action: []}  # Arbitrarily initialization
         elif self.returns_dict[state].get(action) is None:
@@ -27,11 +29,28 @@ class Returns:
     def __setitem__(self, key, value):
         state, action = key
         if self.returns_dict.get(state) is None:
-            self.returns_dict[state] = {}
+            self.returns_dict[state] = {action: value}
         self.returns_dict[state][action] = value
 
     def __str__(self):
-        return self.returns_dict.__str__()
+        representation = ""
+        for state, actions in self.returns_dict.items():
+            for action, value in actions.items():
+                representation += "State:\n"
+                representation += state.__str__()
+                representation += "\nAction:\n"
+                representation += action.__str__()
+                representation += "\nValues:\n"
+                representation += value.__str__()
+                representation += "\n\n"
+        return representation
+
+    def __len__(self):
+        result = 0
+        for state, actions in self.returns_dict.items():
+            for action in actions.keys():
+                result += 1
+        return result
 
     def _get_graph(self):
         graph = Digraph()
