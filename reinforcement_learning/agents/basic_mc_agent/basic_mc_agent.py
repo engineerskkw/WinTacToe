@@ -82,7 +82,7 @@ class BasicAgent(BaseAgent):
         steps_no = len(episode) // 3
         for t in reversed(range(steps_no)):
             # Step, action, reward
-            S, A, R = copy.copy(episode[3 * t]), copy.copy(episode[3 * t + 1]), copy.copy(episode[3 * t + 2])
+            S, A, R = copy.deepcopy(episode[3 * t]), copy.deepcopy(episode[3 * t + 1]), copy.deepcopy(episode[3 * t + 2])
 
             G = gamma * G + R  # Calculate discounted return
 
