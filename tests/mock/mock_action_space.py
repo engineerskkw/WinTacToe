@@ -9,6 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from reinforcement_learning.base.base_action_space import BaseActionSpace
 from random import choice, randrange, sample
 
+
 class MockActionSpace(BaseActionSpace):
     """
     actions: Set

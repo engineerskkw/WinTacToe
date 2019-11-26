@@ -6,14 +6,15 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+print(f"AAAAA: {ABS_PROJECT_ROOT_PATH}")
+
 from graphviz import Digraph
 from collections import defaultdict
 
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 from reinforcement_learning.base.base_action_value import BaseActionValue
-
-from tests.mock.mock_action import MockAction
 from tests.mock.mock_state import MockState
+from tests.mock.mock_action import MockAction
 
 
 class LazyTabularActionValue(BaseActionValue):
@@ -93,19 +94,19 @@ class LazyTabularActionValue(BaseActionValue):
     def view(self):
         return self._get_graph().view()
 
-# if __name__ == '__main__':
-#     # SimpleAction-value test
-#     av = LazyTabularActionValue()
-#
-#     s = MockState([[-1, -1], [-1, 1]])
-#
-#     a1 = MockAction([0, 0])
-#     a2 = MockAction([0, 1])
-#     a3 = MockAction([1, 0])
-#
-#     av[s, a1] = 6
-#     av[s, a2] = 0.8
-#     av[s, a3] = -10
-#
-#     print(av)
-#     av.view()
+if __name__ == '__main__':
+    # SimpleAction-value test
+    av = LazyTabularActionValue()
+
+    s = MockState([[-1, -1], [-1, 1]])
+
+    a1 = MockAction([0, 0])
+    a2 = MockAction([0, 1])
+    a3 = MockAction([1, 0])
+
+    av[s, a1] = 6
+    av[s, a2] = 0.8
+    av[s, a3] = -10
+
+    print(av)
+    av.view()
