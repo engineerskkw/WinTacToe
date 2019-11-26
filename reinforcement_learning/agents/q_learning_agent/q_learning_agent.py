@@ -54,9 +54,6 @@ class QLearningAgent(BaseAgent):
     def restart(self):
         self._reset_episode_info()
 
-    def get_performance(self, no_of_buckets):
-        return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
-
     def _update(self, new_state):
         prev_action_value = self.action_value[self._prev_state, self._prev_action]
         error = self.step_size * \
@@ -68,3 +65,6 @@ class QLearningAgent(BaseAgent):
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
+
+    def get_episodes_returns(self):
+        return self._all_episodes_returns
