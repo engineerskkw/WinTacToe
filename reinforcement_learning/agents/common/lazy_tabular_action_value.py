@@ -18,7 +18,7 @@ class LazyTabularActionValue(BaseActionValue):
     MAX_PEN_WIDTH = 4
 
     def __init__(self):
-        self.action_value_dict = defaultdict(lambda: defaultdict(lambda: self._default_cell_value))
+        self.action_value_dict = defaultdict(self._default_state_action_dict)
 
     def __getitem__(self, key: tuple):
         assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
@@ -51,9 +51,17 @@ class LazyTabularActionValue(BaseActionValue):
         Returns
         -------
         Float
-            Initial value of the action-value table cell.
+            Default value of the action-value table cell.
         """
         return float(0)
+
+    # Needed for pickle...
+    def _default_action_value(self):
+        return self._default_cell_value
+
+    # Needed for pickle...
+    def _default_state_action_dict(self):
+        return defaultdict(self._default_action_value)
 
     def __str__(self):
         return str(self.action_value_dict)
