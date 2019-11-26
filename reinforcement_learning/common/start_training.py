@@ -12,6 +12,7 @@ from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 from reinforcement_learning.agents.random_agent.random_agent import RandomAgent
+from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
 from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLearningAgent
 from reinforcement_learning.common.simple_training import SimpleTraining
 
@@ -28,7 +29,7 @@ if __name__ == '__main__':
     agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
 
     # Training is as simple as it:
-    number_of_episodes = 5000
+    number_of_episodes = 100
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
@@ -36,7 +37,7 @@ if __name__ == '__main__':
     # At the end you can save your trained agents
     [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
 
-    plt.plot(agents[0].get_performance_measure(50))
-    plt.plot(agents[1].get_performance_measure(50))
+    plt.plot(agents[0].get_performance(50))
+    plt.plot(agents[1].get_performance(50))
     plt.gca().legend(("Q learning", "Random xd"))
     plt.show()

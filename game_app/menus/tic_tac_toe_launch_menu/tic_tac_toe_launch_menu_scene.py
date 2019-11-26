@@ -7,14 +7,15 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import pygame
+from game_app.common_helper import ColorMode, Settings
 
 
 class TicTacToeLaunchMenuScene:
-    def __init__(self, component, screen):
+    def __init__(self, component, screen, settings):
         self._component = component
         self._screen = screen
-        self._text_color = (255, 255, 255)
-        self._background_color = (55, 55, 55)
+        self._text_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._background_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
         self._background_displayed = False
 
     def render(self):

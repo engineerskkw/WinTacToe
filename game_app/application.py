@@ -8,17 +8,19 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
-
+import pickle
 from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeComponent
 from game_app.menus.main_menu.main_menu_component import MainMenuComponent
+from game_app.menus.settings.settings_component import SettingsComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
-from game_app.common_helper import Components
+from game_app.common_helper import Components, ColorMode, Settings
 
 
 class Application:
     def __init__(self):
         self._components = {
             Components.MAIN_MENU: MainMenuComponent,
+            Components.SETTINGS: SettingsComponent,
             Components.TIC_TAC_TOE_LAUNCH_MENU: TicTacToeLaunchMenuComponent,
             Components.TIC_TAC_TOE: TicTacToeComponent,
         }
@@ -27,6 +29,8 @@ class Application:
         self.screen = None
         self._size = 1280, 720
         self._block_events = False
+        with open(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/settings.cfg"), 'rb') as settings_file:
+            self.settings = pickle.load(settings_file)
 
     def _launch(self):
         pygame.mixer.init(buffer=256)
@@ -55,6 +59,9 @@ class Application:
 
     def _cleanup(self):
         pygame.quit()
+
+    def exit_application(self):
+        self._running = False
 
     def switch_component(self, component, **args):
         ev = pygame.event.Event(pygame.USEREVENT, {'new_game_state': 1})

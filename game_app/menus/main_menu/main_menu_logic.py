@@ -9,7 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from pygame.locals import *
 
 from game_app.common_helper import Components
-from game_app.menus.menus_scene_commons.buttons import RectangularTextButton
+from game_app.common.buttons import RectangularTextButton
 
 
 class MainMenuLogic:
@@ -17,17 +17,25 @@ class MainMenuLogic:
         self._app = app
         self.buttons = [
             RectangularTextButton("Start game",
-                                  lambda: self.switch_to_tic_tac_toe_launcher_menu(),
-                                  (450, 100),
-                                  (380, 100)),
+                                  self.switch_to_tic_tac_toe_launcher_menu,
+                                  app.settings,
+                                  (410, 75),
+                                  (460, 100)),
             RectangularTextButton("CreditsTODO",
                                   lambda: print("TODO"),
-                                  (450, 300),
-                                  (380, 100)),
-            RectangularTextButton("SettingsTODO",
-                                  lambda: print("TODO"),
-                                  (450, 500),
-                                  (380, 100)),
+                                  app.settings,
+                                  (410, 235),
+                                  (460, 100)),
+            RectangularTextButton("Settings",
+                                  self.switch_to_settings,
+                                  app.settings,
+                                  (410, 395),
+                                  (460, 100)),
+            RectangularTextButton("Exit",
+                                  self._app.exit_application,
+                                  app.settings,
+                                  (410, 555),
+                                  (460, 100)),
         ]
 
     def handle_event(self, event):
@@ -37,3 +45,6 @@ class MainMenuLogic:
 
     def switch_to_tic_tac_toe_launcher_menu(self):
         self._app.switch_component(Components.TIC_TAC_TOE_LAUNCH_MENU)
+
+    def switch_to_settings(self):
+        self._app.switch_component(Components.SETTINGS)
