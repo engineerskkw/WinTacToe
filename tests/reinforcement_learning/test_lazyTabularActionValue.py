@@ -24,15 +24,23 @@ class TestLazyTabularActionValue(TestCase):
         self.mock_state1_copy = MockState([1, 2, 3, 4, 5])
 
     def test_get_and_set_item(self):
+        # Default value
         self.assertEqual(self.action_value[self.mock_state1, self.mock_action1], 0.)
 
+        # Assigned value
         self.action_value[self.mock_state1, self.mock_action1] = 2.0
         self.assertEqual(self.action_value[self.mock_state1, self.mock_action1], 2.)
 
+        # Assigned value to the different action
         self.action_value[self.mock_state1, self.mock_action2] = 3.0
         self.assertEqual(self.action_value[self.mock_state1, self.mock_action2], 3.)
 
+        # Check getting with copied state
         self.assertEqual(self.action_value[self.mock_state1_copy, self.mock_action1], 2.)
+
+        # Overwrite value
+        self.action_value[self.mock_state1, self.mock_action2] = 10.0
+        self.assertEqual(self.action_value[self.mock_state1_copy, self.mock_action2], 10.)
 
     def test_max_over_actions(self):
         self.action_value[self.mock_state1, self.mock_action1] = 2.0
@@ -48,6 +56,8 @@ class TestLazyTabularActionValue(TestCase):
 
         self.assertEqual(self.action_value.argmax_over_actions(self.mock_state1),
                          {MockAction([1, 2, 3]), MockAction([5, 6, 7])})
+
+        # For empty state
         self.assertFalse(self.action_value.argmax_over_actions(self.mock_state2))
 
     def test_returns_of_actions(self):
@@ -58,4 +68,5 @@ class TestLazyTabularActionValue(TestCase):
         self.assertEqual(self.action_value.returns_of_actions(self.mock_state1),
                          {MockAction([1, 2, 3]): 2.0, MockAction([2, 3, 4]): 1.0, MockAction([5, 6, 7]): 2.0})
 
+        # For empty state
         self.assertFalse(self.action_value.returns_of_actions(self.mock_state2))
