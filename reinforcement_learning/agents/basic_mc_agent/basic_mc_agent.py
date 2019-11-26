@@ -21,9 +21,10 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class BasicAgent(BaseAgent):
-    def __init__(self, epsilon=0.1):
+    def __init__(self, epsilon=0.1, discount=0.9):
         # parameters
         self.epsilon = epsilon
+        self.discount = discount
 
         # BaseAgent's building blocks
         self.action_value = LazyTabularActionValue()
@@ -80,14 +81,13 @@ class BasicAgent(BaseAgent):
     # RL Monte Carlo algorithm
     def pass_episode(self):
         episode = self.last_episode
-        gamma = 0.9  # Discount factor
         G = 0.0  # Episode's accumulative discounted total reward/return
         steps_no = len(episode) // 3
         for t in reversed(range(steps_no)):
             # Step, action, reward
             S, A, R = copy.deepcopy(episode[3 * t]), copy.deepcopy(episode[3 * t + 1]), copy.deepcopy(episode[3 * t + 2])
 
-            G = gamma * G + R  # Calculate discounted return
+            G = self.discount * G + R  # Calculate discounted return
 
             # Update rule according to the Monte Carlo first-visit approach
             first_visit = True
