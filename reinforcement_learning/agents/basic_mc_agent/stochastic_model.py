@@ -10,8 +10,8 @@ from graphviz import Digraph
 import numpy as np
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
-from tests.mock.mock_action import MockAction
-from tests.mock.mock_state import MockState
+from all_tests.mock.test_mock_action import MockAction
+from all_tests.mock.test_mock_state import MockState
 
 
 class StochasticModel:

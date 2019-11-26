@@ -15,7 +15,7 @@ from itertools import product
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, Winning, IllegalMoveError, TicTacToeAction, \
     TicTacToeActionSpace
-from tests.environments.test_tic_tac_toe_engine import TestTicTacToeEngine
+from all_tests.environments.test_tic_tac_toe_engine import TestTicTacToeEngine
 
 
 class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
