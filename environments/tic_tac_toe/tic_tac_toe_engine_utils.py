@@ -94,11 +94,29 @@ class TicTacToeState(BaseState):
     def __init__(self, board):
         self.board = board
 
-    def __str__(self):
-        return str(self.board)
-
     def __hash__(self):
         return hash(str(self.board))
+
+    def __str__(self):
+        representation = ''
+        height, width = self.board.shape
+        for h in range(height):
+            for w in range(width):
+                if self.board[h, w] == -1:
+                    representation += '#'
+                elif self.board[h, w] == 0:
+                    representation += 'O'
+                elif self.board[h, w] == 1:
+                    representation += 'X'
+                else:
+                    print("Invalid mark code")
+                    raise
+            if h < height - 1:
+                representation += '\n'
+        return representation
+
+    def __repr__(self):
+        return self.__str__()
 
 
 class TicTacToeAction(BaseAction):
