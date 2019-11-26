@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
+import copy
 
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
@@ -16,6 +17,7 @@ from reinforcement_learning.agents.common.action_value_derived_policy import Act
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
+from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class BasicAgent(BaseAgent):
@@ -31,7 +33,7 @@ class BasicAgent(BaseAgent):
         self.last_state = None
         self.last_action = None
         self.last_MDP = None
-        self.Gs = []
+        self._all_episodes_returns = []
 
     def take_action(self, state, action_space):
         # TODO: epsilon
@@ -59,14 +61,13 @@ class BasicAgent(BaseAgent):
         self.last_state = None
         self.last_action = None
 
-
     def exit(self, terminal_state):
         # Episode ending
         self.last_episode.append(terminal_state)
 
         # Episode analysing
         G = self.pass_episode()
-        self.Gs.append(G)
+        self._all_episodes_returns.append(G)
 
         # Preparation for a new episode
         self.last_episode = Episode()
@@ -81,7 +82,7 @@ class BasicAgent(BaseAgent):
         steps_no = len(episode) // 3
         for t in reversed(range(steps_no)):
             # Step, action, reward
-            S, A, R = episode[3 * t], episode[3 * t + 1], episode[3 * t + 2]
+            S, A, R = copy.copy(episode[3 * t]), copy.copy(episode[3 * t + 1]), copy.copy(episode[3 * t + 2])
 
             G = gamma * G + R  # Calculate discounted return
 
@@ -127,3 +128,6 @@ class BasicAgent(BaseAgent):
         self.reset_returns()
         self.reset_episode()
         self.reset_model()
+
+    def get_episodes_returns(self):
+        return self._all_episodes_returns
