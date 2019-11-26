@@ -6,12 +6,12 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+from random import choice, sample, randrange
+
 from reinforcement_learning.base.base_state import BaseState
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_action_space import BaseActionSpace
 from environments.base.base_engine_utils import BasePlayer, BaseWinning
-
-from random import choice, sample, randrange
 
 
 class Player(BasePlayer):

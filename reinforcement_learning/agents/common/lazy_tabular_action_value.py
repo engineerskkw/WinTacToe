@@ -11,7 +11,6 @@ from graphviz import Digraph
 # from tests.mock.mock_state import SimpleState
 # from tests.mock.mock_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
-
 from reinforcement_learning.base.base_action_value import BaseActionValue
 
 
