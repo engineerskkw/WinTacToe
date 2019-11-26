@@ -21,7 +21,10 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class BasicAgent(BaseAgent):
-    def __init__(self):
+    def __init__(self, epsilon=0.1):
+        # parameters
+        self.epsilon = epsilon
+
         # BaseAgent's building blocks
         self.action_value = LazyTabularActionValue()
         self.policy = ActionValueDerivedPolicy(self.action_value)
@@ -39,7 +42,7 @@ class BasicAgent(BaseAgent):
         state = copy.deepcopy(state) # TODO: understand why this fix works
 
         # Choose action in epsilon-greedy way
-        action = self.policy.epsilon_greedy(state, action_space)
+        action = self.policy.epsilon_greedy(state, action_space, self.epsilon)
 
         # Register model transition
         if self.last_state and self.last_action:
