@@ -8,8 +8,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from unittest import TestCase
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from tests.mock.mock_action import MockAction
-from tests.mock.mock_state import MockState
+from all_tests.mock.test_mock_action import MockAction
+from all_tests.mock.test_mock_state import MockState
 
 
 class TestLazyTabularActionValue(TestCase):
@@ -41,6 +41,7 @@ class TestLazyTabularActionValue(TestCase):
         # Overwrite value
         self.action_value[self.mock_state1, self.mock_action2] = 10.0
         self.assertEqual(self.action_value[self.mock_state1_copy, self.mock_action2], 10.)
+
 
     def test_max_over_actions(self):
         self.action_value[self.mock_state1, self.mock_action1] = 2.0

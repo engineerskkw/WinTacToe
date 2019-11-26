@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -7,15 +8,13 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import random
-import numpy as np
+
 from scipy.special import softmax
-from tests.mock.mock_state import MockState
-from tests.mock.mock_action import MockAction
 from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
-from tests.mock.mock_action import MockAction
-from tests.mock.mock_state import MockState
+from all_tests.mock.test_mock_action import MockAction
+from all_tests.mock.test_mock_state import MockState
 
 
 class ActionValueDerivedPolicy(BasePolicy):
@@ -75,4 +74,4 @@ if __name__ == '__main__':
     egp = ActionValueDerivedPolicy(av)
 
     print(egp)
-    egp.view()
+    # egp.view()
