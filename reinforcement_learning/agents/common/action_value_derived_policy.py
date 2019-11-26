@@ -10,6 +10,10 @@ import random
 from scipy.special import softmax
 
 from reinforcement_learning.base.base_policy import BasePolicy
+from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+
+from tests.mock.mock_action import MockAction
+from tests.mock.mock_state import MockState
 
 
 class ActionValueDerivedPolicy(BasePolicy):
@@ -51,3 +55,21 @@ class ActionValueDerivedPolicy(BasePolicy):
 
     def view(self):
         return self.action_value.view()
+
+# if __name__ == '__main__':
+#     av = LazyTabularActionValue()
+#
+#     s = MockState([[-1, -1], [-1, 1]])
+#
+#     a1 = MockAction([0, 0])
+#     a2 = MockAction([0, 1])
+#     a3 = MockAction([1, 0])
+#
+#     av[s, a1] = 6
+#     av[s, a2] = 2.9
+#     av[s, a3] = -10
+#
+#     egp = ActionValueDerivedPolicy(av)
+#
+#     print(egp)
+#     egp.view()

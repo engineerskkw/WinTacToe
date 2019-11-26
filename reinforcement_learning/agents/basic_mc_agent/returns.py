@@ -10,6 +10,9 @@ from graphviz import Digraph
 import uuid
 import copy
 
+from tests.mock.mock_action import MockAction
+from tests.mock.mock_state import MockState
+
 
 class Returns:
     def __init__(self):
@@ -79,3 +82,45 @@ class Returns:
 
     def view(self):
         return self._get_graph().view()
+
+
+
+# if __name__ == '__main__':
+#     # Returns test
+#
+#     r = Returns()
+#
+#     s1 = MockState([[-1, 0], [-1, -1]])
+#     a1 = MockAction([1, 0])
+#     G = -3
+#     r[s1, a1].append(G)
+#
+#     s2 = MockState([[-1, 0], [0, -1]])
+#     a2 = MockAction([0, 0])
+#     G = 10.0
+#     r[s2, a2].append(G)
+#     G = 7.8
+#     r[s2, a2].append(G)
+#
+#     s3 = MockState([[0, 0], [0, -1]])
+#     a3 = MockAction([1, 1])
+#     G = -5.1
+#     r[s3, a3].append(G)
+#     G = 3.2
+#     r[s3, a3].append(G)
+#     G = -1.9
+#     r[s3, a3].append(G)
+#
+#     s4 = MockState([[-1, 0], [0, 0]])
+#     a4 = MockAction([0, 0])
+#     G = -5.1
+#     r[s4, a4].append(G)
+#     G = -6.5
+#     r[s4, a4].append(G)
+#     G = -9.4
+#     r[s4, a4].append(G)
+#     G = -10
+#     r[s4, a4].append(G)
+#
+#     print(r)
+#     # r.view()
