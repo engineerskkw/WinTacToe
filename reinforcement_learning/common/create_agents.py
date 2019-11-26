@@ -15,6 +15,7 @@ from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
 from training_platform import EnvironmentServer
 from training_platform import AgentClient
 from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.random_agent.random_agent import RandomAgent
 
 if __name__ == '__main__':
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")

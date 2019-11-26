@@ -1,16 +1,18 @@
-import sys, os
-import numpy as np
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import bucketify
-
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+import sys, os
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
+import numpy as np
+import copy
+
+from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class QLearningAgent(BaseAgent):
@@ -30,6 +32,7 @@ class QLearningAgent(BaseAgent):
         self._all_episodes_returns = []
 
     def take_action(self, state, allowed_actions):
+        state = copy.copy(state)
         if self._prev_state:
             self._update(state)
 
@@ -65,9 +68,3 @@ class QLearningAgent(BaseAgent):
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
-
-
-
-
-
-
