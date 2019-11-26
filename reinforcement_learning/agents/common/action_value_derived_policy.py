@@ -7,9 +7,10 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import random
+import numpy as np
 
-from tests.mock.mock_state import SimpleState
-from tests.mock.mock_action import SimpleAction
+from tests.mock.mock_state import MockState
+from tests.mock.mock_action import MockAction
 from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
@@ -58,7 +59,7 @@ class ActionValueDerivedPolicy(BasePolicy):
 if __name__ == '__main__':
     av = LazyTabularActionValue()
 
-    s = SimpleState([[-1, -1], [-1, 1]])
+    s = MockState(np.array([[-1, -1], [-1, 1]]))
 
     a1 = SimpleAction([0, 0])
     a2 = SimpleAction([0, 1])

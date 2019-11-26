@@ -1,6 +1,6 @@
 #BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../"
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -9,8 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from graphviz import Digraph
 import uuid
 
-from tests.mock.mock_state import SimpleState
-from tests.mock.mock_action import SimpleAction
+from tests.mock.mock_state import MockState
+from tests.mock.mock_action import MockAction
 
 class Returns:
     def __init__(self):
@@ -69,20 +69,20 @@ if __name__ == '__main__':
 
     r = Returns()
 
-    s1 = SimpleState([[-1, 0], [-1, -1]])
-    a1 = SimpleAction([1, 0])
+    s1 = MockState([[-1, 0], [-1, -1]])
+    a1 = MockAction([1, 0])
     G = -3
     r[s1, a1].append(G)
 
-    s2 = SimpleState([[-1, 0], [0, -1]])
-    a2 = SimpleAction([0, 0])
+    s2 = MockState([[-1, 0], [0, -1]])
+    a2 = MockAction([0, 0])
     G = 10.0
     r[s2, a2].append(G)
     G = 7.8
     r[s2, a2].append(G)
 
-    s3 = SimpleState([[0, 0], [0, -1]])
-    a3 = SimpleAction([1, 1])
+    s3 = MockState([[0, 0], [0, -1]])
+    a3 = MockAction([1, 1])
     G = -5.1
     r[s3, a3].append(G)
     G = 3.2
@@ -90,8 +90,8 @@ if __name__ == '__main__':
     G = -1.9
     r[s3, a3].append(G)
 
-    s4 = SimpleState([[-1, 0], [0, 0]])
-    a4 = SimpleAction([0, 0])
+    s4 = MockState([[-1, 0], [0, 0]])
+    a4 = MockAction([0, 0])
     G = -5.1
     r[s4, a4].append(G)
     G = -6.5

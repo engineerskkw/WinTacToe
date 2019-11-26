@@ -1,18 +1,17 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
 
-REL_PROJECT_ROOT_PATH = "./../"
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from tests.mock.mock_state import SimpleState
-from tests.mock.mock_action import SimpleAction
+from tests.mock.mock_state import MockState
+from tests.mock.mock_action import MockAction
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_state import BaseState
 from numbers import Number
-from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeState
 import numpy as np
 
 
@@ -79,29 +78,29 @@ if __name__ == '__main__':
 
     e = Episode()
 
-    s1 = SimpleState(np.array([[-1, 0], [-1, -1]]))
-    a1 = SimpleAction([1, 0])
+    s1 = MockState(np.array([[-1, 0], [-1, -1]]))
+    a1 = MockAction([1, 0])
     r1 = -3
     e.append(s1)
     e.append(a1)
     e.append(r1)
 
-    s2 = SimpleState([[-1, 0], [0, -1]])
-    a2 = SimpleAction([0, 0])
+    s2 = MockState([[-1, 0], [0, -1]])
+    a2 = MockAction([0, 0])
     r2 = 4
     e.append(2)
     e.append(a2)
     e.append(r2)
 
-    s3 = SimpleState([[0, 0], [0, -1]])
-    a3 = SimpleAction([1, 1])
+    s3 = MockState([[0, 0], [0, -1]])
+    a3 = MockAction([1, 1])
     r3 = -8
     e.append(s3)
     e.append(a3)
     e.append(r2)
 
-    s4 = SimpleState([[-1, 0], [0, 0]])
-    a4 = SimpleAction([0, 0])
+    s4 = MockState([[-1, 0], [0, 0]])
+    a4 = MockAction([0, 0])
     r4 = 10
     e.append(s4)
     e.append(a4)
