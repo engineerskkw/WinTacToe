@@ -10,6 +10,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 import pickle
 
+
 class BaseAgent(ABC):
     @abstractmethod
     def take_action(self, state, allowed_actions):
@@ -71,3 +72,10 @@ class BaseAgent(ABC):
     def load(file_path):
         with open(file_path, 'rb') as file:
             return pickle.load(file)
+
+    @abstractmethod
+    def get_episodes_returns(self):
+        """
+        Return the list of returns of all played episodes
+        """
+        pass
