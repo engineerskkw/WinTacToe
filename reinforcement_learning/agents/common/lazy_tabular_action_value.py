@@ -11,7 +11,6 @@ from graphviz import Digraph
 from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
 from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
-
 from reinforcement_learning.base.base_action_value import BaseActionValue
 
 

@@ -1,20 +1,17 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys
-import os
-
-REL_PROJECT_ROOT_PATH = "./../../"
+import sys, os
+REL_PROJECT_ROOT_PATH = "./../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+import numpy as np
+
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-
 from reinforcement_learning.agents.common.agent_utils import safe_return, bucketify
-
-import numpy as np
 
 
 class NStepAgent(BaseAgent):
@@ -64,13 +61,6 @@ class NStepAgent(BaseAgent):
     def get_performance(self, no_of_buckets):
         return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
 
-    def _reset_episode_info(self):
-        self._final_time_step = np.inf
-        self._current_time_step = 0
-        self._state_history = []
-        self._action_history = []
-        self._reward_history = [0]  # There is no R0 according to Sutton notation
-
     def _update(self, tau):
         if tau < 0:
             return
@@ -96,4 +86,11 @@ class NStepAgent(BaseAgent):
             estimated_return += np.power(self.discount, self.n - 1) * self.action_value[last_state, last_action]
 
         return estimated_return
+
+    def _reset_episode_info(self):
+        self._final_time_step = np.inf
+        self._current_time_step = 0
+        self._state_history = []
+        self._action_history = []
+        self._reward_history = [0]  # There is no R0 according to Sutton notation
 

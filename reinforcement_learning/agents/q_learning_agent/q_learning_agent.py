@@ -7,11 +7,13 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import numpy as np
+import copy
+
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.common.agent_utils import bucketify
-import copy
+
 
 class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
