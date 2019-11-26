@@ -10,10 +10,10 @@ from unittest import TestCase
 
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
-from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeActionSpace
 
 from tests.mock.mock_state import MockState
 from tests.mock.mock_action import MockAction
+from tests.mock.mock_action_space import MockActionSpace
 
 
 class TestActionValueDerivedPolicy(TestCase):
@@ -62,7 +62,7 @@ class TestActionValueDerivedPolicy(TestCase):
         self.assertEqual(
             self.policy.epsilon_greedy(
                 self.mock_state1,
-                [self.mock_action1, self.mock_action2, self.mock_action3], epsilon=0
+                MockActionSpace({self.mock_action1, self.mock_action2, self.mock_action3}), epsilon=0
             ),
             MockAction([5, 6, 7])
         )
@@ -72,7 +72,7 @@ class TestActionValueDerivedPolicy(TestCase):
         self.assertEqual(
             self.policy.epsilon_greedy(
                 self.mock_state1,
-                [self.mock_action1, self.mock_action2, self.mock_action3], epsilon=0
+                MockActionSpace({self.mock_action1, self.mock_action2, self.mock_action3}), epsilon=0
             ),
             MockAction([2, 3, 4])
         )
@@ -80,7 +80,7 @@ class TestActionValueDerivedPolicy(TestCase):
         self.assertEqual(
             self.policy.epsilon_greedy(
                 self.mock_state1,
-                TicTacToeActionSpace({self.mock_action1}), epsilon=0
+                MockActionSpace({self.mock_action1}), epsilon=0
             ),
             MockAction([1, 2, 3])
         )
@@ -88,7 +88,7 @@ class TestActionValueDerivedPolicy(TestCase):
         self.assertEqual(
             self.policy.epsilon_greedy(
                 self.mock_state2,
-                TicTacToeActionSpace({self.mock_action3}), epsilon=0
+                MockActionSpace({self.mock_action3}), epsilon=0
             ),
             MockAction([5, 6, 7])
         )

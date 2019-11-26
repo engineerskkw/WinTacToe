@@ -70,5 +70,3 @@ class TestLazyTabularActionValue(TestCase):
 
         # For empty state
         self.assertFalse(self.action_value.action_returns(self.mock_state2))
-
-        print(self.action_value.action_returns(self.mock_state1).values())

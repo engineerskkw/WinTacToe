@@ -213,7 +213,7 @@ class TicTacToeEngine(BaseEngine):
         hash{player: float}
                 A hash containing a reward for each player.
         """
-        if self.ended or not self._winnings:
+        if self.ended and self._winnings:
             winning_marks = list(map(lambda winning: winning.mark, self._winnings))
             rewards = list(map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players))
 
