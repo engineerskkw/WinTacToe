@@ -7,11 +7,8 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from graphviz import Digraph
-import uuid
-
-from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
-from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
+from tests.mock.mock_state import SimpleState
+from tests.mock.mock_action import SimpleAction
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_state import BaseState
 from numbers import Number

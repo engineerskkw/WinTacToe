@@ -8,8 +8,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import random
 
-from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
-from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
+from tests.mock.mock_state import SimpleState
+from tests.mock.mock_action import SimpleAction
 from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
@@ -33,7 +33,7 @@ class ActionValueDerivedPolicy(BasePolicy):
 
     def epsilon_greedy(self, state, action_space, epsilon=0.1):
         if random.random() >= epsilon:  # Choose action in the epsilon-greedy way
-            greedy_actions = list(self.action_value.argmax_over_actions(state))
+            greedy_actions = list(self.action_value.argmax_over_actions(state)) #asdsssss
 
             if greedy_actions:  # Check if there are any chosen possibilities
                 action = random.choice(greedy_actions)  # Random drawback settlement
