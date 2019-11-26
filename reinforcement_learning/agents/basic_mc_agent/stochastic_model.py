@@ -8,12 +8,6 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from graphviz import Digraph
 import numpy as np
-
-<<<<<<< HEAD
-from tests.mock.mock_state import MockState
-from tests.mock.mock_action import MockAction
-=======
->>>>>>> master
 from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
 
 from tests.mock.mock_action import MockAction
