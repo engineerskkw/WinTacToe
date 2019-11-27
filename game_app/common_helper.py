@@ -8,13 +8,11 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import time
-import threading
 import pygame
 from enum import Enum
 from pygame.mixer import Sound
-
-from queue import SimpleQueue
 from threading import Thread
+from queue import SimpleQueue
 
 
 class TurnState(Enum):
