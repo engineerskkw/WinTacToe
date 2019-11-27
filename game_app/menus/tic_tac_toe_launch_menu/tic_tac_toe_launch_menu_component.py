@@ -6,7 +6,6 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from game_app.common_helper import MusicSwitcher
 from game_app.menus.abstract_menu_component import AbstractMenuComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_logic import TicTacToeLaunchMenuLogic
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_scene import TicTacToeLaunchMenuScene

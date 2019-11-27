@@ -11,7 +11,7 @@ import pygame
 from itertools import product
 from pygame.rect import Rect
 from pygame.mixer import Sound
-from game_app.common_helper import TurnState, SoundPlayer, Settings, ColorMode
+from game_app.common_helper import TurnState, Settings, ColorMode
 from game_app.common.buttons import RectangularTextButton
 
 
@@ -77,14 +77,12 @@ class TicTacToeScene:
             for winning in self._component.winnings:
                 [self.tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
             self._display_game_over_message(self._component.winnings[0].mark)
-
-            #TODO ogarnij co zrobic z sound playerem
-            if self._component.winnings[0].mark == self._player_mark:
-                SoundPlayer(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/victory.wav"), True).start()
-            else:
-                SoundPlayer(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/failure.wav"), True).start()
-
+            self._play_game_over_sound(self._component.winnings[0].mark == self._player_mark)
             self._game_over_displayed = True
+
+    def _play_game_over_sound(self, victory):
+        directory = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe")
+        self._component.play_sound_stopping_music(os.path.join(directory, "victory.wav" if victory else "failure.wav"))
 
     def _render_buttons(self):
         all_buttons = [self.restart_button, self.main_menu_button] + sum(self.tic_tac_toe_buttons, [])

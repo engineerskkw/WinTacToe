@@ -8,8 +8,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from pygame.locals import *
-from game_app.common_helper import Components, ColorMode, Settings, MusicSwitcher
-from game_app.common.buttons import RectangularTextButton, RoundIconButton, RectangularTextButtonWithIcon
+from game_app.common_helper import Components, ColorMode, Settings
+from game_app.common.buttons import RoundIconButton, RectangularTextButtonWithIcon
 import pickle
 
 
@@ -21,6 +21,7 @@ class SettingsLogic:
         self._marks_required = 3
         self._mark = 0
         self._initialize_buttons(app.settings)
+        self._music_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakySnitch.mp3")
 
     def _initialize_buttons(self, settings):
         self._settings_buttons = [
@@ -62,12 +63,6 @@ class SettingsLogic:
     def _reinitialize_buttons(self, settings):
         self._initialize_buttons(settings)
 
-    def _switch_music(self, music_on):
-        MusicSwitcher(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakySnitch.mp3"),
-            music_on,
-        ).start()
-
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
             for pressed_button in filter(lambda button: button.contains_point(event.pos), self.all_buttons):
@@ -84,7 +79,7 @@ class SettingsLogic:
 
     def toggle_music(self):
         self._app.settings[Settings.MUSIC] = not self._app.settings[Settings.MUSIC]
-        self._switch_music(self._app.settings[Settings.MUSIC])
+        self._app.switch_music(self._music_file_path)
         self._reinitialize_buttons(self._app.settings)
         save_selected_settings(self._app.settings)
 
@@ -96,8 +91,8 @@ class SettingsLogic:
     def reset_to_defaults(self):
         self._app.settings[Settings.COLOR] = ColorMode.LIGHT
         if not self._app.settings[Settings.MUSIC]:
-            self._switch_music(True)
-        self._app.settings[Settings.MUSIC] = True
+            self._app.settings[Settings.MUSIC] = True
+            self._app.switch_music(self._music_file_path)
         self._app.settings[Settings.SOUNDS] = True
         self._component.rerender()
         self._reinitialize_buttons(self._app.settings)
