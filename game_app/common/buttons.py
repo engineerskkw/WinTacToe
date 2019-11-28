@@ -169,8 +169,8 @@ class RoundButton(AbstractButton):
 
 
 class RoundIconButton(RoundButton):
-    def __init__(self, icon_path, action, settings, position, size):
-        super().__init__(action, settings, position, size)
+    def __init__(self, icon_path, action, settings, center_position, radius):
+        super().__init__(action, settings, center_position, radius)
         self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, icon_path))
 
     def _get_icon_position(self):

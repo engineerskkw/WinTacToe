@@ -216,8 +216,7 @@ class TicTacToeComponent(AbstractComponent):
         elif event.type == UserEventTypes.GAME_OVER.value:
             self.winnings = event.new_winnings
         elif event.type == MOUSEBUTTONUP:
-            buttons = [self._scene.restart_button, self._scene.main_menu_button] + \
-                      sum(self._scene.tic_tac_toe_buttons, [])
+            buttons = self._scene.all_buttons
             for button in filter(lambda b: b.contains_point(event.pos), buttons):
                 button.on_pressed()
 
