@@ -15,6 +15,9 @@ from pygame.mixer import Sound
 from game_app.common_helper import TurnState, Settings, ColorMode
 from game_app.common.buttons import RectangularTextButton, RoundIconButton
 
+#TODO
+from pygame import gfxdraw
+
 symbols = {
     0: 'X',
     1: 'O',
@@ -23,15 +26,16 @@ symbols = {
 
 
 class TicTacToeScene:
-    def __init__(self, component, screen, board_size, settings, player_mark, opponent_mark):
+    def __init__(self, component, app, screen, board_size, player_mark, opponent_mark):
         self._component = component
+        self._app = app
         self._screen = screen
         self._board_size = board_size
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
 
-        self._background_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
-        self._message_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._background_color = (45, 45, 45) if app.settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
+        self._message_color = (230, 230, 230) if app.settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
         self._game_over_displayed = False
 
         self._background_displayed = False
@@ -42,7 +46,7 @@ class TicTacToeScene:
             self._tic_tac_toe_buttons.append([])
             for column in range(self._board_size):
                 position = (280 + column * self._square_size, row * self._square_size)
-                self._tic_tac_toe_buttons[row].append(TicTacToeButton(settings,
+                self._tic_tac_toe_buttons[row].append(TicTacToeButton(app,
                                                                       position,
                                                                       self._square_size,
                                                                       self._component,
@@ -52,63 +56,22 @@ class TicTacToeScene:
 
         self._restart_button = RectangularTextFramedButton("Restart",
                                                            lambda: self._component.restart(),
-                                                           settings, (1040, 20), (200, 50), 3)
+                                                           app, (1040, 20), (200, 50), 3)
 
         self._main_menu_button = RectangularTextFramedButton("MainMenu",
                                                              lambda: self._component.back_to_menu(),
-                                                             settings, (1040, 90), (200, 50), 3)
+                                                             app, (1040, 90), (200, 50), 3)
 
         # icon_path, action, settings, position, center_position, radius
         self._toggle_sounds_button = RoundFramedIconButton(
-            resolve_sounds_button_icon_path(settings[Settings.COLOR], settings[Settings.SOUNDS]),
-            lambda: print("TODODOODODOSOUNDS"),
-            settings,
-            (1100, 665), #(1090, 665),
-            35,
-            3)
+            resolve_sounds_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.SOUNDS]),
+            self._component.toggle_sounds, app, (1085, 665), #(1090, 665),
+            32, 2)
 
         self._toggle_music_button = RoundFramedIconButton(
-            resolve_music_button_icon_path(settings[Settings.COLOR], settings[Settings.SOUNDS]),
-            lambda: print("TODODOODODOMUSIC"),
-            settings,
-            (1200, 665), #(1190, 665),
-            35,
-            3)
-
-        # RectangularTextButtonWithIcon(
-        #     *resolve_sounds_button_text_and_icon_path(settings[Settings.COLOR], settings[Settings.SOUNDS]),
-        #     self.toggle_sounds,
-        #     settings,
-        #     (410, 395),
-        #     (460, 100)),
-        # RectangularTextButtonWithIcon("Reset to defaults",
-        #                               resolve_reset_icon_path(settings[Settings.COLOR]),
-        #                               self.reset_to_defaults,
-        #                               settings,
-        #                               (410, 555),
-        #                               (460, 100)),
-        #
-        # def resolve_music_button_text_and_icon_path(color_mode, music_on):
-        #     resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
-        #     if music_on:
-        #         return "Switch music off", os.path.join(resource_dir,
-        #                                                 'music_on_white.png' if color_mode == ColorMode.DARK
-        #                                                 else 'music_on_black.png')
-        #     else:
-        #         return "Switch music on", os.path.join(resource_dir,
-        #                                                'music_off_white.png' if color_mode == ColorMode.DARK
-        #                                                else 'music_off_black.png')
-        #
-        # def resolve_sounds_button_text_and_icon_path(color_mode, sounds_on):
-        #     resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
-        #     if sounds_on:
-        #         return "Switch sounds off", os.path.join(resource_dir,
-        #                                                  'sounds_on_white.png' if color_mode == ColorMode.DARK
-        #                                                  else 'sounds_on_black.png')
-        #     else:
-        #         return "Switch sounds on", os.path.join(resource_dir,
-        #                                                 'sounds_off_white.png' if color_mode == ColorMode.DARK
-        #                                                 else 'sounds_off_black.png')
+            resolve_music_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.MUSIC]),
+            self._component.toggle_music, app, (1195, 665), #(1190, 665),
+            32, 2)
 
         self.all_buttons = [self._restart_button, self._main_menu_button, self._toggle_sounds_button,
                             self._toggle_music_button] + sum(self._tic_tac_toe_buttons, [])
@@ -162,15 +125,23 @@ class TicTacToeScene:
                 else:
                     self._tic_tac_toe_buttons[row][col].set_marked_by_opponent()
 
+    def update_music_button(self):
+        self._toggle_music_button.set_icon(resolve_music_button_icon_path(
+            self._app.settings[Settings.COLOR], self._app.settings[Settings.MUSIC]))
+
+    def update_sounds_button(self):
+        self._toggle_sounds_button.set_icon(resolve_sounds_button_icon_path(
+            self._app.settings[Settings.COLOR], self._app.settings[Settings.SOUNDS]))
+
 
 class RectangularTextFramedButton(RectangularTextButton):
-    def __init__(self, text, action, settings, position, size, frame_size):
-        super().__init__(text, action, settings, position, size)
-        self._base_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
-        self._hovered_color = (70, 70, 70) if settings[Settings.COLOR] == ColorMode.DARK else (200, 200, 200)
-        self._pressed_color = (32, 32, 32) if settings[Settings.COLOR] == ColorMode.DARK else (150, 150, 150)
-        self._frame_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
-        self._text_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+    def __init__(self, text, action, app, position, size, frame_size):
+        super().__init__(text, action, app, position, size)
+        self._base_color = (45, 45, 45) if self._dark_mode_on else (230, 230, 230)
+        self._hovered_color = (70, 70, 70) if self._dark_mode_on else (200, 200, 200)
+        self._pressed_color = (32, 32, 32) if self._dark_mode_on else (150, 150, 150)
+        self._frame_color = (230, 230, 230) if self._dark_mode_on else (25, 25, 25)
+        self._text_color = (230, 230, 230) if self._dark_mode_on else (25, 25, 25)
         self._frame_size = frame_size
 
     def render(self, screen, mouse_position, is_mouse_pressed):
@@ -180,29 +151,23 @@ class RectangularTextFramedButton(RectangularTextButton):
 
 
 class RoundFramedIconButton(RoundIconButton):
-    def __init__(self, icon_path, action, settings, center_position, radius, frame_size):
-        super().__init__(icon_path, action, settings, center_position, radius)
-
-        # self._base_color = (70, 70, 70) if settings[Settings.COLOR] == ColorMode.DARK else (190, 190, 190)
-        # self._hovered_color = (60, 60, 60) if settings[Settings.COLOR] == ColorMode.DARK else (170, 170, 170)
-        # self._pressed_color = (50, 50, 50) if settings[Settings.COLOR] == ColorMode.DARK else (155, 155, 155)
-
-        self._base_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
-        self._hovered_color = (70, 70, 70) if settings[Settings.COLOR] == ColorMode.DARK else (200, 200, 200)
-        self._pressed_color = (32, 32, 32) if settings[Settings.COLOR] == ColorMode.DARK else (150, 150, 150)
-
-        self._frame_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
-
+    def __init__(self, icon_path, action, app, center_position, radius, frame_size):
+        super().__init__(icon_path, action, app, center_position, radius)
         self._frame_size = frame_size
+        self._base_color = (45, 45, 45) if self._dark_mode_on else (230, 230, 230)
+        self._hovered_color = (70, 70, 70) if self._dark_mode_on else (200, 200, 200)
+        self._pressed_color = (32, 32, 32) if self._dark_mode_on else (150, 150, 150)
+        self._frame_color = (230, 230, 230) if self._dark_mode_on else (25, 25, 25)
 
     def render(self, screen, mouse_position, is_mouse_pressed):
+        gfxdraw.filled_circle(screen, self._center_position[0], self._center_position[1],
+                              self._radius + self._frame_size, self._frame_color)
         super().render(screen, mouse_position, is_mouse_pressed)
-        pygame.draw.circle(screen, self._frame_color, self._center_position, self._radius, self._frame_size)
 
 
 class TicTacToeButton(RectangularTextFramedButton):
-    def __init__(self, settings, position, size, component, game_position, player_mark, opponent_mark):
-        super().__init__("", self.action, settings, position, (size, size), max(min(size // 30, 5), 1))
+    def __init__(self, app, position, size, component, game_position, player_mark, opponent_mark):
+        super().__init__("", self.action, app, position, (size, size), max(min(size // 30, 5), 1))
         self._component = component
         self._game_position = game_position
         self._player_mark = player_mark
@@ -212,9 +177,9 @@ class TicTacToeButton(RectangularTextFramedButton):
         self._font = pygame.font.Font(None, size)
         self._is_disabled = False
         self._is_winning = False
-        self._disabled_color = (32, 32, 32) if settings[Settings.COLOR] == ColorMode.DARK else (150, 150, 150)
-        self._winning_color = (100, 100, 100) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
-        self._mark_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._disabled_color = (32, 32, 32) if self._dark_mode_on else (150, 150, 150)
+        self._winning_color = (100, 100, 100) if self._dark_mode_on else (230, 230, 230)
+        self._mark_color = (230, 230, 230) if self._dark_mode_on else (25, 25, 25)
         self._click_sound = Sound(
             os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav"))
         self._disabled_click_sound = Sound(os.path.join(
@@ -222,7 +187,7 @@ class TicTacToeButton(RectangularTextFramedButton):
 
     def on_pressed(self):
         if self._is_disabled or self._component.turn == TurnState.NOT_YOUR_TURN:
-            if self._sounds_on:
+            if self._app.settings[Settings.SOUNDS]:
                 self._disabled_click_sound.play()
         else:
             super().on_pressed()

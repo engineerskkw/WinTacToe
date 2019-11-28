@@ -13,6 +13,7 @@ from thespian.actors import *
 from game_app.abstract_component import AbstractComponent
 from game_app.common_helper import TurnState, Components, Settings
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
+from game_app.menus.settings.settings_logic import save_selected_settings
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.common import *
 from training_platform.server.service import MatchMaker, GameManager
@@ -176,8 +177,7 @@ class TicTacToeComponent(AbstractComponent):
         self.server.start(blocking=False)
         self.log("Started server")
 
-        self._scene = TicTacToeScene(self, app.screen, self._board_size, app.settings, self._player_mark,
-                                     self._opponent_mark)
+        self._scene = TicTacToeScene(self, app, app.screen, self._board_size, self._player_mark, self._opponent_mark)
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
 
@@ -236,7 +236,7 @@ class TicTacToeComponent(AbstractComponent):
     def restart(self):
         self.turn = TurnState.NOT_YOUR_TURN
         self.winnings = []
-        self._scene = TicTacToeScene(self, self._app.screen, self._board_size, self._app.settings, self._player_mark,
+        self._scene = TicTacToeScene(self, self._app, self._app.screen, self._board_size, self._player_mark,
                                      self._opponent_mark)
         self.server.restart(blocking=False)
         self.log("Restarted server")
@@ -247,3 +247,15 @@ class TicTacToeComponent(AbstractComponent):
 
     def play_sound_stopping_music(self, sound_file_path):
         self._app.play_sound_stopping_music(sound_file_path)
+
+    def toggle_music(self):
+        self._app.settings[Settings.MUSIC] = not self._app.settings[Settings.MUSIC]
+        self._app.switch_music(
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"))
+        self._scene.update_music_button()
+        save_selected_settings(self._app.settings)
+
+    def toggle_sounds(self):
+        self._app.settings[Settings.SOUNDS] = not self._app.settings[Settings.SOUNDS]
+        self._scene.update_sounds_button()
+        save_selected_settings(self._app.settings)
