@@ -8,10 +8,11 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import time
-import threading
 import pygame
 from enum import Enum
 from pygame.mixer import Sound
+from threading import Thread
+from queue import SimpleQueue
 
 
 class TurnState(Enum):
@@ -37,38 +38,52 @@ class ColorMode(Enum):
     DARK = 2
 
 
-class MusicSwitcher(threading.Thread):
-    def __init__(self, file_path, music_on=True):
-        threading.Thread.__init__(self)
-        self._file_path = file_path
-        self._music_on = music_on
+class SwitchMusicCommand:
+    def __init__(self, music_file_path):
+        self.music_file_path = music_file_path
 
-    def run(self):
-        pygame.mixer.music.fadeout(800)
-        if self._music_on:
-            pygame.mixer.music.load(self._file_path)
+
+class PlaySoundStoppingMusicCommand:
+    def __init__(self, sound_file_path, music_on):
+        self.sound = Sound(sound_file_path)
+        self.music_on = music_on
+
+
+class StopMusicCommand:
+    pass
+
+
+class StopMusicPlayerCommand:
+    pass
+
+
+def music_player(commands_queue):
+    while True:
+        command = commands_queue.get(block=True, timeout=None)
+
+        if isinstance(command, SwitchMusicCommand):
+            pygame.mixer.music.fadeout(700)
+            pygame.mixer.music.load(command.music_file_path)
             pygame.mixer.music.play(loops=-1)
 
+        if isinstance(command, PlaySoundStoppingMusicCommand):
+            pygame.mixer.music.fadeout(600)
+            time.sleep(0.3)
+            sound_length = command.sound.get_length()
+            command.sound.play()
+            time.sleep(sound_length)
+            if command.music_on:
+                pygame.mixer.music.play()
 
-class SoundPlayer(threading.Thread):
-    def __init__(self, sound_path, should_stop_music):
-        threading.Thread.__init__(self)
-        self._sound = Sound(sound_path)
-        self._should_stop_music = should_stop_music
+        if isinstance(command, StopMusicCommand):
+            pygame.mixer.music.stop()
 
-    def run(self):
-        if self._should_stop_music:
-            self.play_sound_stopping_music()
-        else:
-            self.play_sound()
+        if isinstance(command, StopMusicPlayerCommand):
+            break
 
-    def play_sound_stopping_music(self):
-        pygame.mixer.music.fadeout(600)
-        time.sleep(0.3)
-        self._sound.play()
-        sound_length = self._sound.get_length()
-        time.sleep(sound_length)
-        pygame.mixer.music.play()
 
-    def play_sound(self):
-        self._sound.play()
+def init_music_player():
+    commands_queue = SimpleQueue()
+    music_player_thread = Thread(target=music_player, args=(commands_queue,))
+    music_player_thread.start()
+    return commands_queue

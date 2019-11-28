@@ -131,4 +131,4 @@ class StandardGatherWinningsStrategy(GatherWinningsStrategy):
                 subboard = board.raw_board[i:i + board.marks_required, j:j + board.marks_required]
                 winnings += self._check_subboard(subboard, (i, j))
 
-        return [winnings[0]] if winnings else []
+        return winnings

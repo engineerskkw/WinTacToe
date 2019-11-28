@@ -1,10 +1,11 @@
-#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
-#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
@@ -13,7 +14,8 @@ from game_app.games.tic_tac_toe.tic_tac_toe_component import TicTacToeComponent
 from game_app.menus.main_menu.main_menu_component import MainMenuComponent
 from game_app.menus.settings.settings_component import SettingsComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
-from game_app.common_helper import Components, ColorMode, Settings
+from game_app.common_helper import Components, Settings, init_music_player, SwitchMusicCommand, StopMusicCommand, \
+    StopMusicPlayerCommand, PlaySoundStoppingMusicCommand
 
 
 class Application:
@@ -31,6 +33,7 @@ class Application:
         self._block_events = False
         with open(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/settings.cfg"), 'rb') as settings_file:
             self.settings = pickle.load(settings_file)
+        self._music_player_commands_queue = init_music_player()
 
     def _launch(self):
         pygame.mixer.init(buffer=256)
@@ -58,6 +61,7 @@ class Application:
         self._current_component.render()
 
     def _cleanup(self):
+        self._music_player_commands_queue.put(StopMusicPlayerCommand())
         pygame.quit()
 
     def exit_application(self):
@@ -81,3 +85,14 @@ class Application:
             self._render()
 
         self._cleanup()
+
+    def switch_music(self, music_file_path):
+        if self.settings[Settings.MUSIC]:
+            self._music_player_commands_queue.put(SwitchMusicCommand(music_file_path))
+        else:
+            self._music_player_commands_queue.put(StopMusicCommand())
+
+    def play_sound_stopping_music(self, sound_file_path):
+        if self.settings[Settings.SOUNDS]:
+            self._music_player_commands_queue.put(
+                PlaySoundStoppingMusicCommand(sound_file_path, self.settings[Settings.MUSIC]))

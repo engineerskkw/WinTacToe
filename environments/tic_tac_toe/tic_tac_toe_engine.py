@@ -138,7 +138,7 @@ class TicTacToeEngine(BaseEngine):
         assert (len(set(marks)) == len(marks)), "Marks of all players should be unique.."
         self._marks = marks
 
-        self._gather_winnings_strategy = AlternateGatherWinningsStrategy()
+        self._gather_winnings_strategy = StandardGatherWinningsStrategy()
         self._winnings = set()
 
         self._board = _Board(

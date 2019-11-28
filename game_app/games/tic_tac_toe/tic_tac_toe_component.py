@@ -11,7 +11,7 @@ import pygame
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.abstract_component import AbstractComponent
-from game_app.common_helper import TurnState, MusicSwitcher, Components, Settings
+from game_app.common_helper import TurnState, Components, Settings
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.common import *
@@ -181,10 +181,8 @@ class TicTacToeComponent(AbstractComponent):
         self.turn = TurnState.YOUR_TURN
         self.winnings = None
 
-        MusicSwitcher(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"),
-            app.settings[Settings.MUSIC],
-        ).start()
+        self._app.switch_music(
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"))
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if not LOGGING:
@@ -247,3 +245,6 @@ class TicTacToeComponent(AbstractComponent):
     def back_to_menu(self):
         self.server.shutdown()
         self._app.switch_component(Components.MAIN_MENU)
+
+    def play_sound_stopping_music(self, sound_file_path):
+        self._app.play_sound_stopping_music(sound_file_path)
