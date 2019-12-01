@@ -143,7 +143,7 @@ class TicTacToeComponent(AbstractComponent):
         self._app = app
         self._number_of_players = number_of_players
         self._board_size = board_size
-        self._marks_required = marks_required
+        self.marks_required = marks_required
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
 
@@ -158,7 +158,7 @@ class TicTacToeComponent(AbstractComponent):
         self.tell(self.client_actor_address, msg)
 
         # Training Platform initialization
-        engine = TicTacToeEngine(self._number_of_players, self._board_size, self._marks_required)
+        engine = TicTacToeEngine(self._number_of_players, self._board_size, self.marks_required)
         self.server = EnvironmentServer(engine)
         self.log(f"Spawned server")
         players = self.server.players
