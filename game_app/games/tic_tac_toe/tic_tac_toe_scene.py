@@ -36,9 +36,10 @@ class TicTacToeScene:
 
         self._background_color = (45, 45, 45) if app.settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
         self._message_color = (230, 230, 230) if app.settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
-        self._game_over_displayed = False
-
-        self._background_displayed = False
+        self._message_font = pygame.font.Font(None, 50)
+        self._sub_message_font = pygame.font.Font(None, 25)
+        self._game_over_situation_displayed = False
+        self._background_and_messages_displayed = False
 
         self._square_size = 720 // self._board_size
         self._tic_tac_toe_buttons = []
@@ -54,67 +55,82 @@ class TicTacToeScene:
                                                                       self._player_mark,
                                                                       self._opponent_mark))
 
-        self._restart_button = RectangularTextFramedButton("Restart",
-                                                           lambda: self._component.restart(),
+        self._restart_button = RectangularTextFramedButton("Restart", lambda: self._component.restart(),
                                                            app, (1040, 20), (200, 50), 3)
 
-        self._main_menu_button = RectangularTextFramedButton("MainMenu",
-                                                             lambda: self._component.back_to_menu(),
+        self._main_menu_button = RectangularTextFramedButton("MainMenu", lambda: self._component.back_to_menu(),
                                                              app, (1040, 90), (200, 50), 3)
 
-        # icon_path, action, settings, position, center_position, radius
         self._toggle_sounds_button = RoundFramedIconButton(
             resolve_sounds_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.SOUNDS]),
-            self._component.toggle_sounds, app, (1085, 665), #(1090, 665),
-            32, 2)
+            self._component.toggle_sounds, app, (1085, 665), 32, 2)
 
         self._toggle_music_button = RoundFramedIconButton(
             resolve_music_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.MUSIC]),
-            self._component.toggle_music, app, (1195, 665), #(1190, 665),
-            32, 2)
+            self._component.toggle_music, app, (1195, 665), 32, 2)
 
         self.all_buttons = [self._restart_button, self._main_menu_button, self._toggle_sounds_button,
                             self._toggle_music_button] + sum(self._tic_tac_toe_buttons, [])
 
     def render(self):
-        self._display_background(self._screen)
         self._display_game_over_situation()
+        self._display_background_and_messages(self._screen)
         self._render_buttons()
         pygame.display.flip()
 
-    def _display_background(self, screen):
-        if not self._background_displayed:
+    def _display_game_over_situation(self):
+        if not self._game_over_situation_displayed and self._component.winnings:
+            if self._component.winnings == -1:
+                self._play_game_over_sound(0)
+            else:
+                [button.set_disabled() for button in sum(self._tic_tac_toe_buttons, [])]
+                for winning in self._component.winnings:
+                    [self._tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
+                self._play_game_over_sound(1 if self._component.winnings[0].mark == self._player_mark else 2)
+            self._background_and_messages_displayed = False
+            self._game_over_situation_displayed = True
+
+    def _play_game_over_sound(self, game_over_state):
+        directory = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe")
+        if game_over_state == 0:
+            self._component.play_sound_stopping_music(os.path.join(directory, "moderate_applause.wav"))
+        elif game_over_state == 1:
+            self._component.play_sound_stopping_music(os.path.join(directory, "victory.wav"))
+        else:
+            self._component.play_sound_stopping_music(os.path.join(directory, "failure.wav"))
+
+    def _display_background_and_messages(self, screen):
+        if not self._background_and_messages_displayed:
             background = pygame.Surface(screen.get_size())
             background.fill(self._background_color)
             screen.blit(background, (0, 0))
-            self._background_displayed = True
 
-    def _display_game_over_situation(self):
-        if not self._game_over_displayed and self._component.winnings:
-            [button.set_disabled() for button in sum(self._tic_tac_toe_buttons, [])]
-            for winning in self._component.winnings:
-                [self._tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
-            self._display_game_over_message(self._component.winnings[0].mark)
-            self._play_game_over_sound(self._component.winnings[0].mark == self._player_mark)
-            self._game_over_displayed = True
+            if self._game_over_situation_displayed:
+                self._display_game_over_message(self._component.winnings)
+            elif self._component.turn == TurnState.NOT_YOUR_TURN:
+                self._display_message("Agent's move", "wait for your turn...")
+            else:
+                self._display_message("Your move", "Select a field on the board",
+                                      "you want to place your mark at")
 
-    def _play_game_over_sound(self, victory):
-        directory = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe")
-        self._component.play_sound_stopping_music(os.path.join(directory, "victory.wav" if victory else "failure.wav"))
+            self._background_and_messages_displayed = True
+
+    def _display_message(self, text1, text2='', text3=''):
+        self._screen.blit(self._message_font.render(text1, True, self._message_color), (10, 20))
+        self._screen.blit(self._sub_message_font.render(text2, True, self._message_color), (10, 65))
+        self._screen.blit(self._sub_message_font.render(text3, True, self._message_color), (10, 90))
+
+    def _display_game_over_message(self, winnings):
+        if winnings == -1:
+            self._display_message("It's a tie!", "Nice try, but you can do better")
+        elif winnings[0].mark == self._player_mark:
+            self._display_message("You win!", "Congratulations")
+        else:
+            self._display_message("You lose!", "Better luck next time")
 
     def _render_buttons(self):
         for button in self.all_buttons:
             button.render(self._screen, pygame.mouse.get_pos(), pygame.mouse.get_pressed()[0] == 1)
-
-    def _display_mesasge(self, text):
-        font = pygame.font.Font(None, 50)
-        self._screen.blit(font.render(text, True, self._message_color), (5, 5))
-
-    def _display_game_over_message(self, winners_mark):
-        if winners_mark == self._player_mark:
-            self._display_mesasge("You win!  :D")
-        else:
-            self._display_mesasge("You lose  :(")
 
     def handle_state_changed(self, new_game_state):
         new_game_board = new_game_state.board
@@ -124,6 +140,9 @@ class TicTacToeScene:
                     self._tic_tac_toe_buttons[row][col].set_unmarked()
                 else:
                     self._tic_tac_toe_buttons[row][col].set_marked_by_opponent()
+
+    def handle_turn_changed(self):
+        self._background_and_messages_displayed = False
 
     def update_music_button(self):
         self._toggle_music_button.set_icon(resolve_music_button_icon_path(
@@ -181,7 +200,7 @@ class TicTacToeButton(RectangularTextFramedButton):
         self._winning_color = (100, 100, 100) if self._dark_mode_on else (230, 230, 230)
         self._mark_color = (230, 230, 230) if self._dark_mode_on else (25, 25, 25)
         self._click_sound = Sound(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound_1.wav"))
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound.wav"))
         self._disabled_click_sound = Sound(os.path.join(
             ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/disabled_button_sound.wav"))
 

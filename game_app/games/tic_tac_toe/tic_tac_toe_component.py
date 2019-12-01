@@ -213,8 +213,11 @@ class TicTacToeComponent(AbstractComponent):
             self._scene.handle_state_changed(event.new_game_state)
         elif event.type == UserEventTypes.TURN_CHANGED.value:
             self.turn = event.new_turn
+            self._scene.handle_turn_changed()
         elif event.type == UserEventTypes.GAME_OVER.value:
             self.winnings = event.new_winnings
+            if not self.winnings:
+                self.winnings = -1
         elif event.type == MOUSEBUTTONUP:
             buttons = self._scene.all_buttons
             for button in filter(lambda b: b.contains_point(event.pos), buttons):
