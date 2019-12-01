@@ -116,19 +116,19 @@ class TicTacToeScene:
             self._background_and_messages_displayed = True
 
     def _display_helper_message(self):
-        self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (10, 665))
-        self._screen.blit(self._message_font.render(symbols[self._player_mark], True, self._message_color), (163, 656))
+        self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (20, 655))
+        self._screen.blit(self._message_font.render(symbols[self._player_mark], True, self._message_color), (173, 646))
         self._screen.blit(self._sub_message_font.render("Connect %d marks to win" % self._component.marks_required,
-                                                        True, self._message_color), (10, 690))
+                                                        True, self._message_color), (20, 683))
 
     def _display_game_state_message(self, text1, text2='', text3=''):
-        self._screen.blit(self._message_font.render(text1, True, self._message_color), (10, 20))
-        self._screen.blit(self._sub_message_font.render(text2, True, self._message_color), (10, 65))
-        self._screen.blit(self._sub_message_font.render(text3, True, self._message_color), (10, 90))
+        self._screen.blit(self._message_font.render(text1, True, self._message_color), (20, 20))
+        self._screen.blit(self._sub_message_font.render(text2, True, self._message_color), (20, 67))
+        self._screen.blit(self._sub_message_font.render(text3, True, self._message_color), (20, 95))
 
     def _display_game_over_message(self, winnings):
         if winnings == -1:
-            self._display_game_state_message("It's a tie!", "Nice try, but you can do better")
+            self._display_game_state_message("It's a tie!", "Nice try")
         elif winnings[0].mark == self._player_mark:
             self._display_game_state_message("You win!", "Congratulations")
         else:
