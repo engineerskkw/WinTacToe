@@ -1,3 +1,13 @@
+# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
+import sys
+import os
+
+REL_PROJECT_ROOT_PATH = "./../../"
+ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
+sys.path.append(ABS_PROJECT_ROOT_PATH)
+# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
 import numpy as np
 from unittest import TestCase
 from itertools import product
@@ -5,7 +15,7 @@ from itertools import product
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import Player, Winning, IllegalMoveError, TicTacToeAction, \
     TicTacToeActionSpace
-from tests.environments.test_tic_tac_toe_engine import TestTicTacToeEngine
+from all_tests.environments.test_tic_tac_toe_engine import TestTicTacToeEngine
 
 
 class TestTicTacToeEngineAdditional(TestTicTacToeEngine):

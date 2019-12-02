@@ -1,6 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../"
+REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -11,9 +11,9 @@ from unittest import TestCase
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 
-from tests.mock.mock_state import MockState
-from tests.mock.mock_action import MockAction
-from tests.mock.mock_action_space import MockActionSpace
+from all_tests.mock.test_mock_state import MockState
+from all_tests.mock.test_mock_action import MockAction
+from all_tests.mock.test_mock_action_space import MockActionSpace
 
 
 class TestActionValueDerivedPolicy(TestCase):

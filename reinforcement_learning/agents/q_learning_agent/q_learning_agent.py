@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -32,7 +33,7 @@ class QLearningAgent(BaseAgent):
         self._all_episodes_returns = []
 
     def take_action(self, state, allowed_actions):
-        state = copy.copy(state)
+        state = copy.deepcopy(state)
         if self._prev_state:
             self._update(state)
 
@@ -54,17 +55,21 @@ class QLearningAgent(BaseAgent):
     def restart(self):
         self._reset_episode_info()
 
-    def get_performance(self, no_of_buckets):
-        return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
-
     def _update(self, new_state):
-        prev_action_value = self.action_value[self._prev_state, self._prev_action]
+        new_state = copy.deepcopy(new_state)
+        prev_state = copy.deepcopy(self._prev_state)
+        prev_action = copy.deepcopy(self._prev_action)
+        prev_reward = copy.deepcopy(self._prev_reward)
+        prev_action_value = self.action_value[prev_state, prev_action]
         error = self.step_size * \
-            (self._prev_reward + self.discount * self.action_value.max(new_state) - prev_action_value)
-        self.action_value[self._prev_state, self._prev_action] = prev_action_value + error
+            (prev_reward + self.discount * self.action_value.max(new_state) - prev_action_value)
+        self.action_value[prev_state, prev_action] = prev_action_value + error
 
     def _reset_episode_info(self):
         self._prev_action = None
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
+
+    def get_episodes_returns(self):
+        return self._all_episodes_returns
