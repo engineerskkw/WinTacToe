@@ -8,8 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from pygame.locals import *
-
-from game_app.common_helper import Components, ColorMode, Settings
+from game_app.common_helper import Components, ColorMode, Settings, Hardness
 from game_app.common.buttons import RectangularChoiceButton, \
     DisableableRectangularTextButton, RoundIconButton
 
@@ -20,6 +19,7 @@ class TicTacToeLaunchMenuLogic:
         self._board_size = 3
         self._marks_required = 3
         self._mark = 0
+        self._hardness = Hardness.EASY
 
         self._size_buttons = [RectangularChoiceButton("3x3",
                                                       lambda: self.change_board_size(3),
@@ -62,19 +62,19 @@ class TicTacToeLaunchMenuLogic:
         self._marks_required_buttons = [RectangularChoiceButton("3",
                                                                 lambda: self.change_marks_required(3),
                                                                 app,
-                                                                (400, 300),
+                                                                (670, 300),
                                                                 (130, 100),
                                                                 True),
                                         RectangularChoiceButton("4",
                                                                 lambda: self.change_marks_required(4),
                                                                 app,
-                                                                (575, 300),
+                                                                (840, 300),
                                                                 (130, 100),
                                                                 False),
                                         RectangularChoiceButton("5",
                                                                 lambda: self.change_marks_required(5),
                                                                 app,
-                                                                (750, 300),
+                                                                (1010, 300),
                                                                 (130, 100),
                                                                 False),
                                         ]
@@ -82,16 +82,36 @@ class TicTacToeLaunchMenuLogic:
         self._mark_buttons = [RectangularChoiceButton("X",
                                                       lambda: self.change_mark(0),
                                                       app,
-                                                      (490, 500),
+                                                      (250, 300),
                                                       (130, 100),
                                                       True),
                               RectangularChoiceButton("O",
                                                       lambda: self.change_mark(1),
                                                       app,
-                                                      (660, 500),
+                                                      (420, 300),
                                                       (130, 100),
                                                       False),
                               ]
+
+        self._hardness_buttons = [RectangularChoiceButton("Easy",
+                                                          lambda: self.change_hardness(Hardness.EASY),
+                                                          app,
+                                                          (360, 500),
+                                                          (160, 100),
+                                                          True),
+                                  RectangularChoiceButton("Medium",
+                                                          lambda: self.change_hardness(Hardness.MEDIUM),
+                                                          app,
+                                                          (560, 500),
+                                                          (160, 100),
+                                                          False),
+                                  RectangularChoiceButton("Hard",
+                                                          lambda: self.change_hardness(Hardness.HARD),
+                                                          app,
+                                                          (760, 500),
+                                                          (160, 100),
+                                                          False),
+                                  ]
 
         self._start_button = DisableableRectangularTextButton("Let's go!",
                                                               "Bad params",
@@ -108,8 +128,8 @@ class TicTacToeLaunchMenuLogic:
             (40, 40),
             30)
 
-        self.all_buttons = [self._start_button, self._back_to_menu_button] + \
-                           self._size_buttons + self._marks_required_buttons + self._mark_buttons
+        self.all_buttons = [self._start_button, self._back_to_menu_button] + self._size_buttons \
+                           + self._marks_required_buttons + self._mark_buttons + self._hardness_buttons
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
@@ -136,6 +156,12 @@ class TicTacToeLaunchMenuLogic:
                 button.set_chosen(False)
             self._mark = new_mark
 
+    def change_hardness(self, new_hardness):
+        if new_hardness != self._hardness:
+            for button in self._hardness_buttons:
+                button.set_chosen(False)
+            self._hardness = new_hardness
+
     def switch_back_to_main_menu(self):
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)
 
@@ -144,7 +170,8 @@ class TicTacToeLaunchMenuLogic:
                                    board_size=self._board_size,
                                    marks_required=self._marks_required,
                                    player_mark=self._mark,
-                                   opponent_mark=abs(self._mark - 1))
+                                   opponent_mark=abs(self._mark - 1),
+                                   hardness=self._hardness)
 
 
 def resolve_back_arrow_image_path(color_mode):

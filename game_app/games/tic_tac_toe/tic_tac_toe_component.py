@@ -139,13 +139,14 @@ class TicTacToeClientActor(Actor):
 
 
 class TicTacToeComponent(AbstractComponent):
-    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, number_of_players=2):
+    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, hardness, number_of_players=2):
         self._app = app
         self._number_of_players = number_of_players
         self._board_size = board_size
         self.marks_required = marks_required
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
+        self._hardness = hardness #TODO use it
 
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
