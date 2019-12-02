@@ -14,6 +14,7 @@ from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.agents.common.agent_utils import bucketify
+from utils.common_utils import return_deepcopy
 
 
 class QLearningAgent(BaseAgent):
@@ -71,5 +72,6 @@ class QLearningAgent(BaseAgent):
         self._prev_reward = None
         self._current_episode_return = 0
 
+    @return_deepcopy
     def get_episodes_returns(self):
         return self._all_episodes_returns

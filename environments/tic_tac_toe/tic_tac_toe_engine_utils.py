@@ -99,6 +99,9 @@ class Winning(BaseWinning):
 class TicTacToeState:
     board: np.ndarray
 
+    def __post_init__(self):
+        self.board.flags.writeable = False
+
     def __str__(self):
         representation = ''
         height, width = self.board.shape
@@ -119,6 +122,14 @@ class TicTacToeState:
 
     def __repr__(self):
         return self.__str__()
+
+    def __hash__(self):
+        return hash(self.board.data)
+
+    def __eq__(self, other):
+        if not isinstance(other, TicTacToeState):
+            return False
+        return hash(self) == hash(other)
 
 
 @dataclass(frozen=True)
