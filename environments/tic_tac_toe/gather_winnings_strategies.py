@@ -13,7 +13,6 @@ import math
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 
 
-
 class GatherWinningsStrategy(ABC):
     @abstractmethod
     def run(self, board):

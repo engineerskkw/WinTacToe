@@ -6,6 +6,8 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
+from random import choice, sample, randrange
+
 from reinforcement_learning.base.base_state import BaseState
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_action_space import BaseActionSpace
@@ -15,7 +17,6 @@ from random import choice, sample, randrange
 import numpy as np
 
 from dataclasses import dataclass
-import copy
 
 
 class Player(BasePlayer):
@@ -96,7 +97,7 @@ class Winning(BaseWinning):
 
 @dataclass(frozen=True)
 class TicTacToeState:
-    board: Board
+    board: np.ndarray
 
 
 @dataclass(frozen=True)
@@ -109,7 +110,7 @@ class TicTacToeActionSpace(BaseActionSpace):
     """
     actions: Set
     """
-    def __init__(self, actions):
+    def __init__(self, actions: set):
         self.actions = actions
 
     def __contains__(self, action):
@@ -142,16 +143,3 @@ class IllegalMoveError(Exception):
 
     def __str__(self):
         return str(self.message)
-
-
-
-a = np.array([1, 2, 3, 4])
-
-
-a.flags.writeable = False
-
-x = TicTacToeState(np.array([1, 2, 3, 4]))
-
-a[0] = 10
-
-print(x)

@@ -8,17 +8,20 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from graphviz import Digraph
 import uuid
+import copy
 
-from reinforcement_learning.agents.basic_mc_agent.simple_state import SimpleState
-from reinforcement_learning.agents.basic_mc_agent.simple_action import SimpleAction
+from tests.mock.mock_action import MockAction
+from tests.mock.mock_state import MockState
+
 
 class Returns:
     def __init__(self):
-        self.returns_dict = {}
+        self.returns_dict = dict()
 
     # Lazy initialization
     def __getitem__(self, key):
         state, action = key
+        state = copy.copy(state)
         if self.returns_dict.get(state) is None:
             self.returns_dict[state] = {action: []}  # Arbitrarily initialization
         elif self.returns_dict[state].get(action) is None:
@@ -29,11 +32,28 @@ class Returns:
     def __setitem__(self, key, value):
         state, action = key
         if self.returns_dict.get(state) is None:
-            self.returns_dict[state] = {}
+            self.returns_dict[state] = {action: value}
         self.returns_dict[state][action] = value
 
     def __str__(self):
-        return self.returns_dict.__str__()
+        representation = ""
+        for state, actions in self.returns_dict.items():
+            for action, value in actions.items():
+                representation += "State:\n"
+                representation += state.__str__()
+                representation += "\nAction:\n"
+                representation += action.__str__()
+                representation += "\nValues:\n"
+                representation += value.__str__()
+                representation += "\n\n"
+        return representation
+
+    def __len__(self):
+        result = 0
+        for state, actions in self.returns_dict.items():
+            for action in actions.keys():
+                result += 1
+        return result
 
     def _get_graph(self):
         graph = Digraph()
@@ -64,42 +84,43 @@ class Returns:
         return self._get_graph().view()
 
 
-if __name__ == '__main__':
-    # Returns test
 
-    r = Returns()
-
-    s1 = SimpleState([[-1, 0], [-1, -1]])
-    a1 = SimpleAction([1, 0])
-    G = -3
-    r[s1, a1].append(G)
-
-    s2 = SimpleState([[-1, 0], [0, -1]])
-    a2 = SimpleAction([0, 0])
-    G = 10.0
-    r[s2, a2].append(G)
-    G = 7.8
-    r[s2, a2].append(G)
-
-    s3 = SimpleState([[0, 0], [0, -1]])
-    a3 = SimpleAction([1, 1])
-    G = -5.1
-    r[s3, a3].append(G)
-    G = 3.2
-    r[s3, a3].append(G)
-    G = -1.9
-    r[s3, a3].append(G)
-
-    s4 = SimpleState([[-1, 0], [0, 0]])
-    a4 = SimpleAction([0, 0])
-    G = -5.1
-    r[s4, a4].append(G)
-    G = -6.5
-    r[s4, a4].append(G)
-    G = -9.4
-    r[s4, a4].append(G)
-    G = -10
-    r[s4, a4].append(G)
-
-    print(r)
-    r.view()
+# if __name__ == '__main__':
+#     # Returns test
+#
+#     r = Returns()
+#
+#     s1 = MockState([[-1, 0], [-1, -1]])
+#     a1 = MockAction([1, 0])
+#     G = -3
+#     r[s1, a1].append(G)
+#
+#     s2 = MockState([[-1, 0], [0, -1]])
+#     a2 = MockAction([0, 0])
+#     G = 10.0
+#     r[s2, a2].append(G)
+#     G = 7.8
+#     r[s2, a2].append(G)
+#
+#     s3 = MockState([[0, 0], [0, -1]])
+#     a3 = MockAction([1, 1])
+#     G = -5.1
+#     r[s3, a3].append(G)
+#     G = 3.2
+#     r[s3, a3].append(G)
+#     G = -1.9
+#     r[s3, a3].append(G)
+#
+#     s4 = MockState([[-1, 0], [0, 0]])
+#     a4 = MockAction([0, 0])
+#     G = -5.1
+#     r[s4, a4].append(G)
+#     G = -6.5
+#     r[s4, a4].append(G)
+#     G = -9.4
+#     r[s4, a4].append(G)
+#     G = -10
+#     r[s4, a4].append(G)
+#
+#     print(r)
+#     # r.view()

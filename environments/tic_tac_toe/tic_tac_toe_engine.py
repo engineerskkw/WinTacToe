@@ -1,17 +1,17 @@
+#BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+REL_PROJECT_ROOT_PATH = "./../../../../"
+ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
+ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
+sys.path.append(ABS_PROJECT_ROOT_PATH)
+#-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+
 import random
 from itertools import cycle
 
 from environments.tic_tac_toe.gather_winnings_strategies import *
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 from environments.base.base_engine import BaseEngine
-
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-REL_PROJECT_ROOT_PATH = "./../../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 
 class _Board:
@@ -23,7 +23,7 @@ class _Board:
         self._points_placed = []
         self._marks_placed = []
 
-        self._board = np.full((size, size), -1)
+        self._board = np.full((size, size), -1, dtype=np.int)
 
     @property
     def size(self):
@@ -213,10 +213,11 @@ class TicTacToeEngine(BaseEngine):
         hash{player: float}
                 A hash containing a reward for each player.
         """
-        if self.ended:
+        if self.ended and self._winnings:
             winning_marks = list(map(lambda winning: winning.mark, self._winnings))
             rewards = list(map(lambda player: 1.0 if player.mark in winning_marks else -1.0, self._players))
-            return {player: reward for player, reward in zip(self._players, rewards)}
+
+            return dict(zip(self._players, rewards))
         else:
             return {player: 0.0 for player in self._players}
 
