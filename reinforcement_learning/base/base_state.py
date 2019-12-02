@@ -8,9 +8,10 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
-import numpy as np
+from dataclasses import dataclass
 
 
+@dataclass(frozen=True)
 class BaseState(ABC):
     """
     Class implements reinforcement learning state of the environment
@@ -22,8 +23,6 @@ class BaseState(ABC):
     __eq__()
         Compare state with another. It's key feature of the state used
         by many reinforcement learning components.
-    __str__()
-        Get a string representation.
     """
 
     @abstractmethod
@@ -38,7 +37,6 @@ class BaseState(ABC):
         """
         pass
 
-    # TODO: remove after making sure you can do it
     def __eq__(self, other):
         """
         Compare the state with another.
@@ -51,15 +49,3 @@ class BaseState(ABC):
         if not isinstance(other, BaseState):
             return False
         return hash(self) == hash(other)
-
-    @abstractmethod
-    def __str__(self):
-        """
-        Get a string representation.
-
-        Returns
-        -------
-        String
-            String representation.
-        """
-        pass

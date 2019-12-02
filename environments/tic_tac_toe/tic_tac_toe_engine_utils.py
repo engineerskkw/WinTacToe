@@ -12,6 +12,10 @@ from reinforcement_learning.base.base_action_space import BaseActionSpace
 from environments.base.base_engine_utils import BasePlayer, BaseWinning
 
 from random import choice, sample, randrange
+import numpy as np
+
+from dataclasses import dataclass
+import copy
 
 
 class Player(BasePlayer):
@@ -90,30 +94,15 @@ class Winning(BaseWinning):
         return hash((self.mark, *self.points_included))
 
 
-class TicTacToeState(BaseState):
-    def __init__(self, board):
-        self.board = board
-
-    def __str__(self):
-        return str(self.board)
-
-    def __hash__(self):
-        return hash(str(self.board))
+@dataclass(frozen=True)
+class TicTacToeState:
+    board: Board
 
 
-class TicTacToeAction(BaseAction):
-    def __init__(self, row, col):
-        self.row = row
-        self.col = col
-
-    def __str__(self):
-        return f"({self.row}, {self.col})"
-
-    def __hash__(self):
-        return hash((self.row, self.col))
-
-    def __eq__(self, other):
-        return self.row == other.row and self.col == other.col
+@dataclass(frozen=True)
+class TicTacToeAction:
+    row: int
+    col: int
 
 
 class TicTacToeActionSpace(BaseActionSpace):
@@ -153,3 +142,16 @@ class IllegalMoveError(Exception):
 
     def __str__(self):
         return str(self.message)
+
+
+
+a = np.array([1, 2, 3, 4])
+
+
+a.flags.writeable = False
+
+x = TicTacToeState(np.array([1, 2, 3, 4]))
+
+a[0] = 10
+
+print(x)
