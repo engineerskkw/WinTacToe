@@ -101,6 +101,8 @@ class TicTacToeState:
 
     def __post_init__(self):
         self.board.flags.writeable = False
+        assert len(self.board.shape) == 2, "Invalid dimensions of the board"
+        assert self.board.shape[0] == self.board.shape[1], "The board is not square"
 
     def __str__(self):
         representation = ''
@@ -120,11 +122,8 @@ class TicTacToeState:
                 representation += '\n'
         return representation
 
-    def __repr__(self):
-        return self.__str__()
-
     def __hash__(self):
-        return hash(self.board.data)
+        return hash(self.board.data.tobytes())
 
     def __eq__(self, other):
         if not isinstance(other, TicTacToeState):
@@ -175,3 +174,17 @@ class IllegalMoveError(Exception):
 
     def __str__(self):
         return str(self.message)
+
+
+a = np.array([[0, 0, 1], [1, 1, 0], [0, 0, 1]])
+state = TicTacToeState(a)
+state2 = TicTacToeState(a)
+# a[0][0] = 1
+# print(len(a.shape))
+# print(hash(state))
+
+# print(state == state2)
+
+x = {state: 2}
+
+print(x[state])
