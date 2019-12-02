@@ -20,48 +20,50 @@ class SettingsLogic:
         self._board_size = 3
         self._marks_required = 3
         self._mark = 0
-        self._initialize_buttons(app.settings)
+        self._initialize_buttons()
         self._music_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakySnitch.mp3")
 
-    def _initialize_buttons(self, settings):
+    def _initialize_buttons(self):
         self._settings_buttons = [
             RectangularTextButtonWithIcon(
-                *resolve_color_mode_button_text_and_icon_path(settings[Settings.COLOR]),
+                *resolve_color_mode_button_text_and_icon_path(self._app.settings[Settings.COLOR]),
                 self.toggle_color_mode,
-                settings,
+                self._app,
                 (410, 75),
                 (460, 100)),
             RectangularTextButtonWithIcon(
-                *resolve_music_button_text_and_icon_path(settings[Settings.COLOR], settings[Settings.MUSIC]),
+                *resolve_music_button_text_and_icon_path(self._app.settings[Settings.COLOR],
+                                                         self._app.settings[Settings.MUSIC]),
                 self.toggle_music,
-                settings,
+                self._app,
                 (410, 235),
                 (460, 100)),
             RectangularTextButtonWithIcon(
-                *resolve_sounds_button_text_and_icon_path(settings[Settings.COLOR], settings[Settings.SOUNDS]),
+                *resolve_sounds_button_text_and_icon_path(self._app.settings[Settings.COLOR],
+                                                          self._app.settings[Settings.SOUNDS]),
                 self.toggle_sounds,
-                settings,
+                self._app,
                 (410, 395),
                 (460, 100)),
             RectangularTextButtonWithIcon("Reset to defaults",
-                                          resolve_reset_icon_path(settings[Settings.COLOR]),
+                                          resolve_reset_icon_path(self._app.settings[Settings.COLOR]),
                                           self.reset_to_defaults,
-                                          settings,
+                                          self._app,
                                           (410, 555),
                                           (460, 100)),
         ]
 
         self._back_to_menu_button = RoundIconButton(
-            resolve_back_arrow_icon_path(settings[Settings.COLOR]),
+            resolve_back_arrow_icon_path(self._app.settings[Settings.COLOR]),
             self.switch_back_to_main_menu,
-            settings,
+            self._app,
             (40, 40),
             30)
 
         self.all_buttons = [self._back_to_menu_button] + self._settings_buttons
 
-    def _reinitialize_buttons(self, settings):
-        self._initialize_buttons(settings)
+    def _reinitialize_buttons(self):
+        self._initialize_buttons()
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
@@ -74,18 +76,18 @@ class SettingsLogic:
         else:
             self._app.settings[Settings.COLOR] = ColorMode.LIGHT
         self._component.rerender()
-        self._reinitialize_buttons(self._app.settings)
+        self._reinitialize_buttons()
         save_selected_settings(self._app.settings)
 
     def toggle_music(self):
         self._app.settings[Settings.MUSIC] = not self._app.settings[Settings.MUSIC]
         self._app.switch_music(self._music_file_path)
-        self._reinitialize_buttons(self._app.settings)
+        self._reinitialize_buttons()
         save_selected_settings(self._app.settings)
 
     def toggle_sounds(self):
         self._app.settings[Settings.SOUNDS] = not self._app.settings[Settings.SOUNDS]
-        self._reinitialize_buttons(self._app.settings)
+        self._reinitialize_buttons()
         save_selected_settings(self._app.settings)
 
     def reset_to_defaults(self):
@@ -95,7 +97,7 @@ class SettingsLogic:
             self._app.switch_music(self._music_file_path)
         self._app.settings[Settings.SOUNDS] = True
         self._component.rerender()
-        self._reinitialize_buttons(self._app.settings)
+        self._reinitialize_buttons()
         save_selected_settings(self._app.settings)
 
     def switch_back_to_main_menu(self):

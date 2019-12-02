@@ -73,7 +73,7 @@ def music_player(commands_queue):
             command.sound.play()
             time.sleep(sound_length)
             if command.music_on:
-                pygame.mixer.music.play()
+                pygame.mixer.music.play(loops=-1)
 
         if isinstance(command, StopMusicCommand):
             pygame.mixer.music.stop()
