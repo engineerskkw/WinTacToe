@@ -40,7 +40,7 @@ class BasicAgent(BaseAgent):
         self.last_MDP = None
 
     def take_action(self, state, action_space):
-        state = copy.deepcopy(state) # TODO: understand why this fix works
+        state = copy.deepcopy(state)  # TODO: understand why this fix works
 
         # Choose action in epsilon-greedy way
         action = self.policy.epsilon_greedy(state, action_space, self.epsilon)
