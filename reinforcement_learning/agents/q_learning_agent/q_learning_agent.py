@@ -31,8 +31,6 @@ class QLearningAgent(BaseAgent):
         self._prev_reward = None
         self._current_episode_return = 0
 
-        self._all_episodes_returns = []
-
     def take_action(self, state, allowed_actions):
         state = copy.deepcopy(state)
         if self._prev_state:
@@ -50,7 +48,7 @@ class QLearningAgent(BaseAgent):
 
     def exit(self, terminal_state):
         self._update(terminal_state)
-        self._all_episodes_returns.append(self._current_episode_return)
+        self.all_episodes_returns.append(self._current_episode_return)
         self._reset_episode_info()
 
     def restart(self):
@@ -71,6 +69,3 @@ class QLearningAgent(BaseAgent):
         self._prev_state = None
         self._prev_reward = None
         self._current_episode_return = 0
-
-    def get_episodes_returns(self):
-        return self._all_episodes_returns

@@ -19,6 +19,7 @@ import matplotlib.gridspec as gridspec
 class BaseAgent(ABC):
     def __init__(self):
         self.episodes_actions_times = [[]]
+        self.all_episodes_returns = []
 
     @abstractmethod
     def take_action(self, state, allowed_actions):
@@ -81,23 +82,16 @@ class BaseAgent(ABC):
         with open(file_path, 'rb') as file:
             return pickle.load(file)
 
-    @abstractmethod
-    def get_episodes_returns(self):
-        """
-        Return the list of returns of all played episodes
-        """
-        pass
-
     def _repr_svg_(self):
         # TODO seamlessly integrate matplotlib plot with ipython _repr_svg_
         self.visualize()
 
     def visualize(self):
-        er_n = len(self.get_episodes_returns())
+        er_n = len(self.all_episodes_returns)
         er_buckets_number = min(int(np.ceil(0.1*er_n)), 100)
         er_bucket_size = int(er_n/er_buckets_number)
-        performance = bucketify(self.get_episodes_returns(), er_buckets_number, np.mean)
-        mean_reward = np.mean(self.get_episodes_returns())
+        performance = bucketify(self.all_episodes_returns, er_buckets_number, np.mean)
+        mean_reward = np.mean(self.all_episodes_returns)
 
         ep_act_times_flatten = [item for sublist in self.episodes_actions_times for item in sublist]
         mean_action_time = np.mean(ep_act_times_flatten)

@@ -32,8 +32,6 @@ class NStepAgent(BaseAgent):
         self._action_history = []
         self._reward_history = [0]  # There is no R0 according to Sutton notation
 
-        self._all_episodes_returns = []
-
     def take_action(self, state, allowed_actions):
         self._state_history.append(state)
         action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
@@ -54,14 +52,11 @@ class NStepAgent(BaseAgent):
         for tau in range(self._current_time_step - self.n, self._final_time_step):
             self._update(tau)
 
-        self._all_episodes_returns.append(np.sum(self._reward_history))
+        self.all_episodes_returns.append(np.sum(self._reward_history))
         self._reset_episode_info()
 
     def restart(self):
         self._reset_episode_info()
-
-    def get_performance(self, no_of_buckets):
-        return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
 
     def _update(self, tau):
         if tau < 0:
