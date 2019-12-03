@@ -15,6 +15,11 @@ from threading import Thread
 from queue import SimpleQueue
 
 
+class Difficulty(Enum):
+    MEDIUM = 0
+    HARD = 1
+
+
 class TurnState(Enum):
     NOT_YOUR_TURN = 0
     YOUR_TURN = 1
