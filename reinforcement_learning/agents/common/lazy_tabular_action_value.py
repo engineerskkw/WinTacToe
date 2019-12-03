@@ -1,6 +1,7 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../"
+
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -9,11 +10,10 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from graphviz import Digraph
 from collections import defaultdict
 
-from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
+from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
 from reinforcement_learning.base.base_action_value import BaseActionValue
-
-from tests.mock.mock_action import MockAction
-from tests.mock.mock_state import MockState
+from all_tests.mock.test_mock_state import MockState
+from all_tests.mock.test_mock_action import MockAction
 
 
 class LazyTabularActionValue(BaseActionValue):
@@ -67,7 +67,15 @@ class LazyTabularActionValue(BaseActionValue):
         return defaultdict(self._default_action_value)
 
     def __str__(self):
-        return str(self.action_value_dict)
+        acc = ""
+
+        for k1, v1 in self.action_value_dict.items():
+            acc += f"State: \n"
+            acc += f"{k1}\n"
+            for k2, v2 in v1.items():
+                acc += f"\tAction: {k2}, value: {v2} \n"
+
+        return acc
 
     def __repr__(self):
         return self.__str__()
@@ -93,19 +101,22 @@ class LazyTabularActionValue(BaseActionValue):
     def view(self):
         return self._get_graph().view()
 
-# if __name__ == '__main__':
-#     # SimpleAction-value test
-#     av = LazyTabularActionValue()
-#
-#     s = MockState([[-1, -1], [-1, 1]])
-#
-#     a1 = MockAction([0, 0])
-#     a2 = MockAction([0, 1])
-#     a3 = MockAction([1, 0])
-#
-#     av[s, a1] = 6
-#     av[s, a2] = 0.8
-#     av[s, a3] = -10
-#
-#     print(av)
-#     av.view()
+if __name__ == '__main__':
+    # # SimpleAction-value test
+    av = LazyTabularActionValue()
+    # print(av)
+    #
+    s = MockState([[-1, -1], [-1, 1]])
+
+    a1 = MockAction([0, 0])
+    a2 = MockAction([0, 1])
+    a3 = MockAction([1, 0])
+
+    av[s, a1] = 6
+    av[s, a2] = 0.8
+    av[s, a3] = -10
+
+    print(av)
+    # print(av.action_returns(s))
+    # av.view()
+    # print(s)

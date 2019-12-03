@@ -1,6 +1,6 @@
 #BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../"
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -9,7 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from graphviz import Digraph
 import numpy as np
 
-from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
+from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
 
 
 class MDP:
