@@ -15,7 +15,7 @@ from game_app.menus.main_menu.main_menu_component import MainMenuComponent
 from game_app.menus.settings.settings_component import SettingsComponent
 from game_app.menus.credits.credits_component import CreditsComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
-from game_app.common_helper import Components, Settings, init_music_player, SwitchMusicCommand, StopMusicCommand, \
+from game_app.common.common_helper import Components, Settings, init_music_player, SwitchMusicCommand, StopMusicCommand, \
     StopMusicPlayerCommand, PlaySoundStoppingMusicCommand
 
 

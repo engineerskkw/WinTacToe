@@ -12,11 +12,10 @@ import pygame
 from itertools import product
 from pygame.rect import Rect
 from pygame.mixer import Sound
-from game_app.common_helper import TurnState, Settings, ColorMode
+from game_app.common.common_helper import TurnState, Settings, ColorMode
 from game_app.common.buttons import RectangularTextButton, RoundIconButton
-
-#TODO
 from pygame import gfxdraw
+
 
 symbols = {
     0: 'X',

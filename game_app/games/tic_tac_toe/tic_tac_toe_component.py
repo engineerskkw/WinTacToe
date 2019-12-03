@@ -11,8 +11,8 @@ import pygame
 import time
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
-from game_app.abstract_component import AbstractComponent
-from game_app.common_helper import TurnState, Components, Settings
+from game_app.common.abstract_component import AbstractComponent
+from game_app.common.common_helper import TurnState, Components, Settings
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from game_app.menus.settings.settings_logic import save_selected_settings
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction

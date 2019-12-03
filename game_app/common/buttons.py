@@ -10,7 +10,7 @@ import pygame
 from pygame import Rect, gfxdraw
 from pygame.mixer import Sound
 from abc import ABC, abstractmethod
-from game_app.common_helper import ColorMode, Settings
+from game_app.common.common_helper import ColorMode, Settings
 
 
 class AbstractButton(ABC):

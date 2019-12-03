@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from pygame.locals import *
-from game_app.common_helper import Components, ColorMode, Settings
+from game_app.common.common_helper import Components, ColorMode, Settings
 from game_app.common.buttons import RoundIconButton, RectangularTextButtonWithIcon
 import pickle
 

@@ -6,7 +6,7 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-from game_app.abstract_component import AbstractComponent
+from game_app.common.abstract_component import AbstractComponent
 
 
 class AbstractMenuComponent(AbstractComponent):
