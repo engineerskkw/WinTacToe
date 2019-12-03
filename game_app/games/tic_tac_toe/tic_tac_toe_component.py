@@ -23,7 +23,7 @@ from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
-
+from reinforcement_learning.base.base_agent import BaseAgent
 
 class UserEventTypes(Enum):
     STATE_CHANGED = pygame.USEREVENT + 1
@@ -139,13 +139,14 @@ class TicTacToeClientActor(Actor):
 
 
 class TicTacToeComponent(AbstractComponent):
-    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, number_of_players=2):
+    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, difficulty, number_of_players=2):
         self._app = app
         self._number_of_players = number_of_players
         self._board_size = board_size
         self.marks_required = marks_required
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
+        self._difficulty = difficulty
 
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
@@ -167,9 +168,15 @@ class TicTacToeComponent(AbstractComponent):
         p0 = players[self._player_mark]
         self.tell(self.client_actor_address, JoinServerMsg(p0))
 
+        # TODO use self._board_size, self.marks_required, self._difficulty to load proper agent
         # Opponent joining
         p1 = players[self._opponent_mark]
-        c1 = AgentClient(BasicAgent())
+        second_player_file_path = os.path.join(ABS_PROJECT_ROOT_PATH,
+                                               "reinforcement_learning",
+                                               "agents",
+                                               f"second_player_q_ep_0.ai")
+
+        c1 = AgentClient(BaseAgent.load(second_player_file_path))
         self.server.join(c1, p1)
         self.log(f"Joined opponent")
 

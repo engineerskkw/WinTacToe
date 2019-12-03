@@ -15,8 +15,8 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 class RandomAgent(BaseAgent):
     def __init__(self):
+        super().__init__()
         self._current_episode_return = 0
-        self._all_episodes_returns = []
 
     def take_action(self, state, allowed_actions):
         return allowed_actions.random_action
@@ -25,7 +25,7 @@ class RandomAgent(BaseAgent):
         self._current_episode_return += reward
 
     def exit(self, terminal_state):
-        self._all_episodes_returns.append(self._current_episode_return)
+        self.all_episodes_returns.append(self._current_episode_return)
         self._reset_episode_info()
 
     def restart(self):
@@ -33,6 +33,3 @@ class RandomAgent(BaseAgent):
 
     def _reset_episode_info(self):
         self._current_episode_return = 0
-
-    def get_episodes_returns(self):
-        return self._all_episodes_returns

@@ -22,6 +22,7 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 class BasicAgent(BaseAgent):
     def __init__(self, epsilon=0.1, discount=0.9):
+        super().__init__()
         # parameters
         self.epsilon = epsilon
         self.discount = discount
@@ -37,10 +38,9 @@ class BasicAgent(BaseAgent):
         self.last_state = None
         self.last_action = None
         self.last_MDP = None
-        self._all_episodes_returns = []
 
     def take_action(self, state, action_space):
-        state = copy.deepcopy(state) # TODO: understand why this fix works
+        state = copy.deepcopy(state)  # TODO: understand why this fix works
 
         # Choose action in epsilon-greedy way
         action = self.policy.epsilon_greedy(state, action_space, self.epsilon)
@@ -71,7 +71,7 @@ class BasicAgent(BaseAgent):
 
         # Episode analysing
         G = self.pass_episode()
-        self._all_episodes_returns.append(G)
+        self.all_episodes_returns.append(G)
 
         # Preparation for a new episode
         self.last_episode = Episode()
@@ -131,6 +131,3 @@ class BasicAgent(BaseAgent):
         self.reset_returns()
         self.reset_episode()
         self.reset_model()
-
-    def get_episodes_returns(self):
-        return self._all_episodes_returns

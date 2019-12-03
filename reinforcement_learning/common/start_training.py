@@ -27,20 +27,14 @@ if __name__ == '__main__':
     # agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
     # agents_file_paths = [agent_0_file_path, agent_1_file_path]
     # agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
+
     agents = [BasicAgent(), BasicAgent()]
-    # agents = [QLearningAgent(0.4, 0.1, 1), RandomAgent()]
 
     # Training is as simple as it:
-    number_of_episodes = 100
+    number_of_episodes = 3
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
-    # At the end you can save your trained agents
-    [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
-
-    print(agents[0].get_episodes_returns())
-
-    # plt.plot(agents[1].get_performance(20))
-    # plt.gca().legend(("Q learning", "Random xd"))
-    # plt.show()
+    # # At the end you can save your trained agents
+    # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]

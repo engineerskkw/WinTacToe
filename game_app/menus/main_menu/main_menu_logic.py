@@ -21,7 +21,7 @@ class MainMenuLogic:
                                   app,
                                   (410, 75),
                                   (460, 100)),
-            RectangularTextButton("CreditsTODO",
+            RectangularTextButton("Credits",
                                   lambda: print("TODO"),
                                   app,
                                   (410, 235),
