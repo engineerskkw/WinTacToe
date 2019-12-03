@@ -17,10 +17,16 @@ from reinforcement_learning.agents.common.action_value_derived_policy import Act
 from reinforcement_learning.agents.basic_mc_agent.mdp import MDP
 from reinforcement_learning.agents.basic_mc_agent.returns import Returns
 from reinforcement_learning.agents.basic_mc_agent.stochastic_model import StochasticModel
+from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class BasicAgent(BaseAgent):
-    def __init__(self):
+    def __init__(self, epsilon=0.1, discount=0.9):
+        super().__init__()
+        # parameters
+        self.epsilon = epsilon
+        self.discount = discount
+
         # BaseAgent's building blocks
         self.action_value = LazyTabularActionValue()
         self.policy = ActionValueDerivedPolicy(self.action_value)
@@ -32,13 +38,12 @@ class BasicAgent(BaseAgent):
         self.last_state = None
         self.last_action = None
         self.last_MDP = None
-        self.Gs = []
 
     def take_action(self, state, action_space):
-        state = copy.deepcopy(state) # TODO: understand why this fix works
+        state = copy.deepcopy(state)  # TODO: understand why this fix works
 
         # Choose action in epsilon-greedy way
-        action = self.policy.epsilon_greedy(state, action_space)
+        action = self.policy.epsilon_greedy(state, action_space, self.epsilon)
 
         # Register model transition
         if self.last_state and self.last_action:
@@ -60,14 +65,13 @@ class BasicAgent(BaseAgent):
         self.last_state = None
         self.last_action = None
 
-
     def exit(self, terminal_state):
         # Episode ending
         self.last_episode.append(terminal_state)
 
         # Episode analysing
         G = self.pass_episode()
-        self.Gs.append(G)
+        self.all_episodes_returns.append(G)
 
         # Preparation for a new episode
         self.last_episode = Episode()
@@ -77,14 +81,13 @@ class BasicAgent(BaseAgent):
     # RL Monte Carlo algorithm
     def pass_episode(self):
         episode = self.last_episode
-        gamma = 0.9  # Discount factor
         G = 0.0  # Episode's accumulative discounted total reward/return
         steps_no = len(episode) // 3
         for t in reversed(range(steps_no)):
             # Step, action, reward
-            S, A, R = episode[3 * t], episode[3 * t + 1], episode[3 * t + 2]
+            S, A, R = copy.deepcopy(episode[3 * t]), copy.deepcopy(episode[3 * t + 1]), copy.deepcopy(episode[3 * t + 2])
 
-            G = gamma * G + R  # Calculate discounted return
+            G = self.discount * G + R  # Calculate discounted return
 
             # Update rule according to the Monte Carlo first-visit approach
             first_visit = True
