@@ -8,6 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import pygame
+import time
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.abstract_component import AbstractComponent
@@ -114,7 +115,7 @@ class TicTacToeClientActor(Actor):
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
-            turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.YOUR_TURN}
+            turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.YOUR_TURN, "action_space": msg.action_space, "new_game_state": msg.state}
             self._events_to_post += [state_changed_event, turn_changed_event]
 
         elif isinstance(msg, MoveMsg):
@@ -216,6 +217,12 @@ class TicTacToeComponent(AbstractComponent):
         elif event.type == UserEventTypes.TURN_CHANGED.value:
             self.turn = event.new_turn
             self._scene.handle_turn_changed()
+
+            agent = BasicAgent()
+            move = agent.take_action(event.new_game_state, event.action_space)
+            time.sleep(1)
+            self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed()
+
         elif event.type == UserEventTypes.GAME_OVER.value:
             self.winnings = event.new_winnings
             if not self.winnings:
