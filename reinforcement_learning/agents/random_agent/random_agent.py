@@ -7,10 +7,7 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import numpy as np
-
 from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class RandomAgent(BaseAgent):

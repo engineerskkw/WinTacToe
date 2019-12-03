@@ -7,18 +7,18 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from random import choice, sample, randrange
+import numpy as np
+from dataclasses import dataclass
+from typing import List, Tuple, Set
+
 
 from reinforcement_learning.base.base_state import BaseState
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_action_space import BaseActionSpace
 from environments.base.base_engine_utils import BasePlayer, BaseWinning
 
-from random import choice, sample, randrange
-import numpy as np
 
-from dataclasses import dataclass
-
-
+@dataclass(frozen=True)
 class Player(BasePlayer):
     """Class representing a Tic Tac Toe player.
 
@@ -37,24 +37,15 @@ class Player(BasePlayer):
         A number corresponding to a player's mark.
 
     """
+    name: str
+    mark: int
 
-    def __init__(self, name, mark):
-        assert name, "A player's name cannot be blank"
-        self.name = name
-
-        assert mark >= 0, "A player's mark has to be non-negative"
-        self.mark = mark
-
-    def __str__(self):
-        return f"{self.name}({self.mark})"
-
-    def __hash__(self):
-        return hash((self.name, self.mark))
-
-    def __eq__(self, other):
-        return hash(self) == hash(other)
+    def __post_init__(self):
+        assert self.name, "A player's name cannot be blank"
+        assert self.mark >= 0, "A player's mark has to be non-negative"
 
 
+@dataclass(frozen=True)
 class Winning(BaseWinning):
     """Class representing a Tic Tac Toe winning line.
 
@@ -72,27 +63,16 @@ class Winning(BaseWinning):
     points_included: list[(int, int)]
         List of tuples with coordinates of the winning line.
     """
-
-    def __init__(self, mark, points_included):
-        self.mark = mark
-        self.points_included = points_included
-
-    def __str__(self):
-        return f"mark:{self.mark} points_included:{self.points_included}"
-
-    def __repr__(self):
-        return self.__str__()
-
-    def __eq__(self, other):
-        return isinstance(other, Winning) and \
-               self.mark == other.mark and \
-               self.points_included == other.points_included
-
-    def __ne__(self, other):
-        return not self == other
+    mark: int
+    points_included: List[Tuple[int, int]]
 
     def __hash__(self):
         return hash((self.mark, *self.points_included))
+
+    def __eq__(self, other):
+        if not isinstance(other, Winning):
+            return False
+        return hash(self) == hash(other)
 
 
 @dataclass(frozen=True)
@@ -137,12 +117,9 @@ class TicTacToeAction:
     col: int
 
 
+@dataclass(frozen=True)
 class TicTacToeActionSpace(BaseActionSpace):
-    """
-    actions: Set
-    """
-    def __init__(self, actions: set):
-        self.actions = actions
+    actions: Set[TicTacToeAction]
 
     def __contains__(self, action):
         return action in self.actions
@@ -159,12 +136,6 @@ class TicTacToeActionSpace(BaseActionSpace):
         no_of_actions = randrange(1, len(self.actions)) if not no_of_actions else no_of_actions
         return sample(list(self.actions), no_of_actions)
 
-    def __eq__(self, other):
-        return self.actions == other.actions
-
-    def __str__(self):
-        return str(self.actions)
-
 
 class IllegalMoveError(Exception):
     """Raised when there is an illegal move made"""
@@ -174,17 +145,3 @@ class IllegalMoveError(Exception):
 
     def __str__(self):
         return str(self.message)
-
-
-a = np.array([[0, 0, 1], [1, 1, 0], [0, 0, 1]])
-state = TicTacToeState(a)
-state2 = TicTacToeState(a)
-# a[0][0] = 1
-# print(len(a.shape))
-# print(hash(state))
-
-# print(state == state2)
-
-x = {state: 2}
-
-print(x[state])

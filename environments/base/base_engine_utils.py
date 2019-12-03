@@ -7,44 +7,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 
+@dataclass(frozen=True)
 class BasePlayer(ABC):
     """Base class representing a player."""
-    @abstractmethod
-    def __str__(self):
-        pass
-
-    @abstractmethod
-    def __hash__(self):
-        pass
-
-    @abstractmethod
-    def __eq__(self, other):
-        pass
-
-    def __repr__(self):
-        return self.__str__()
 
 
+@dataclass(frozen=True)
 class BaseWinning(ABC):
     """Base class representing a winning."""
-
-    @abstractmethod
-    def __str__(self):
-        pass
-
-    @abstractmethod
-    def __eq__(self, other):
-        pass
-
-    @abstractmethod
-    def __ne__(self, other):
-        pass
-
-    @abstractmethod
-    def __hash__(self):
-        pass
-
-    def __repr__(self):
-        return self.__str__()

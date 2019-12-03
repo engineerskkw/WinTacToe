@@ -32,6 +32,7 @@ class _Board:
         return self._size
 
     @property
+    @return_deepcopy
     def marks_required(self):
         return self._marks_required
 
@@ -44,7 +45,7 @@ class _Board:
         return self._marks_placed[-1] if self._marks_placed else None
 
     @property
-    @return_deepcopy  # REALLY IMPORTANT TO RETURN DEEPCOPY HERE!
+    @return_deepcopy
     def raw_board(self):
         return self._board
 
@@ -162,6 +163,7 @@ class TicTacToeEngine(BaseEngine):
         return self._current_player
 
     @property
+    @return_deepcopy
     def players(self):
         """Get a list of player objects representing players.
 
@@ -184,7 +186,6 @@ class TicTacToeEngine(BaseEngine):
         return TicTacToeState(self._board.raw_board)
 
     @property
-    @return_deepcopy
     def winnings(self):
         """Get a list of current winning objects. It contains all the necessary information about the winners and
         positions of their winning marks.
@@ -197,7 +198,6 @@ class TicTacToeEngine(BaseEngine):
         return list(self._winnings)
 
     @property
-    @return_deepcopy
     def allowed_actions(self):
         """Get a action space containing actions that indicate coordinates of unoccupied fields on the board.
 
@@ -209,7 +209,6 @@ class TicTacToeEngine(BaseEngine):
         return TicTacToeActionSpace({TicTacToeAction(row, col) for row, col in self._board.unoccupied_fields})
 
     @property
-    @return_deepcopy
     def rewards(self):
         """Get a hash containing a reward for each player. Used by RL agent when learning. When nobody has won yet,
         everybody get a reward of 0, if there is a winner he gets a reward of 1 and other players get -1.
