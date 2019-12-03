@@ -11,7 +11,7 @@ import pygame
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.abstract_component import AbstractComponent
-from game_app.common_helper import TurnState, Components, Settings
+from game_app.common_helper import TurnState, Components, Settings, Difficulty
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from game_app.menus.settings.settings_logic import save_selected_settings
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
@@ -165,19 +165,32 @@ class TicTacToeComponent(AbstractComponent):
         players = self.server.players
 
         # TicTacToeClientActor server joining
-        p0 = players[self._player_mark]
-        self.tell(self.client_actor_address, JoinServerMsg(p0))
+        human_player = players[self._player_mark]
+        self.tell(self.client_actor_address, JoinServerMsg(human_player))
 
         # TODO use self._board_size, self.marks_required, self._difficulty to load proper agent
         # Opponent joining
-        p1 = players[self._opponent_mark]
-        second_player_file_path = os.path.join(ABS_PROJECT_ROOT_PATH,
-                                               "reinforcement_learning",
-                                               "agents",
-                                               f"second_player_q_ep_0.ai")
+        # File choosing
+        agent_player = players[self._opponent_mark]
+        if self._opponent_mark == 0:
+            agent_file_name = f"first_player_q_ep_0.ai"
+        elif self._opponent_mark == 1:
+            agent_file_name = f"second_player_q_ep_0.ai"
+        else:
+            raise Exception("Invalid opponent mark")
+        agent_player_file_path = os.path.join(ABS_PROJECT_ROOT_PATH,
+                                              "reinforcement_learning",
+                                              "agents",
+                                              agent_file_name)
+        agent = BaseAgent.load(agent_player_file_path)
+        # Difficulty setting
+        if self._difficulty == Difficulty.HARD:
+            agent.epsilon = 0.0
+        elif self._difficulty == Difficulty.MEDIUM:
+            agent.epsilon = 0.2
 
-        c1 = AgentClient(BaseAgent.load(second_player_file_path))
-        self.server.join(c1, p1)
+        agent_client = AgentClient(agent)
+        self.server.join(agent_client, agent_player)
         self.log(f"Joined opponent")
 
         # Environment starting
