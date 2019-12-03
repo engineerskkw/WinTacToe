@@ -12,7 +12,7 @@ import time
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.common.abstract_component import AbstractComponent
-from game_app.common.common_helper import TurnState, Components, Settings, Difficulty
+from game_app.common.common_helper import TurnState, Components, Settings, Difficulty, GameMode
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from game_app.games.tic_tac_toe.agent_file_path_resolver import resolve_agent_file_path
 from game_app.menus.settings.settings_logic import save_selected_settings
@@ -117,6 +117,7 @@ class TicTacToeClientActor(Actor):
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
+            #TODO think about it
             turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.YOUR_TURN, "action_space": msg.action_space, "new_game_state": msg.state}
             self._events_to_post += [state_changed_event, turn_changed_event]
 
@@ -150,6 +151,11 @@ class TicTacToeComponent(AbstractComponent):
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
         self._difficulty = difficulty
+
+        #TODO tmp
+        self._game_mode = GameMode.AgentVsAgent
+        if self._game_mode == GameMode.AgentVsAgent:
+            self._fake_player_commands_queue = init_agent_fake_player()
 
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
@@ -216,15 +222,22 @@ class TicTacToeComponent(AbstractComponent):
 
     def handle_event(self, event):
         if event.type == UserEventTypes.STATE_CHANGED.value:
-            self._scene.handle_state_changed(event.new_game_state)
+            if self._game_mode == GameMode.PlayerVsAgent:
+                self._scene.handle_state_changed(event.new_game_state)
         elif event.type == UserEventTypes.TURN_CHANGED.value:
             self.turn = event.new_turn
             self._scene.handle_turn_changed()
 
-            agent = BasicAgent()
-            move = agent.take_action(event.new_game_state, event.action_space)
-            time.sleep(1)
-            self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed()
+            if self._game_mode == GameMode.AgentVsAgent:
+                # refresh game state
+                self._fake_player_commands_queue.put(lambda: self._scene.handle_state_changed(event.new_game_state))
+
+                # take a step
+                agent = BasicAgent()
+                move = agent.take_action(event.new_game_state, event.action_space)
+                # time.sleep(1)
+                # self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed()
+                self._fake_player_commands_queue.put(lambda: self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed())
 
         elif event.type == UserEventTypes.GAME_OVER.value:
             self.winnings = event.new_winnings
@@ -274,3 +287,28 @@ class TicTacToeComponent(AbstractComponent):
         self._app.settings[Settings.SOUNDS] = not self._app.settings[Settings.SOUNDS]
         self._scene.update_sounds_button()
         save_selected_settings(self._app.settings)
+
+
+
+from threading import Thread
+from queue import SimpleQueue
+
+
+def agent_fake_player(commands_queue):
+    while True:
+        command = commands_queue.get(block=True, timeout=None)
+        print(command)
+
+        if command == 'die':
+            break
+
+        time.sleep(0.7)
+        command()
+
+
+def init_agent_fake_player():
+    commands_queue = SimpleQueue()
+    agent_fake_player_thread = Thread(target=agent_fake_player, args=(commands_queue,))
+    agent_fake_player_thread.start()
+    return commands_queue
+
