@@ -18,6 +18,7 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
+        super().__init__()
         self.step_size = step_size
         self.epsilon = epsilon
         self.discount = discount

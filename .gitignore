@@ -2,4 +2,4 @@
 __pycache__/
 training_platform/examples/agent0.ai
 training_platform/examples/agent1.ai
-
+game_app/settings.cfg

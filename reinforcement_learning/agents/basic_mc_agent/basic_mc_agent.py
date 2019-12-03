@@ -22,6 +22,7 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 class BasicAgent(BaseAgent):
     def __init__(self, epsilon=0.1, discount=0.9):
+        super().__init__()
         # parameters
         self.epsilon = epsilon
         self.discount = discount

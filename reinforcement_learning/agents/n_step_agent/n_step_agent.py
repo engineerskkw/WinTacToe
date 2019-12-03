@@ -17,6 +17,7 @@ from reinforcement_learning.agents.common.agent_utils import safe_return, bucket
 
 class NStepAgent(BaseAgent):
     def __init__(self, n, step_size, epsilon, discount):
+        super().__init__()
         self.n = n
         self.step_size = step_size
         self.epsilon = epsilon

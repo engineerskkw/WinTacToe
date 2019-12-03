@@ -12,6 +12,7 @@ from training_platform.common import *
 from training_platform.server.service import GameManager, MatchMaker
 from training_platform.server.logger import Logger
 from training_platform.common import LOGGING
+import time
 
 
 class ServiceNotLaunchedError(Exception):
@@ -93,7 +94,10 @@ class AgentClientActor(Actor):
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):
             state = msg.state
+            start = time.perf_counter()
             action = self.agent.take_action(msg.state, msg.action_space)
+            end = time.perf_counter()
+            self.agent.episodes_actions_times[-1].append(end-start)
             self.log(f"Received state \n{state}\n and take action {action}")
             self.send(self.game_manager_addr, TakeActionMsg(action))
 
@@ -102,9 +106,11 @@ class AgentClientActor(Actor):
             self.agent.receive_reward(msg.reward)
 
         elif isinstance(msg, GameOverMsg):
+            self.agent.episodes_actions_times.append([])
             self.agent.exit(msg.state)
 
         elif isinstance(msg, EnvRestartedMsg):
+            self.agent.episodes_actions_times.append([])
             self.agent.restart()
 
         elif isinstance(msg, StateUpdateMsg):

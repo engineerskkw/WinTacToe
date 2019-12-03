@@ -15,6 +15,7 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 
 class RandomAgent(BaseAgent):
     def __init__(self):
+        super().__init__()
         self._current_episode_return = 0
         self._all_episodes_returns = []
 
