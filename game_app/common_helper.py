@@ -30,6 +30,7 @@ class Components(Enum):
     TIC_TAC_TOE_LAUNCH_MENU = 2
     TIC_TAC_TOE = 3
     SETTINGS = 4
+    CREDITS = 5
 
 
 class Settings(Enum):

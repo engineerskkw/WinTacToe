@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -22,7 +23,7 @@ class MainMenuLogic:
                                   (410, 75),
                                   (460, 100)),
             RectangularTextButton("Credits",
-                                  lambda: print("TODO"),
+                                  self.switch_to_credits,
                                   app,
                                   (410, 235),
                                   (460, 100)),
@@ -48,3 +49,6 @@ class MainMenuLogic:
 
     def switch_to_settings(self):
         self._app.switch_component(Components.SETTINGS)
+
+    def switch_to_credits(self):
+        self._app.switch_component(Components.CREDITS)
