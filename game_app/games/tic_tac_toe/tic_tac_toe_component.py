@@ -168,9 +168,12 @@ class TicTacToeComponent(AbstractComponent):
 
         # Opponent joining
         p1 = players[self._opponent_mark]
-        agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "agent1_final.ai")
+        second_player_file_path = os.path.join(ABS_PROJECT_ROOT_PATH,
+                                               "reinforcement_learning",
+                                               "agents",
+                                               f"second_player_q_ep_0.ai")
 
-        c1 = AgentClient(BaseAgent.load(agent_1_file_path))
+        c1 = AgentClient(BaseAgent.load(second_player_file_path))
         self.server.join(c1, p1)
         self.log(f"Joined opponent")
 
