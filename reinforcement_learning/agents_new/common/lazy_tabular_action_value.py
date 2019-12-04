@@ -40,6 +40,7 @@ class LazyTabularActionValue(BaseActionValue):
         action = kwargs['state']
         step_size = kwargs['step_size']
         target = kwargs['target']
+
         old_estimate = self.action_value_dict[state][action]
         new_estimate = old_estimate + step_size * (target - old_estimate)
         self.action_value_dict[state][action] = new_estimate
