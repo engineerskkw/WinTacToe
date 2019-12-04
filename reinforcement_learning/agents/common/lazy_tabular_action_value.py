@@ -35,15 +35,15 @@ class LazyTabularActionValue(BaseActionValue):
         state, action = key
         self.action_value_dict[state][action] = float(value)
 
-    def max(self, state):
+    def max(self, state, action_space=None):
         expected_returns = self.action_value_dict[state].values()
         return max(expected_returns) if expected_returns else self._default_cell_value
 
-    def argmax(self, state):
+    def argmax(self, state, action_space=None):
         actions = self.action_value_dict[state]
         return {key for (key, value) in actions.items() if value == max(actions.values())}
 
-    def action_returns(self, state):
+    def action_returns(self, state, action_space=None):
         return self.action_value_dict[state]
 
     @property
