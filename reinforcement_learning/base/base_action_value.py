@@ -48,7 +48,7 @@ class BaseActionValue(ABC):
         """
         pass
 
-    @abstractmethod
+    # TODO: remove below method completely
     def __setitem__(self, key, value):
         """
         Set an expected return for the given (state, action) pair.
@@ -59,6 +59,17 @@ class BaseActionValue(ABC):
             Pair of the state and action.
         value : Double
             Expected return.
+        """
+        pass
+
+    # TODO: make below method abstract after removing above method
+    def update(self, **kwargs):
+        """
+        Given appropriate parameters, apply update to the action value
+
+        Parameters
+        ----------
+        **kwargs : Arbitrary keyword arguments
         """
         pass
 
