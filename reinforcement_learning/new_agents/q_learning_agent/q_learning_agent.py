@@ -7,13 +7,9 @@ ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import numpy as np
-import copy
-
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class QLearningAgent(BaseAgent):
@@ -32,7 +28,6 @@ class QLearningAgent(BaseAgent):
         self._current_episode_return = 0
 
     def take_action(self, state, allowed_actions):
-        state = copy.deepcopy(state)
         if self._prev_state:
             self._update(state)
 
@@ -55,14 +50,10 @@ class QLearningAgent(BaseAgent):
         self._reset_episode_info()
 
     def _update(self, new_state):
-        new_state = copy.deepcopy(new_state)
-        prev_state = copy.deepcopy(self._prev_state)
-        prev_action = copy.deepcopy(self._prev_action)
-        prev_reward = copy.deepcopy(self._prev_reward)
-        prev_action_value = self.action_value[prev_state, prev_action]
+        prev_action_value = self.action_value[self._prev_state, self._prev_action]
         error = self.step_size * \
-            (prev_reward + self.discount * self.action_value.max(new_state) - prev_action_value)
-        self.action_value[prev_state, prev_action] = prev_action_value + error
+            (self._prev_reward + self.discount * self.action_value.max(new_state) - prev_action_value)
+        self.action_value[self._prev_state, self._prev_action] = prev_action_value + error
 
     def _reset_episode_info(self):
         self._prev_action = None

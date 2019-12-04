@@ -29,15 +29,11 @@ class LazyTabularActionValue(BaseActionValue):
         state, action = key
         return float(self.action_value_dict[state][action])
 
-    def sample_update(self, **kwargs):
-        state = kwargs['state']
-        action = kwargs['state']
-        step_size = kwargs['step_size']
-        target = kwargs['target']
+    def __setitem__(self, key, value):
+        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
 
-        old_estimate = self.action_value_dict[state][action]
-        new_estimate = old_estimate + step_size * (target - old_estimate)
-        self.action_value_dict[state][action] = new_estimate
+        state, action = key
+        self.action_value_dict[state][action] = float(value)
 
     def max(self, state, action_space=None):
         expected_returns = self.action_value_dict[state].values()
