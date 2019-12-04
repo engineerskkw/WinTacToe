@@ -22,3 +22,6 @@ class MockAction(BaseAction):
 
     def __repr__(self):
         return self.__str__()
+
+    def flatten(self):
+        return self.array.flatten()
