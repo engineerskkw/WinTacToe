@@ -63,7 +63,7 @@ class BaseActionValue(ABC):
         pass
 
     # TODO: make below method abstract after removing above method
-    def update(self, **kwargs):
+    def sample_update(self, **kwargs):
         """
         Given appropriate parameters, apply update to the action value
 

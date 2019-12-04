@@ -35,6 +35,15 @@ class LazyTabularActionValue(BaseActionValue):
         state, action = key
         self.action_value_dict[state][action] = float(value)
 
+    def sample_update(self, **kwargs):
+        state = kwargs['state']
+        action = kwargs['state']
+        step_size = kwargs['step_size']
+        target = kwargs['target']
+        old_estimate = self.action_value_dict[state][action]
+        new_estimate = old_estimate + step_size * (target - old_estimate)
+        self.action_value_dict[state][action] = new_estimate
+
     def max(self, state):
         expected_returns = self.action_value_dict[state].values()
         return max(expected_returns) if expected_returns else self._default_cell_value
