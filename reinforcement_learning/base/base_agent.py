@@ -11,10 +11,11 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 from abc import ABC, abstractmethod
 import pickle
 import matplotlib.pyplot as plt
-import io
 import numpy as np
-from reinforcement_learning.agents.common.agent_utils import bucketify
 import matplotlib.gridspec as gridspec
+
+from reinforcement_learning.agents.common.agent_utils import bucketify
+from utils.common_utils import return_deepcopy
 
 class BaseAgent(ABC):
     def __init__(self):
@@ -22,6 +23,7 @@ class BaseAgent(ABC):
         self.all_episodes_returns = []
 
     @abstractmethod
+    @return_deepcopy
     def take_action(self, state, allowed_actions):
         """
         Take an action based on the given state and allowed actions.
