@@ -36,7 +36,7 @@ class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
 
     def test_proper_initialization(self):
         self.assertFalse(self.engine.winnings)
-        self.assertTrue(self.engine.players == [Player("Player 0", 0), Player("Player 1", 1)])
+        self.assertTrue(self.engine.players == (Player("Player 0", 0), Player("Player 1", 1)))
         self.assertTrue(self.engine.current_player == Player("Player 0", 0))
         self.assertTrue(np.array_equal(self.engine.current_state.board, np.full((3, 3), -1)))
         self.assertTrue(self.engine.allowed_actions == TicTacToeActionSpace(set(self.full_move_sequence)))
@@ -65,7 +65,7 @@ class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
         self.init_board(self.player_0_winning_move_sequence)
         self.assertEqual(len(self.engine.winnings), 1)
 
-        self.assertTrue(self.engine.winnings == [Winning(0, [(0, 2), (1, 1), (2, 0)])])
+        self.assertTrue(self.engine.winnings == (Winning(0, [(0, 2), (1, 1), (2, 0)]), ))
         self.assertTrue(self.engine.ended)
         self.assertTrue(self.engine.rewards == {Player("Player 0", 0): 1, Player("Player 1", 1): -1})
 
@@ -73,7 +73,7 @@ class TestTicTacToeEngineAdditional(TestTicTacToeEngine):
 
         self.init_board(self.player_1_winning_move_sequence)
         self.assertEqual(len(self.engine.winnings), 1)
-        self.assertTrue(self.engine.winnings == [Winning(1, [(0, 0), (0, 1), (0, 2)])])
+        self.assertTrue(self.engine.winnings == (Winning(1, [(0, 0), (0, 1), (0, 2)]), ))
         self.assertTrue(self.engine.ended)
         self.assertTrue(self.engine.rewards == {Player("Player 0", 0): -1, Player("Player 1", 1): 1})
 

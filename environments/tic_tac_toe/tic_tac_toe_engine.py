@@ -32,7 +32,6 @@ class _Board:
         return self._size
 
     @property
-    @return_deepcopy
     def marks_required(self):
         return self._marks_required
 
@@ -58,7 +57,7 @@ class _Board:
                 if self._board[row, col] == -1:
                     unoccupied_fields.append((row, col))
 
-        return unoccupied_fields
+        return tuple(unoccupied_fields)
 
     def place_mark(self, row, col, mark):
         if self._board[row][col] == -1 and mark in self._marks:
@@ -163,7 +162,6 @@ class TicTacToeEngine(BaseEngine):
         return self._current_player
 
     @property
-    @return_deepcopy
     def players(self):
         """Get a list of player objects representing players.
 
@@ -172,7 +170,7 @@ class TicTacToeEngine(BaseEngine):
         list[Player]
             A list of player objects representing players.
         """
-        return self._players
+        return tuple(self._players)
 
     @property
     def current_state(self):
@@ -192,10 +190,10 @@ class TicTacToeEngine(BaseEngine):
 
         Returns
         -------
-        list[Winnings]
+        set[Winnings]
             A list of current winnings.
         """
-        return list(self._winnings)
+        return tuple(self._winnings)
 
     @property
     def allowed_actions(self):
