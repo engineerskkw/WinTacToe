@@ -62,3 +62,14 @@ class BaseAction(ABC):
             String representation.
         """
         pass
+
+    @abstractmethod
+    def flatten(self):
+        """
+        Get vectorized representation.
+
+        Returns
+        -------
+        np.array[np.float64]
+            Numpy array of floats
+        """
