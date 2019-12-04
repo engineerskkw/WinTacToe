@@ -50,13 +50,13 @@ class LogisticRegressionActionValue(BaseActionValue):
     def __get_features(self, state, action):
         # Additional [1] because there is also bias
         # TODO: implement flatten in state and action
-        return np.concatenate((state.flatten, action.flatten, [1])).reshape(-1, 1)
+        return np.concatenate((state.flatten(), action.flatten(), [1])).reshape(-1, 1)
 
     def __init_weights(self, feature_size, zeros=False):
         if zeros:
             tmp = np.zeros(feature_size)
         else:
-            tmp = np.random.randint(feature_size)
+            tmp = np.random.rand(feature_size)
         return tmp.reshape((1, -1))
 
     def __gradient(self, state, action):
@@ -84,19 +84,24 @@ class LogisticRegressionActionValue(BaseActionValue):
 
     def _get_graph(self):
         graph = Digraph()
+        if self.weights is None:
+            graph.node('0', "Empty action value")
+            return graph
+
+        weights = self.weights.flatten()
         output_node_hash = str(uuid.uuid4())
         graph.node(output_node_hash, "Output node")
-        for i in range(self.weights.size):
+        for i in range(weights.size):
             feature_node_hash = str(uuid.uuid4())
-            weight = self.weights[i]
-            if not i == self.weights.size-1:
+            weight = weights[i]
+            if not i == weights.size-1:
                 feature_node_name = f"Feature {i}"
             else:
                 feature_node_name = "Bias feature = 1"
             graph.node(feature_node_hash, feature_node_name)
-            blue = int(linear_map(weight, 0, 255, self.weights))
+            blue = int(linear_map(weight, 0, 255, weights))
             color = '#%02x%02x%02x' % (0, 0, blue)
-            penwidth = str(linear_map(weight, self.MIN_PEN_WIDTH, self.MAX_PEN_WIDTH, self.weights))
+            penwidth = str(linear_map(weight, self.MIN_PEN_WIDTH, self.MAX_PEN_WIDTH, weights))
             graph.edge(feature_node_hash, output_node_hash, label=str(weight),
                        color=color, penwidth=penwidth)
         return graph
@@ -109,20 +114,16 @@ class LogisticRegressionActionValue(BaseActionValue):
 
 if __name__ == '__main__':
     # Logistic regression action-value test
-    av = LazyTabularActionValue()
-    print(av)
-    #
+    av = LogisticRegressionActionValue()
+
     s = MockState([[-1, -1], [-1, 1]])
 
     a1 = MockAction([0, 0])
     a2 = MockAction([0, 1])
     a3 = MockAction([1, 0])
 
-    av[s, a1] = 6
-    av[s, a2] = 0.8
-    av[s, a3] = -10
-
-    print(av)
-    # print(av.action_returns(s))
-    # av.view()
-    # print(s)
+    alpha = 0.1
+    av.sample_update(state=s, action=a1, target=6, step_size=alpha)
+    av.sample_update(state=s, action=a2, target=0.8, step_size=alpha)
+    av.sample_update(state=s, action=a3, target=-10, step_size=alpha)
+    av.view()
