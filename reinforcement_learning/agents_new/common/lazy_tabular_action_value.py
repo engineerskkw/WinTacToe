@@ -29,12 +29,6 @@ class LazyTabularActionValue(BaseActionValue):
         state, action = key
         return float(self.action_value_dict[state][action])
 
-    def __setitem__(self, key, value):
-        assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
-
-        state, action = key
-        self.action_value_dict[state][action] = float(value)
-
     def sample_update(self, **kwargs):
         state = kwargs['state']
         action = kwargs['state']
