@@ -12,7 +12,7 @@ import numpy as np
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import safe_return, bucketify
+from reinforcement_learning.agents.common.agent_utils import safe_return
 
 
 class NStepAgent(BaseAgent):
@@ -64,12 +64,12 @@ class NStepAgent(BaseAgent):
 
         updated_state = self._state_history[tau]
         updated_action = self._action_history[tau]
-        prev_action_value = self.action_value[updated_action, updated_state]
+        prev_action_value = self.action_value[updated_state, updated_action]
 
         estimated_return = self._calculate_estimated_return(tau)
         error = self.step_size * (estimated_return - prev_action_value)
 
-        self.action_value[updated_action, updated_state] = prev_action_value + error
+        self.action_value[updated_state, updated_action] = prev_action_value + error
 
     def _calculate_estimated_return(self, tau):
         high_bound = min(tau + self.n, self._final_time_step)

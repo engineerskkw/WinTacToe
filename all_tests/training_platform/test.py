@@ -85,15 +85,15 @@ class ClientPlayerTestCase(unittest.TestCase):
         self.c1.join(self.p1)
         self.server.start()
         # If list of expected returns is not empty, agent has been updated
-        self.assertTrue(self.c0.agent.Gs)
+        self.assertTrue(self.c0.agent.all_episodes_returns)
 
     def test_agent_multiple_games_expirience(self):
         self.c0.join(self.p0)
         self.c1.join(self.p1)
         for i in range(10):
             self.server.start()
-        self.assertEqual(len(self.c0.agent.Gs), 10)
-        self.assertEqual(len(self.c1.agent.Gs), 10)
+        self.assertEqual(len(self.c0.agent.all_episodes_returns), 10)
+        self.assertEqual(len(self.c1.agent.all_episodes_returns), 10)
 
     def tearDown(self):
         self.server.shutdown()
