@@ -11,8 +11,9 @@ import pygame
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.abstract_component import AbstractComponent
-from game_app.common_helper import TurnState, Components, Settings
+from game_app.common_helper import TurnState, Components, Settings, Difficulty
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
+from game_app.games.tic_tac_toe.agent_file_path_resolver import resolve_agent_file_path
 from game_app.menus.settings.settings_logic import save_selected_settings
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.common import *
@@ -21,9 +22,9 @@ from training_platform.server.logger import Logger
 from training_platform.common import LOGGING
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
-from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
 from reinforcement_learning.base.base_agent import BaseAgent
+
 
 class UserEventTypes(Enum):
     STATE_CHANGED = pygame.USEREVENT + 1
@@ -165,19 +166,15 @@ class TicTacToeComponent(AbstractComponent):
         players = self.server.players
 
         # TicTacToeClientActor server joining
-        p0 = players[self._player_mark]
-        self.tell(self.client_actor_address, JoinServerMsg(p0))
+        human_player = players[self._player_mark]
+        self.tell(self.client_actor_address, JoinServerMsg(human_player))
 
-        # TODO use self._board_size, self.marks_required, self._difficulty to load proper agent
         # Opponent joining
-        p1 = players[self._opponent_mark]
-        second_player_file_path = os.path.join(ABS_PROJECT_ROOT_PATH,
-                                               "reinforcement_learning",
-                                               "agents",
-                                               f"second_player_q_ep_0.ai")
-
-        c1 = AgentClient(BaseAgent.load(second_player_file_path))
-        self.server.join(c1, p1)
+        agent_player = players[self._opponent_mark]
+        agent = BaseAgent.load(resolve_agent_file_path(self._opponent_mark, self._board_size, self.marks_required))
+        agent.epsilon = 0.0 if self._difficulty == Difficulty.HARD else 0.2
+        agent_client = AgentClient(agent)
+        self.server.join(agent_client, agent_player)
         self.log(f"Joined opponent")
 
         # Environment starting
