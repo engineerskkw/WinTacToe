@@ -12,7 +12,7 @@ import pygame
 from itertools import product
 from pygame.rect import Rect
 from pygame.mixer import Sound
-from game_app.common.common_helper import TurnState, Settings, ColorMode
+from game_app.common.common_helper import TurnState, Settings, ColorMode, GameMode
 from game_app.common.buttons import RectangularTextButton, RoundIconButton
 from pygame import gfxdraw
 
@@ -40,6 +40,7 @@ class TicTacToeScene:
         self._game_over_situation_displayed = False
         self._background_and_messages_displayed = False
 
+        self._opponent_sound_on = self._component.game_mode == GameMode.AgentVsAgent
         self._square_size = 720 // self._board_size
         self._tic_tac_toe_buttons = []
         for row in range(self._board_size):
@@ -107,16 +108,23 @@ class TicTacToeScene:
                 self._display_game_over_message(self._component.winnings)
             else:
                 self._display_helper_message()
-                if self._component.turn == TurnState.NOT_YOUR_TURN:
-                    self._display_game_state_message("Agent's move", "Please, wait for your turn...")
-                else:
-                    self._display_game_state_message("Your move", "Select a field on the board",
-                                                     "to place your mark there")
+                if self._component.game_mode == GameMode.PlayerVsAgent:
+                    if self._component.turn == TurnState.NOT_YOUR_TURN:
+                        self._display_game_state_message("Agent's move", "Please, wait for your turn...")
+                    else:
+                        self._display_game_state_message("Your move", "Select a field on the board",
+                                                         "to place your mark there")
             self._background_and_messages_displayed = True
 
     def _display_helper_message(self):
-        self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (20, 655))
-        self._screen.blit(self._message_font.render(symbols[self._player_mark], True, self._message_color), (173, 646))
+        #TODO think about how the helper texts should look like in AvA
+        if self._component.game_mode == GameMode.PlayerVsAgent:
+            self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (20, 655))
+            self._screen.blit(self._message_font.render(symbols[self._player_mark], True, self._message_color), (173, 646))
+        else:
+            self._screen.blit(self._sub_message_font.render("Your agent's playing as:", True, self._message_color), (20, 655))
+            self._screen.blit(self._message_font.render(symbols[self._player_mark], True, self._message_color),
+                              (220, 646))
         self._screen.blit(self._sub_message_font.render("Connect %d marks to win" % self._component.marks_required,
                                                         True, self._message_color), (20, 683))
 
@@ -144,7 +152,7 @@ class TicTacToeScene:
                 if new_game_board[row, col] == -1:
                     self._tic_tac_toe_buttons[row][col].set_unmarked()
                 else:
-                    self._tic_tac_toe_buttons[row][col].set_marked_by_opponent()
+                    self._tic_tac_toe_buttons[row][col].set_marked_by_opponent(self._opponent_sound_on)
 
     def handle_turn_changed(self):
         self._background_and_messages_displayed = False
@@ -222,9 +230,11 @@ class TicTacToeButton(RectangularTextFramedButton):
         self.set_text(symbols[self._player_mark])
         self._component.step(self._game_position)
 
-    def set_marked_by_opponent(self):
+    def set_marked_by_opponent(self, play_sound=False):
         if self._is_disabled:
             return
+        if play_sound:
+            self._click_sound.play()
         self.set_text(symbols[self._opponent_mark])
         self.mark = self._opponent_mark
         self.set_disabled()

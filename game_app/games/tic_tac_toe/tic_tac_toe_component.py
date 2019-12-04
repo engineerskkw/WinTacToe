@@ -9,6 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 import pygame
 import time
+from threading import Thread
+from queue import SimpleQueue
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.common.abstract_component import AbstractComponent
@@ -40,12 +42,11 @@ class MoveMsg:
 
 
 class InitTTTClientActorMsg:
-    def __init__(self, match_maker_addr,
-                 game_manager_addr,
-                 logger_addr):
+    def __init__(self, match_maker_addr, game_manager_addr, logger_addr, game_mode):
         self.match_maker_addr = match_maker_addr
         self.game_manager_addr = game_manager_addr
         self.logger_addr = logger_addr
+        self.game_mode = game_mode
 
 
 class JoinServerMsg:
@@ -70,6 +71,7 @@ class TicTacToeClientActor(Actor):
         self.match_maker_addr = None
         self.game_manager_addr = None
         self.logger_addr = None
+        self.game_mode = None
         self.player = None
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
@@ -96,6 +98,7 @@ class TicTacToeClientActor(Actor):
             self.match_maker_addr = msg.match_maker_addr
             self.game_manager_addr = msg.game_manager_addr
             self.logger_addr = msg.logger_addr
+            self.game_mode = msg.game_mode
             self.log("Initialized")
 
         # Joining server
@@ -117,8 +120,10 @@ class TicTacToeClientActor(Actor):
         # Main Game loop
         elif isinstance(msg, YourTurnMsg):
             state_changed_event = {"type": UserEventTypes.STATE_CHANGED.value, "new_game_state": msg.state}
-            #TODO think about it
-            turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.YOUR_TURN, "action_space": msg.action_space, "new_game_state": msg.state}
+            turn_changed_event = {"type": UserEventTypes.TURN_CHANGED.value, "new_turn": TurnState.YOUR_TURN}
+            if self.game_mode == GameMode.AgentVsAgent:
+                turn_changed_event["action_space"] = msg.action_space
+                turn_changed_event["new_game_state"] = msg.state
             self._events_to_post += [state_changed_event, turn_changed_event]
 
         elif isinstance(msg, MoveMsg):
@@ -152,10 +157,14 @@ class TicTacToeComponent(AbstractComponent):
         self._opponent_mark = opponent_mark
         self._difficulty = difficulty
 
-        #TODO tmp
-        self._game_mode = GameMode.AgentVsAgent
-        if self._game_mode == GameMode.AgentVsAgent:
+        #TODO refactor fake player agent loading
+        self.game_mode = GameMode.AgentVsAgent
+        if self.game_mode == GameMode.AgentVsAgent:
+            self.show_ended = False
             self._fake_player_commands_queue = init_agent_fake_player()
+            self._fake_player_agent = BaseAgent.load(resolve_agent_file_path(self._player_mark, self._board_size, self.marks_required))
+            # self._fake_player_agent = BasicAgent()
+            self._fake_player_agent.epsilon = 0.0 if self._difficulty == Difficulty.HARD else 0.3
 
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
@@ -164,7 +173,7 @@ class TicTacToeComponent(AbstractComponent):
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
-        msg = InitTTTClientActorMsg(self.match_maker_addr, self.game_manager_addr, self.logger_addr)
+        msg = InitTTTClientActorMsg(self.match_maker_addr, self.game_manager_addr, self.logger_addr, self.game_mode)
         self.tell(self.client_actor_address, msg)
 
         # Training Platform initialization
@@ -222,31 +231,39 @@ class TicTacToeComponent(AbstractComponent):
 
     def handle_event(self, event):
         if event.type == UserEventTypes.STATE_CHANGED.value:
-            if self._game_mode == GameMode.PlayerVsAgent:
-                self._scene.handle_state_changed(event.new_game_state)
+            self._scene.handle_state_changed(event.new_game_state)
         elif event.type == UserEventTypes.TURN_CHANGED.value:
             self.turn = event.new_turn
             self._scene.handle_turn_changed()
 
-            if self._game_mode == GameMode.AgentVsAgent:
-                # refresh game state
-                self._fake_player_commands_queue.put(lambda: self._scene.handle_state_changed(event.new_game_state))
-
-                # take a step
-                agent = BasicAgent()
-                move = agent.take_action(event.new_game_state, event.action_space)
-                # time.sleep(1)
-                # self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed()
-                self._fake_player_commands_queue.put(lambda: self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed())
+            #TODO refactor
+            if self.game_mode == GameMode.AgentVsAgent:
+                # take a step after delay
+                self._fake_player_agent.receive_reward(0)
+                move = self._fake_player_agent.take_action(event.new_game_state, event.action_space)
+                self._fake_player_commands_queue.put((lambda: self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed(), self))
 
         elif event.type == UserEventTypes.GAME_OVER.value:
-            self.winnings = event.new_winnings
-            if not self.winnings:
-                self.winnings = -1
+            if self.game_mode == GameMode.AgentVsAgent:
+                if not event.new_winnings and self._board_size % 2 == 0:
+                    print("sztucznie opozniam bo remis na parzystej")
+                    self._fake_player_commands_queue.put((lambda: self.xd(event.new_winnings), self))
+                elif event.new_winnings and event.new_winnings[0].mark == self._opponent_mark:
+                    print("sztucznie opozniam bo przegralem")
+                    self._fake_player_commands_queue.put((lambda: self.xd(event.new_winnings), self))
+                else:
+                    self.winnings = event.new_winnings if event.new_winnings else -1
+            else:
+                self.winnings = event.new_winnings if event.new_winnings else -1
         elif event.type == MOUSEBUTTONUP:
+            #TODO jest ava to nie all buttons, tylko wsyzstkie oprocz tictactoe buttons
             buttons = self._scene.all_buttons
             for button in filter(lambda b: b.contains_point(event.pos), buttons):
                 button.on_pressed()
+
+    #TODO rename
+    def xd(self, new_winnings):
+        self.winnings = new_winnings if new_winnings else -1
 
     def loop(self):
         msg = self.ask(self.client_actor_address, GetEventsToPostMsg())
@@ -259,9 +276,16 @@ class TicTacToeComponent(AbstractComponent):
         self.turn = TurnState.NOT_YOUR_TURN
         row, col = position
         action = TicTacToeAction(row, col)
-        self.tell(self.client_actor_address, MoveMsg(action))
+        if self.game_mode == GameMode.AgentVsAgent:
+            self._fake_player_commands_queue.put((lambda: self.tell(self.client_actor_address, MoveMsg(action)), self))
+        else:
+            self.tell(self.client_actor_address, MoveMsg(action))
 
     def restart(self):
+        if self.game_mode == GameMode.AgentVsAgent:
+            self.show_ended = True #TODO rename
+            self._fake_player_commands_queue.put(("restart", self))
+            self._fake_player_agent.restart()
         self.turn = TurnState.NOT_YOUR_TURN
         self.winnings = []
         self._scene = TicTacToeScene(self, self._app, self._app.screen, self._board_size, self._player_mark,
@@ -270,6 +294,9 @@ class TicTacToeComponent(AbstractComponent):
         self.log("Restarted server")
 
     def back_to_menu(self):
+        if self.game_mode == GameMode.AgentVsAgent:
+            self.show_ended = True
+            self._fake_player_commands_queue.put(("die", self))
         self.server.shutdown()
         self._app.switch_component(Components.MAIN_MENU)
 
@@ -289,21 +316,23 @@ class TicTacToeComponent(AbstractComponent):
         save_selected_settings(self._app.settings)
 
 
-
-from threading import Thread
-from queue import SimpleQueue
-
-
+#TODO przerzuc to do innego pliku jak sie uda
 def agent_fake_player(commands_queue):
     while True:
         command = commands_queue.get(block=True, timeout=None)
         print(command)
 
-        if command == 'die':
+        #TODO zrob na to klasy
+        if command[0] == 'die':
             break
 
-        time.sleep(0.7)
-        command()
+        if command[0] == 'restart':
+            command[1].show_ended = False
+            continue
+
+        time.sleep(0.5)
+        if not command[1].show_ended:
+            command[0]()
 
 
 def init_agent_fake_player():
