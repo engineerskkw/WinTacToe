@@ -17,7 +17,7 @@ from all_tests.mock.test_mock_state import MockState
 from all_tests.mock.test_mock_action import MockAction
 
 
-class LogisticRegressionActionValue(BaseActionValue):
+class LinearRegressionActionValue(BaseActionValue):
     MIN_PEN_WIDTH = 1
     MAX_PEN_WIDTH = 4
 
@@ -114,7 +114,7 @@ class LogisticRegressionActionValue(BaseActionValue):
 
 if __name__ == '__main__':
     # Logistic regression action-value test
-    av = LogisticRegressionActionValue()
+    av = LinearRegressionActionValue()
 
     s = MockState([[-1, -1], [-1, 1]])
 
