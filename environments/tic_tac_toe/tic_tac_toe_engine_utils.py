@@ -7,6 +7,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from random import choice, sample, randrange
+import numpy as np
 
 from reinforcement_learning.base.base_state import BaseState
 from reinforcement_learning.base.base_action import BaseAction
@@ -118,6 +119,9 @@ class TicTacToeState(BaseState):
     def __repr__(self):
         return self.__str__()
 
+    def flatten(self):
+        return self.board.flatten()
+
 
 class TicTacToeAction(BaseAction):
     def __init__(self, row, col):
@@ -132,6 +136,9 @@ class TicTacToeAction(BaseAction):
 
     def __eq__(self, other):
         return self.row == other.row and self.col == other.col
+
+    def flatten(self):
+        return np.array([self.row, self.col])
 
 
 class TicTacToeActionSpace(BaseActionSpace):
