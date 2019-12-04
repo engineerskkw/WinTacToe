@@ -74,7 +74,7 @@ class BaseActionValue(ABC):
         pass
 
     @abstractmethod
-    def max(self, state):
+    def max(self, state, action_space):
         """
         Get a maximum expected return for the given state and for
         all actions that are possible to choose in this state.
@@ -83,6 +83,8 @@ class BaseActionValue(ABC):
         ----------
         state : BaseState
             State of the environment.
+        action_space : BaseActionSpace
+            Action space for given state
 
         Returns
         -------
@@ -92,7 +94,7 @@ class BaseActionValue(ABC):
         pass
 
     @abstractmethod
-    def argmax(self, state):
+    def argmax(self, state, action_space):
         """
         Get a set of actions for which the expected return
         is maximum in the given state.
@@ -101,6 +103,8 @@ class BaseActionValue(ABC):
         ----------
         state : BaseState
             State of the environment.
+        action_space : BaseActionSpace
+            Action space for given state
 
         Returns
         -------
@@ -110,7 +114,22 @@ class BaseActionValue(ABC):
         pass
 
     @abstractmethod
-    def action_returns(self, state):
+    def action_returns(self, state, action_space):
+        """
+        Get expected returns estimates of all possible actions in the given state.
+
+        Parameters
+        ----------
+        state : BaseState
+            State of the environment.
+        action_space : BaseActionSpace
+            Action space for given state
+
+        Returns
+        -------
+        Dict[BaseAction:float]
+            Dictionary of actions as keys and expected returns estimates as values.
+        """
         pass
 
     @abstractmethod
