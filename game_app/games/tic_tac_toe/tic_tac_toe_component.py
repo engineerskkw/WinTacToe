@@ -147,17 +147,17 @@ class TicTacToeClientActor(Actor):
 
 
 class TicTacToeComponent(AbstractComponent):
-    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, difficulty, number_of_players=2):
+    def __init__(self, app, board_size, marks_required, player_mark, opponent_mark, difficulty, game_mode):
         self._app = app
-        self._number_of_players = number_of_players
         self._board_size = board_size
         self.marks_required = marks_required
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
         self._difficulty = difficulty
+        self.game_mode = game_mode
+        self._number_of_players = 2
 
         #TODO refactor fake player agent loading
-        self.game_mode = GameMode.AgentVsAgent
         if self.game_mode == GameMode.AgentVsAgent:
             self.show_ended = False
             self._fake_player_commands_queue = init_agent_fake_player()

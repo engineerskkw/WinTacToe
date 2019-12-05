@@ -137,7 +137,7 @@ class RectangularChoiceButton(RectangularTextButton):
 class RectangularChoiceButtonWithSubtext(RectangularChoiceButton):
     def __init__(self, text, subtext, action, app, position, size, chosen):
         super().__init__(text, action, app, position, size, chosen)
-        self._subtext_font = pygame.font.Font(None, 30)
+        self._subtext_font = pygame.font.Font(None, 27)
         self._subtext = self._subtext_font.render(subtext, True, self._text_color)
 
     def _get_text_position(self):

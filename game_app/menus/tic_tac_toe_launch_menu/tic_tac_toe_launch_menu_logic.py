@@ -8,7 +8,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from pygame.locals import *
-from game_app.common.common_helper import Components, ColorMode, Settings, Difficulty
+from game_app.common.common_helper import Components, ColorMode, Settings, Difficulty, GameMode
 from game_app.common.buttons import RectangularChoiceButton, RectangularTextButton, RoundIconButton, \
     RectangularChoiceButtonWithSubtext
 
@@ -20,6 +20,7 @@ class TicTacToeLaunchMenuLogic:
         self._marks_required = 3
         self._mark = 0
         self._difficulty = Difficulty.MEDIUM
+        self._game_mode = GameMode.PlayerVsAgent
 
         self._size_buttons = [RectangularChoiceButtonWithSubtext("3x3", "Playing to 3",
                                                                  lambda: self.change_board_size(3, 3),
@@ -47,21 +48,27 @@ class TicTacToeLaunchMenuLogic:
                                                                  app, (850, 210), (180, 100), False),
                               ]
 
+        self._game_mode_buttons = [RectangularChoiceButtonWithSubtext("Medium", "PlayerVsAgent",
+                                                                      lambda: self.change_game_mode(
+                                                                          GameMode.PlayerVsAgent, Difficulty.MEDIUM),
+                                                                      app, (350, 380), (180, 100), True),
+                                   RectangularChoiceButtonWithSubtext("Hard", "PlayerVsAgent",
+                                                                      lambda: self.change_game_mode(
+                                                                          GameMode.PlayerVsAgent, Difficulty.HARD),
+                                                                      app, (550, 380), (180, 100), False),
+                                   RectangularChoiceButtonWithSubtext("Spectator", "AgentVsAgent",
+                                                                      lambda: self.change_game_mode(
+                                                                          GameMode.AgentVsAgent, Difficulty.HARD),
+                                                                      app, (750, 380), (180, 100), False),
+                                   ]
+
         self._mark_buttons = [RectangularChoiceButton("X",
                                                       lambda: self.change_mark(0),
-                                                      app, (450, 380), (180, 100), True),
+                                                      app, (450, 550), (180, 100), True),
                               RectangularChoiceButton("O",
                                                       lambda: self.change_mark(1),
-                                                      app, (650, 380), (180, 100), False),
+                                                      app, (650, 550), (180, 100), False),
                               ]
-
-        self._difficulty_buttons = [RectangularChoiceButton("Medium",
-                                                            lambda: self.change_difficulty(Difficulty.MEDIUM),
-                                                            app, (450, 550), (180, 100), True),
-                                    RectangularChoiceButton("Hard",
-                                                            lambda: self.change_difficulty(Difficulty.HARD),
-                                                            app, (650, 550), (180, 100), False),
-                                    ]
 
         self._start_button = RectangularTextButton("Let's go!",
                                                    self.switch_to_tic_tac_toe,
@@ -71,7 +78,7 @@ class TicTacToeLaunchMenuLogic:
                                                     self.switch_back_to_main_menu, app, (40, 40), 30)
 
         self.all_buttons = [self._start_button, self._back_to_menu_button] + self._size_buttons + self._mark_buttons \
-                           + self._difficulty_buttons
+                           + self._game_mode_buttons
 
     def handle_event(self, event):
         if event.type == MOUSEBUTTONUP:
@@ -91,10 +98,11 @@ class TicTacToeLaunchMenuLogic:
                 button.set_chosen(False)
             self._mark = new_mark
 
-    def change_difficulty(self, new_difficulty):
-        if new_difficulty != self._difficulty:
-            for button in self._difficulty_buttons:
+    def change_game_mode(self, new_game_mode, new_difficulty):
+        if new_game_mode != self._game_mode or new_difficulty != self._difficulty:
+            for button in self._game_mode_buttons:
                 button.set_chosen(False)
+            self._game_mode = new_game_mode
             self._difficulty = new_difficulty
 
     def switch_back_to_main_menu(self):
@@ -106,7 +114,8 @@ class TicTacToeLaunchMenuLogic:
                                    marks_required=self._marks_required,
                                    player_mark=self._mark,
                                    opponent_mark=abs(self._mark - 1),
-                                   difficulty=self._difficulty)
+                                   difficulty=self._difficulty,
+                                   game_mode=self._game_mode)
 
 
 def resolve_back_arrow_image_path(color_mode):

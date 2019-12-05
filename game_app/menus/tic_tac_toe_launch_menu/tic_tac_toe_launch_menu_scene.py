@@ -33,9 +33,9 @@ class TicTacToeLaunchMenuScene:
 
             pygame.font.init()
             font = pygame.font.Font(None, 30)
-            text1 = font.render("Select board size and goal of the game:", True, self._text_color)
-            text2 = font.render("Select your mark (crosses go first):", True, self._text_color)
-            text3 = font.render("Select difficulty level:", True, self._text_color)
+            text1 = font.render("Board size and game objective:", True, self._text_color)
+            text2 = font.render("Game mode:", True, self._text_color)
+            text3 = font.render("Your mark (crosses go first):", True, self._text_color)
             self._screen.blit(text1, (640 - text1.get_width() / 2, 55))
             self._screen.blit(text2, (640 - text2.get_width() / 2, 345))
             self._screen.blit(text3, (640 - text3.get_width() / 2, 515))

@@ -39,7 +39,7 @@ def agent_fake_player(commands_queue):
             continue
 
         if isinstance(command, ActionFakePlayerCommand):
-            time.sleep(0.5)
+            time.sleep(0.4)
             if not command.component.show_ended:
                 command.action()
 
