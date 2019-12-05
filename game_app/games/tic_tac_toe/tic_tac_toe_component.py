@@ -8,15 +8,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import pygame
-import time
-from threading import Thread
-from queue import SimpleQueue
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.common.abstract_component import AbstractComponent
 from game_app.common.common_helper import TurnState, Components, Settings, Difficulty, GameMode
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from game_app.games.tic_tac_toe.agent_file_path_resolver import resolve_agent_file_path
+from game_app.games.tic_tac_toe.agent_fake_player import init_agent_fake_player, ActionFakePlayerCommand, \
+    DieFakePlayerCommand, RestartFakePlayerCommand
 from game_app.menus.settings.settings_logic import save_selected_settings
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from training_platform.common import *
@@ -241,16 +240,14 @@ class TicTacToeComponent(AbstractComponent):
                 # take a step after delay
                 self._fake_player_agent.receive_reward(0)
                 move = self._fake_player_agent.take_action(event.new_game_state, event.action_space)
-                self._fake_player_commands_queue.put((lambda: self._scene._tic_tac_toe_buttons[move.row][move.col].on_pressed(), self))
+                self._fake_player_commands_queue.put(ActionFakePlayerCommand(
+                    lambda: self._scene.tic_tac_toe_buttons[move.row][move.col].on_pressed(), self))
 
         elif event.type == UserEventTypes.GAME_OVER.value:
             if self.game_mode == GameMode.AgentVsAgent:
-                if not event.new_winnings and self._board_size % 2 == 0:
-                    print("sztucznie opozniam bo remis na parzystej")
-                    self._fake_player_commands_queue.put((lambda: self.xd(event.new_winnings), self))
-                elif event.new_winnings and event.new_winnings[0].mark == self._opponent_mark:
-                    print("sztucznie opozniam bo przegralem")
-                    self._fake_player_commands_queue.put((lambda: self.xd(event.new_winnings), self))
+                if not event.new_winnings and self._board_size % 2 == 0 \
+                        or (event.new_winnings and event.new_winnings[0].mark == self._opponent_mark):
+                    self._fake_player_commands_queue.put(ActionFakePlayerCommand(lambda: self.xd(event.new_winnings), self))
                 else:
                     self.winnings = event.new_winnings if event.new_winnings else -1
             else:
@@ -277,14 +274,14 @@ class TicTacToeComponent(AbstractComponent):
         row, col = position
         action = TicTacToeAction(row, col)
         if self.game_mode == GameMode.AgentVsAgent:
-            self._fake_player_commands_queue.put((lambda: self.tell(self.client_actor_address, MoveMsg(action)), self))
+            self._fake_player_commands_queue.put(ActionFakePlayerCommand(lambda: self.tell(self.client_actor_address, MoveMsg(action)), self))
         else:
             self.tell(self.client_actor_address, MoveMsg(action))
 
     def restart(self):
         if self.game_mode == GameMode.AgentVsAgent:
             self.show_ended = True #TODO rename
-            self._fake_player_commands_queue.put(("restart", self))
+            self._fake_player_commands_queue.put(RestartFakePlayerCommand(self))
             self._fake_player_agent.restart()
         self.turn = TurnState.NOT_YOUR_TURN
         self.winnings = []
@@ -296,9 +293,12 @@ class TicTacToeComponent(AbstractComponent):
     def back_to_menu(self):
         if self.game_mode == GameMode.AgentVsAgent:
             self.show_ended = True
-            self._fake_player_commands_queue.put(("die", self))
+            self.kill_fake_player()
         self.server.shutdown()
         self._app.switch_component(Components.MAIN_MENU)
+
+    def kill_fake_player(self):
+        self._fake_player_commands_queue.put(DieFakePlayerCommand())
 
     def play_sound_stopping_music(self, sound_file_path):
         self._app.play_sound_stopping_music(sound_file_path)
@@ -314,30 +314,3 @@ class TicTacToeComponent(AbstractComponent):
         self._app.settings[Settings.SOUNDS] = not self._app.settings[Settings.SOUNDS]
         self._scene.update_sounds_button()
         save_selected_settings(self._app.settings)
-
-
-#TODO przerzuc to do innego pliku jak sie uda
-def agent_fake_player(commands_queue):
-    while True:
-        command = commands_queue.get(block=True, timeout=None)
-        print(command)
-
-        #TODO zrob na to klasy
-        if command[0] == 'die':
-            break
-
-        if command[0] == 'restart':
-            command[1].show_ended = False
-            continue
-
-        time.sleep(0.5)
-        if not command[1].show_ended:
-            command[0]()
-
-
-def init_agent_fake_player():
-    commands_queue = SimpleQueue()
-    agent_fake_player_thread = Thread(target=agent_fake_player, args=(commands_queue,))
-    agent_fake_player_thread.start()
-    return commands_queue
-

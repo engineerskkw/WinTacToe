@@ -16,7 +16,7 @@ from game_app.menus.settings.settings_component import SettingsComponent
 from game_app.menus.credits.credits_component import CreditsComponent
 from game_app.menus.tic_tac_toe_launch_menu.tic_tac_toe_launch_menu_component import TicTacToeLaunchMenuComponent
 from game_app.common.common_helper import Components, Settings, init_music_player, SwitchMusicCommand, StopMusicCommand, \
-    StopMusicPlayerCommand, PlaySoundStoppingMusicCommand
+    StopMusicPlayerCommand, PlaySoundStoppingMusicCommand, GameMode
 
 
 class Application:
@@ -64,6 +64,9 @@ class Application:
 
     def _cleanup(self):
         self._music_player_commands_queue.put(StopMusicPlayerCommand())
+        if isinstance(self._current_component, TicTacToeComponent) and \
+                self._current_component.game_mode == GameMode.AgentVsAgent:
+            self._current_component.kill_fake_player()
         pygame.quit()
 
     def exit_application(self):
