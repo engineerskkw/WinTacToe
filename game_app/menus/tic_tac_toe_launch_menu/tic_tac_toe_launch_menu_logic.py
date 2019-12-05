@@ -29,7 +29,7 @@ class TicTacToeLaunchMenuLogic:
                                                                  lambda: self.change_board_size(5, 3),
                                                                  app, (450, 90), (180, 100), False),
                               RectangularChoiceButtonWithSubtext("5x5", "Playing to 4",
-                                                                 lambda: self.change_board_size(5, 4),
+                                                                 lambda: self.change_board_size(4, 4),
                                                                  app, (650, 90), (180, 100), False),
                               RectangularChoiceButtonWithSubtext("10x10", "Playing to 4",
                                                                  lambda: self.change_board_size(10, 4),
@@ -109,11 +109,13 @@ class TicTacToeLaunchMenuLogic:
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)
 
     def switch_to_tic_tac_toe(self):
+        player_mark = self._mark if self._game_mode == GameMode.PlayerVsAgent else 0
+        opponent_mark = abs(self._mark - 1) if self._game_mode == GameMode.PlayerVsAgent else 1
         self._app.switch_component(Components.TIC_TAC_TOE,
                                    board_size=self._board_size,
                                    marks_required=self._marks_required,
-                                   player_mark=self._mark,
-                                   opponent_mark=abs(self._mark - 1),
+                                   player_mark=player_mark,
+                                   opponent_mark=opponent_mark,
                                    difficulty=self._difficulty,
                                    game_mode=self._game_mode)
 

@@ -39,7 +39,7 @@ class TicTacToeScene:
         self._game_over_situation_displayed = False
         self._background_and_messages_displayed = False
 
-        self._opponent_sound_on = self._component.game_mode == GameMode.AgentVsAgent
+        self._opponent_sound_on = self._component.spectator_mode
         self._square_size = 720 // self._board_size
         self.tic_tac_toe_buttons = []
         for row in range(self._board_size):
@@ -68,8 +68,10 @@ class TicTacToeScene:
             resolve_music_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.MUSIC]),
             self._component.toggle_music, app, (1195, 665), 32, 2)
 
-        self.all_buttons = [self._restart_button, self._main_menu_button, self._toggle_sounds_button,
-                            self._toggle_music_button] + sum(self.tic_tac_toe_buttons, [])
+        self.all_but_tic_tac_toe_buttons = [self._restart_button, self._main_menu_button, self._toggle_sounds_button,
+                            self._toggle_music_button]
+
+        self.all_buttons = self.all_but_tic_tac_toe_buttons + sum(self.tic_tac_toe_buttons, [])
 
     def render(self):
         self._display_game_over_situation()
@@ -85,10 +87,10 @@ class TicTacToeScene:
                 [button.set_disabled() for button in sum(self.tic_tac_toe_buttons, [])]
                 for winning in self._component.winnings:
                     [self.tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
-                if self._component.game_mode == GameMode.PlayerVsAgent:
-                    self._play_game_over_sound(1 if self._component.winnings[0].mark == self._player_mark else 2)
-                else:
+                if self._component.spectator_mode:
                     self._play_game_over_sound(0)
+                else:
+                    self._play_game_over_sound(1 if self._component.winnings[0].mark == self._player_mark else 2)
             self._background_and_messages_displayed = False
             self._game_over_situation_displayed = True
 
@@ -108,27 +110,27 @@ class TicTacToeScene:
             screen.blit(background, (0, 0))
             if self._game_over_situation_displayed:
                 self._display_game_over_message(self._component.winnings)
-            elif self._component.game_mode == GameMode.PlayerVsAgent:
+            elif self._component.spectator_mode:
+                self._display_helper_message()
+            else:
                 self._display_helper_message()
                 if self._component.turn == TurnState.NOT_YOUR_TURN:
                     self._display_game_state_message("Agent's move", "Please, wait for your turn...")
                 else:
                     self._display_game_state_message("Your move", "Select a field on the board",
                                                      "to place your mark there")
-            else:
-                self._display_helper_message()
             self._background_and_messages_displayed = True
 
     def _display_helper_message(self):
-        if self._component.game_mode == GameMode.PlayerVsAgent:
+        if self._component.spectator_mode:
+            self._screen.blit(self._sub_message_font.render("Spectating", True, self._message_color), (20, 655))
+            self._screen.blit(self._sub_message_font.render("Playing to %d" % self._component.marks_required,
+                                                            True, self._message_color), (20, 683))
+        else:
             player_symbol = symbols[self._player_mark]
             self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (20, 655))
             self._screen.blit(self._message_font.render(player_symbol, True, self._message_color), (173, 646))
             self._screen.blit(self._sub_message_font.render("Connect %d marks to win" % self._component.marks_required,
-                                                            True, self._message_color), (20, 683))
-        else:
-            self._screen.blit(self._sub_message_font.render("Spectating", True, self._message_color), (20, 655))
-            self._screen.blit(self._sub_message_font.render("Playing to %d" % self._component.marks_required,
                                                             True, self._message_color), (20, 683))
 
     def _display_game_state_message(self, text1, text2='', text3=''):
@@ -137,20 +139,20 @@ class TicTacToeScene:
         self._screen.blit(self._sub_message_font.render(text3, True, self._message_color), (20, 95))
 
     def _display_game_over_message(self, winnings):
-        if self._component.game_mode == GameMode.PlayerVsAgent:
-            if winnings == -1:
-                self._display_game_state_message("It's a tie!", "Nice try")
-            elif winnings[0].mark == self._player_mark:
-                self._display_game_state_message("You win!", "Congratulations")
-            else:
-                self._display_game_state_message("You lose!", "Better luck next time")
-        else:
+        if self._component.spectator_mode:
             if winnings == -1:
                 self._display_game_state_message("It's a tie!")
             elif winnings[0].mark == 0:
                 self._display_game_state_message("Crosses win!")
             else:
                 self._display_game_state_message("Naughts win!")
+        else:
+            if winnings == -1:
+                self._display_game_state_message("It's a tie!", "Nice try")
+            elif winnings[0].mark == self._player_mark:
+                self._display_game_state_message("You win!", "Congratulations")
+            else:
+                self._display_game_state_message("You lose!", "Better luck next time")
 
     def _render_buttons(self):
         for button in self.all_buttons:

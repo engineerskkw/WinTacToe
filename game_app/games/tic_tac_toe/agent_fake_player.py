@@ -12,7 +12,7 @@ from threading import Thread
 from queue import SimpleQueue
 
 
-class DieFakePlayerCommand:
+class KillFakePlayerCommand:
     pass
 
 
@@ -31,16 +31,16 @@ def agent_fake_player(commands_queue):
     while True:
         command = commands_queue.get(block=True, timeout=None)
 
-        if isinstance(command, DieFakePlayerCommand):
+        if isinstance(command, KillFakePlayerCommand):
             break
 
         if isinstance(command, RestartFakePlayerCommand):
-            command.component.show_ended = False
+            command.component.game_ended = False
             continue
 
-        if isinstance(command, ActionFakePlayerCommand):
+        if isinstance(command, ActionFakePlayerCommand) and not command.component.game_ended:
             time.sleep(0.4)
-            if not command.component.show_ended:
+            if not command.component.game_ended:
                 command.action()
 
 def init_agent_fake_player():
