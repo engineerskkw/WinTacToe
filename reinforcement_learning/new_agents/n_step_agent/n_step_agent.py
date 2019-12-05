@@ -10,20 +10,20 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import numpy as np
 
 from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import safe_return
+from reinforcement_learning.new_agents.common.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.new_agents.common.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.new_agents.common.agent_utils import safe_return
 
 
 class NStepAgent(BaseAgent):
-    def __init__(self, n, step_size, epsilon, discount):
+    def __init__(self, n, step_size, epsilon, discount, action_value=LazyTabularActionValue()):
         super().__init__()
         self.n = n
         self.step_size = step_size
         self.epsilon = epsilon
         self.discount = discount
 
-        self.action_value = LazyTabularActionValue()
+        self.action_value = action_value
         self.policy = ActionValueDerivedPolicy(self.action_value)
 
         self._final_time_step = np.inf
@@ -64,12 +64,12 @@ class NStepAgent(BaseAgent):
 
         updated_state = self._state_history[tau]
         updated_action = self._action_history[tau]
-        prev_action_value = self.action_value[updated_state, updated_action]
-
         estimated_return = self._calculate_estimated_return(tau)
-        error = self.step_size * (estimated_return - prev_action_value)
 
-        self.action_value[updated_state, updated_action] = prev_action_value + error
+        self.action_value.sample_update(state=updated_state,
+                                        action=updated_action,
+                                        step_size=self.step_size,
+                                        target=estimated_return)
 
     def _calculate_estimated_return(self, tau):
         high_bound = min(tau + self.n, self._final_time_step)

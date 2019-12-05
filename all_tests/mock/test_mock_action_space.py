@@ -8,14 +8,13 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from reinforcement_learning.base.base_action_space import BaseActionSpace
 from random import choice, randrange, sample
+from typing import Set
 
+from dataclasses import dataclass
 
+@dataclass(frozen=True)
 class MockActionSpace(BaseActionSpace):
-    """
     actions: Set
-    """
-    def __init__(self, actions: set):
-        self.actions = actions
 
     def __contains__(self, action):
         return action in self.actions

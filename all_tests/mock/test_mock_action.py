@@ -9,19 +9,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 import numpy as np
 from reinforcement_learning.base.base_action import BaseAction
 
+from dataclasses import dataclass
+import numpy as np
 
+
+@dataclass(frozen=True)
 class MockAction(BaseAction):
-    def __init__(self, array):
-        self.array = np.array(array)
-
-    def __hash__(self):
-        return hash(self.array.tostring())
-
-    def __str__(self):
-        return str(self.array)
-
-    def __repr__(self):
-        return self.__str__()
+    atr1: int
+    atr2: int
 
     def flatten(self):
-        return self.array.flatten()
+        return [self.atr1, self.atr2]

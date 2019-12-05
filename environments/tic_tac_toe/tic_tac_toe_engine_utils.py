@@ -104,6 +104,14 @@ class TicTacToeState(BaseState):
     def flatten(self):
         return self.board.flatten()
 
+    def __hash__(self):
+        return hash(self.board.data.tobytes())
+
+    def __eq__(self, other):
+        if isinstance(other, TicTacToeState):
+            return hash(self) == hash(other)
+        return False
+
 
 @dataclass(frozen=True)
 class TicTacToeAction(BaseAction):

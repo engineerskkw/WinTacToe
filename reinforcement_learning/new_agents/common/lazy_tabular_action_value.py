@@ -58,6 +58,18 @@ class LazyTabularActionValue(BaseActionValue):
         """
         return float(0)
 
+    def sample_update(self, **kwargs):
+        state = kwargs['state']
+        action = kwargs['action']
+        step_size = kwargs['step_size']
+        target = kwargs['target']
+
+        self[state, action] = self[state, action] + step_size * (target - self[state, action])
+
+        # print(state)
+        # print(action)
+        # print(target)
+
     # Needed for pickle...
     def _default_action_value(self):
         return self._default_cell_value

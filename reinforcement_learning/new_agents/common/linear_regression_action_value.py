@@ -21,8 +21,9 @@ class LinearRegressionActionValue(BaseActionValue):
     MIN_PEN_WIDTH = 1
     MAX_PEN_WIDTH = 4
 
-    def __init__(self):
+    def __init__(self, init_weights_zeros=False):
         self.weights = None
+        self.init_weights_zeros=init_weights_zeros
 
     def __getitem__(self, key: tuple):
         assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
@@ -41,23 +42,22 @@ class LinearRegressionActionValue(BaseActionValue):
         step_size = kwargs['step_size']
         target = kwargs['target']
 
-        old_estimate = self.__getitem__((state, action))
-        gradient = self.__gradient(state, action)
+        if self.weights is None:
+            self.weights = self.__init_weights(self.__get_features(state, action).size)
 
-        # Update rule for weights
-        self.weights = self.weights + step_size * (target - old_estimate) * gradient
+        # Stochastic gradient descent
+        gradient = self.__gradient(state, action)
+        self.weights = self.weights + step_size * (target - self[state, action]) * gradient
 
     def __get_features(self, state, action):
         # Additional [1] because there is also bias
         # TODO: implement flatten in state and action
         return np.concatenate((state.flatten(), action.flatten(), [1])).reshape(-1, 1)
 
-    def __init_weights(self, feature_size, zeros=False):
-        if zeros:
-            tmp = np.zeros(feature_size)
-        else:
-            tmp = np.random.rand(feature_size)
-        return tmp.reshape((1, -1))
+    def __init_weights(self, feature_size):
+        tmp = np.zeros(feature_size) if self.init_weights_zeros else np.random.rand(feature_size)
+        tmp.reshape((1, -1))
+        return tmp
 
     def __gradient(self, state, action):
         return self.__get_features(state, action).transpose()
@@ -69,6 +69,9 @@ class LinearRegressionActionValue(BaseActionValue):
 
     def argmax(self, state, action_space):
         # TODO: fix iteration over possibly infinite action_space
+        if not action_space.actions:
+            return {}
+
         max_action_value = self.max(state, action_space)
         return {action for action in action_space.actions if self.__getitem__((state, action)) == max_action_value}
 
@@ -111,19 +114,3 @@ class LinearRegressionActionValue(BaseActionValue):
 
     def view(self):
         return self._get_graph().view()
-
-if __name__ == '__main__':
-    # Logistic regression action-value test
-    av = LinearRegressionActionValue()
-
-    s = MockState([[-1, -1], [-1, 1]])
-
-    a1 = MockAction([0, 0])
-    a2 = MockAction([0, 1])
-    a3 = MockAction([1, 0])
-
-    alpha = 0.1
-    av.sample_update(state=s, action=a1, target=6, step_size=alpha)
-    av.sample_update(state=s, action=a2, target=0.8, step_size=alpha)
-    av.sample_update(state=s, action=a3, target=-10, step_size=alpha)
-    av.view()

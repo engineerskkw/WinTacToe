@@ -9,12 +9,14 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-from reinforcement_learning.agents.random_agent.random_agent import RandomAgent
-from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
-from reinforcement_learning.agents.q_learning_agent.q_learning_agent import QLearningAgent
+from reinforcement_learning.new_agents.n_step_agent.n_step_agent import NStepAgent
+from reinforcement_learning.new_agents.q_learning_agent.q_learning_agent import QLearningAgent
+
+from reinforcement_learning.new_agents.random_agent.random_agent import RandomAgent
+from reinforcement_learning.new_agents.common.linear_regression_action_value import LinearRegressionActionValue
 from reinforcement_learning.common.simple_training import SimpleTraining
+
+from reinforcement_learning.base.base_agent import BaseAgent
 
 import matplotlib.pyplot as plt
 
@@ -28,13 +30,15 @@ if __name__ == '__main__':
     # agents_file_paths = [agent_0_file_path, agent_1_file_path]
     # agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
 
-    agents = [BasicAgent(), BasicAgent()]
+    agents = [NStepAgent(2, 0.3, 0.1, 0.9, action_value=LinearRegressionActionValue()), RandomAgent()]
 
     # Training is as simple as it:
-    number_of_episodes = 3
+    number_of_episodes = 10000
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
-    # # At the end you can save your trained agents
+    agents[0].visualize()
+
+    # At the end you can save your trained agents
     # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
