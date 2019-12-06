@@ -15,6 +15,7 @@ from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
 from reinforcement_learning.base.base_action_value import BaseActionValue
 from all_tests.mock.test_mock_state import MockState
 from all_tests.mock.test_mock_action import MockAction
+from itertools import product
 
 
 class LinearRegressionActionValue(BaseActionValue):
@@ -29,6 +30,8 @@ class LinearRegressionActionValue(BaseActionValue):
         assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
         state, action = key
         features = self.__get_features(state, action)
+
+        # print(f"features XD: {features}")
 
         # Lazy weights initialization
         if self.weights is None:
@@ -49,13 +52,20 @@ class LinearRegressionActionValue(BaseActionValue):
         gradient = self.__gradient(state, action)
         self.weights = self.weights + step_size * (target - self[state, action]) * gradient
 
+        # print(self.weights)
+
     def __get_features(self, state, action):
         # Additional [1] because there is also bias
         # TODO: implement flatten in state and action
-        return np.concatenate((state.flatten(), action.flatten(), [1])).reshape(-1, 1)
+        x = np.concatenate((state.flatten(), action.flatten()))
+        additional_features = np.array([i[0] * i[1] for i in product(x, x)])
+        final_features = np.concatenate((x, additional_features, [1])).reshape(-1, 1)
+        norm = np.linalg.norm(final_features)
+
+        return  final_features / norm
 
     def __init_weights(self, feature_size):
-        tmp = np.zeros(feature_size) if self.init_weights_zeros else np.random.rand(feature_size)
+        tmp = np.zeros(feature_size) if self.init_weights_zeros else np.random.uniform(-0.01, 0.01, feature_size)
         tmp.reshape((1, -1))
         return tmp
 
@@ -64,6 +74,8 @@ class LinearRegressionActionValue(BaseActionValue):
 
     def max(self, state, action_space):
         # TODO: fix iteration over possibly infinite action_space
+        if not action_space:
+            return 0.
         expected_returns = [self.__getitem__((state, action)) for action in action_space.actions]
         return max(expected_returns)
 

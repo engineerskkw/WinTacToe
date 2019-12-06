@@ -13,6 +13,7 @@ from reinforcement_learning.new_agents.n_step_agent.n_step_agent import NStepAge
 from reinforcement_learning.new_agents.q_learning_agent.q_learning_agent import QLearningAgent
 
 from reinforcement_learning.new_agents.random_agent.random_agent import RandomAgent
+from reinforcement_learning.new_agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from reinforcement_learning.new_agents.common.linear_regression_action_value import LinearRegressionActionValue
 from reinforcement_learning.common.simple_training import SimpleTraining
 
@@ -30,15 +31,15 @@ if __name__ == '__main__':
     # agents_file_paths = [agent_0_file_path, agent_1_file_path]
     # agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
 
-    agents = [NStepAgent(2, 0.3, 0.1, 0.9, action_value=LinearRegressionActionValue()), RandomAgent()]
+    agents = [NStepAgent(2, 0.3, 0.1, 0.9, action_value=LinearRegressionActionValue()),
+              RandomAgent()]
 
     # Training is as simple as it:
-    number_of_episodes = 10000
+    number_of_episodes = 50000
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
     agents[0].visualize()
-
     # At the end you can save your trained agents
     # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]

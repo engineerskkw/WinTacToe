@@ -58,11 +58,6 @@ class QLearningAgent(BaseAgent):
                                         step_size=self.step_size,
                                         target=update_target)
 
-        # prev_action_value = self.action_value[self._prev_state, self._prev_action]
-        # error = self.step_size * \
-        #         (self._prev_reward + self.discount * self.action_value.max(new_state, allowed_actions) - prev_action_value)
-        # self.action_value[self._prev_state, self._prev_action] = prev_action_value + error
-
     def _reset_episode_info(self):
         self._prev_action = None
         self._prev_state = None

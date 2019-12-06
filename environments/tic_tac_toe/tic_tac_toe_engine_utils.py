@@ -102,7 +102,7 @@ class TicTacToeState(BaseState):
         return representation
 
     def flatten(self):
-        return self.board.flatten()
+        return np.array(self.board.flatten(), dtype=np.float)
 
     def __hash__(self):
         return hash(self.board.data.tobytes())
@@ -119,7 +119,7 @@ class TicTacToeAction(BaseAction):
     col: int
 
     def flatten(self):
-        return np.array([self.row, self.col])
+        return np.array([self.row, self.col], dtype=np.float)
 
 
 @dataclass(frozen=True)
