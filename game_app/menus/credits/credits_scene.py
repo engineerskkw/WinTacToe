@@ -15,6 +15,7 @@ class CreditsScene:
     def __init__(self, component, screen, settings):
         self._component = component
         self._screen = screen
+        self._text_color = (230, 230, 230) if settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
         self._background_color = (45, 45, 45) if settings[Settings.COLOR] == ColorMode.DARK else (230, 230, 230)
         self._background_displayed = False
 
@@ -30,3 +31,12 @@ class CreditsScene:
             background_surface.fill(self._background_color)
             self._screen.blit(background_surface, (0, 0))
             self._background_displayed = True
+
+            pygame.font.init()
+            font = pygame.font.Font(None, 27)
+            icons_text_1 = font.render("All icons used in the project were based on icons downloaded from www.flaticon.com" , True, self._text_color)
+            icons_text_2 = font.render("Some of them were modified and all of them were scaled and colored", True, self._text_color)
+            icons_text_3 = font.render("Click the icon button to visit its core creator's flaticon page", True, self._text_color)
+            self._screen.blit(icons_text_1, (640 - icons_text_1.get_width() / 2, 460))
+            self._screen.blit(icons_text_2, (640 - icons_text_2.get_width() / 2, 485))
+            self._screen.blit(icons_text_3, (640 - icons_text_3.get_width() / 2, 510))
