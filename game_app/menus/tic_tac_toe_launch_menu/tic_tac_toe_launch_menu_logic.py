@@ -9,8 +9,8 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from pygame.locals import *
 from game_app.common.common_helper import Components, ColorMode, Settings, Difficulty, GameMode
-from game_app.common.buttons import RectangularChoiceButton, RectangularTextButton, RoundIconButton, \
-    RectangularChoiceButtonWithSubtext
+from game_app.common.buttons import RectangularTextButton, RoundIconButton, RectangularChoiceButtonWithSubtext, \
+    RectangularDisableableChoiceButton
 
 
 class TicTacToeLaunchMenuLogic:
@@ -62,12 +62,10 @@ class TicTacToeLaunchMenuLogic:
                                                                       app, (750, 380), (180, 100), False),
                                    ]
 
-        self._mark_buttons = [RectangularChoiceButton("X",
-                                                      lambda: self.change_mark(0),
-                                                      app, (450, 550), (180, 100), True),
-                              RectangularChoiceButton("O",
-                                                      lambda: self.change_mark(1),
-                                                      app, (650, 550), (180, 100), False),
+        self._mark_buttons = [RectangularDisableableChoiceButton("X", lambda: self.change_mark(0),
+                                                                 app, (450, 550), (180, 100), True, True),
+                              RectangularDisableableChoiceButton("O", lambda: self.change_mark(1),
+                                                                 app, (650, 550), (180, 100), False, True),
                               ]
 
         self._start_button = RectangularTextButton("Let's go!",
@@ -104,6 +102,11 @@ class TicTacToeLaunchMenuLogic:
                 button.set_chosen(False)
             self._game_mode = new_game_mode
             self._difficulty = new_difficulty
+            self.mark_buttons_set_enabled(new_game_mode == GameMode.PlayerVsAgent)
+
+    def mark_buttons_set_enabled(self, enabled):
+        for mark_button in self._mark_buttons:
+            mark_button.set_enabled(enabled)
 
     def switch_back_to_main_menu(self):
         self._app.switch_component(Components.MAIN_MENU, switch_music=False)

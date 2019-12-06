@@ -43,6 +43,7 @@ def agent_fake_player(commands_queue):
             if not command.component.game_ended:
                 command.action()
 
+
 def init_agent_fake_player():
     commands_queue = SimpleQueue()
     agent_fake_player_thread = Thread(target=agent_fake_player, args=(commands_queue,))

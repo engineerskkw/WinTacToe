@@ -155,6 +155,30 @@ class RectangularChoiceButtonWithSubtext(RectangularChoiceButton):
         screen.blit(self._subtext, self._get_subtext_position())
 
 
+class RectangularDisableableChoiceButton(RectangularChoiceButton):
+    def __init__(self, text, action, app, position, size, chosen, enabled):
+        super().__init__(text, action, app, position, size, chosen)
+        self._enabled = enabled
+
+        self.disabled_color = (52, 52, 52) if self._dark_mode_on else (215, 215, 215)
+        self._disabled_click_sound = Sound(os.path.join(
+            ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/disabled_button_sound.wav"))
+
+    def _get_color(self, mouse_position, is_mouse_pressed):
+        if self._enabled:
+            return super()._get_color(mouse_position, is_mouse_pressed)
+        return self.disabled_color
+
+    def set_enabled(self, new_enabled):
+        self._enabled = new_enabled
+
+    def on_pressed(self):
+        if self._enabled:
+            super().on_pressed()
+        elif self._app.settings[Settings.SOUNDS]:
+            self._disabled_click_sound.play()
+
+
 class RectangularTextButtonWithIcon(RectangularTextButton):
     def __init__(self, text, icon_path, action, app, position, size):
         super().__init__(text, action, app, position, size)
