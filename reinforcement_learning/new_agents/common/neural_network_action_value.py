@@ -36,6 +36,7 @@ class NeuralNetworkActionValue(BaseActionValue):
         return self.model.predict(np.array([features]))[0, 0]
 
     def sample_update(self, **kwargs):
+        # print("update")
         state = kwargs['state']
         action = kwargs['action']
         step_size = kwargs['step_size']
@@ -50,21 +51,20 @@ class NeuralNetworkActionValue(BaseActionValue):
         # Stochastic gradient descent
         single_example_dataset_x = np.array([features])
         single_example_dataset_y = np.array([target])
+
         tf.keras.backend.set_value(self.model.optimizer.lr, step_size)
-        self.model.fit(single_example_dataset_x, single_example_dataset_y)
+        self.model.fit(single_example_dataset_x, single_example_dataset_y, verbose=0, epochs=1)
 
     def __init_model(self, feature_size):
         model = tf.keras.models.Sequential([
-                tf.keras.layers.Dense(15, input_dim=feature_size, activation='relu'),
-                tf.keras.layers.Dropout(0.2),
-                tf.keras.layers.Dense(15, activation='relu'),
-                tf.keras.layers.Dropout(0.2),
-                tf.keras.layers.Dense(15, activation='relu'),
-                tf.keras.layers.Dropout(0.2),
-                tf.keras.layers.Dense(1, activation='softmax')
+                tf.keras.layers.Dense(1, input_dim=feature_size),
+                # tf.keras.layers.Dropout(0.2),
+                # tf.keras.layers.Dense(15, activation='relu'),
+                # tf.keras.layers.Dropout(0.2),
+                # tf.keras.layers.Dense(1)
             ])
         model.compile(optimizer='adam',
-                      loss='sparse_categorical_crossentropy',
+                      loss='mean_squared_error',
                       metrics=['accuracy'])
         return model
 
