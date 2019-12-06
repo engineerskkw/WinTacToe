@@ -14,6 +14,7 @@ import tensorflow as tf
 
 from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
 from reinforcement_learning.base.base_action_value import BaseActionValue
+import time
 
 
 
@@ -31,6 +32,7 @@ class NeuralNetworkActionValue(BaseActionValue):
 
         # Lazy model initialization
         if self.model is None:
+            print("initialization")
             self.model = self.__init_model(features.size)
 
         return self.model.predict(np.array([features]))[0, 0]
@@ -46,6 +48,7 @@ class NeuralNetworkActionValue(BaseActionValue):
 
         # Lazy model initialization
         if self.model is None:
+            print("initialization")
             self.model = self.__init_model(features.size)
 
         # Stochastic gradient descent
@@ -53,15 +56,20 @@ class NeuralNetworkActionValue(BaseActionValue):
         single_example_dataset_y = np.array([target])
 
         tf.keras.backend.set_value(self.model.optimizer.lr, step_size)
+        start = time.time()
         self.model.fit(single_example_dataset_x, single_example_dataset_y, verbose=0, epochs=1)
+        end = time.time()
+        print(f"update time: {end-start}")
 
     def __init_model(self, feature_size):
         model = tf.keras.models.Sequential([
-                tf.keras.layers.Dense(1, input_dim=feature_size),
-                # tf.keras.layers.Dropout(0.2),
-                # tf.keras.layers.Dense(15, activation='relu'),
-                # tf.keras.layers.Dropout(0.2),
-                # tf.keras.layers.Dense(1)
+                tf.keras.layers.Dense(15, input_dim=feature_size, activation='relu'),
+                tf.keras.layers.Dropout(0.2),
+                tf.keras.layers.Dense(200, activation='relu'),
+                tf.keras.layers.Dropout(0.2),
+                tf.keras.layers.Dense(150, activation='relu'),
+                tf.keras.layers.Dropout(0.2),
+                tf.keras.layers.Dense(1)
             ])
         model.compile(optimizer='adam',
                       loss='mean_squared_error',
