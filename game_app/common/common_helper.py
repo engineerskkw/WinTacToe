@@ -15,6 +15,11 @@ from threading import Thread
 from queue import SimpleQueue
 
 
+class GameMode(Enum):
+    PlayerVsAgent = 0
+    AgentVsAgent = 1
+
+
 class Difficulty(Enum):
     MEDIUM = 0
     HARD = 1

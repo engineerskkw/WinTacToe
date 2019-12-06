@@ -9,7 +9,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from pygame.locals import *
 
-from game_app.common_helper import Components
+from game_app.common.common_helper import Components
 from game_app.common.buttons import RectangularTextButton
 
 

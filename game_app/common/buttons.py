@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -10,7 +11,7 @@ import pygame
 from pygame import Rect, gfxdraw
 from pygame.mixer import Sound
 from abc import ABC, abstractmethod
-from game_app.common_helper import ColorMode, Settings
+from game_app.common.common_helper import ColorMode, Settings
 
 
 class AbstractButton(ABC):
@@ -137,7 +138,7 @@ class RectangularChoiceButton(RectangularTextButton):
 class RectangularChoiceButtonWithSubtext(RectangularChoiceButton):
     def __init__(self, text, subtext, action, app, position, size, chosen):
         super().__init__(text, action, app, position, size, chosen)
-        self._subtext_font = pygame.font.Font(None, 30)
+        self._subtext_font = pygame.font.Font(None, 27)
         self._subtext = self._subtext_font.render(subtext, True, self._text_color)
 
     def _get_text_position(self):
@@ -151,8 +152,32 @@ class RectangularChoiceButtonWithSubtext(RectangularChoiceButton):
         return x, y
 
     def render(self, screen, mouse_position, is_mouse_pressed):
-        super().render(screen, mouse_position,  is_mouse_pressed)
+        super().render(screen, mouse_position, is_mouse_pressed)
         screen.blit(self._subtext, self._get_subtext_position())
+
+
+class RectangularDisableableChoiceButton(RectangularChoiceButton):
+    def __init__(self, text, action, app, position, size, chosen, enabled):
+        super().__init__(text, action, app, position, size, chosen)
+        self._enabled = enabled
+
+        self.disabled_color = (52, 52, 52) if self._dark_mode_on else (215, 215, 215)
+        self._disabled_click_sound = Sound(os.path.join(
+            ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/disabled_button_sound.wav"))
+
+    def _get_color(self, mouse_position, is_mouse_pressed):
+        if self._enabled:
+            return super()._get_color(mouse_position, is_mouse_pressed)
+        return self.disabled_color
+
+    def set_enabled(self, new_enabled):
+        self._enabled = new_enabled
+
+    def on_pressed(self):
+        if self._enabled:
+            super().on_pressed()
+        elif self._app.settings[Settings.SOUNDS]:
+            self._disabled_click_sound.play()
 
 
 class RectangularTextButtonWithIcon(RectangularTextButton):
