@@ -162,6 +162,7 @@ class TicTacToeComponent(AbstractComponent):
         if self.spectator_mode:
             self.show_match_ended = False
             self.show_match_paused = False
+            self.next_moves_to_show = 0
             self._fake_player_commands_queue = init_agent_fake_player()
             self._fake_player_agent = BaseAgent.load(
                 resolve_agent_file_path(self._player_mark, self._board_size, self.marks_required))
@@ -285,6 +286,7 @@ class TicTacToeComponent(AbstractComponent):
         if self.spectator_mode:
             if self.show_match_ended:
                 return
+            self.next_moves_to_show = 0
             self.show_match_ended = True
             self._fake_player_agent.restart()
             self._fake_player_commands_queue.put(RestartFakePlayerCommand(self))
@@ -302,6 +304,7 @@ class TicTacToeComponent(AbstractComponent):
         self._app.switch_component(Components.MAIN_MENU)
 
     def kill_fake_player(self):
+        self.next_moves_to_show = 0
         self.show_match_ended = True
         self._fake_player_commands_queue.put(KillFakePlayerCommand())
 
@@ -323,3 +326,6 @@ class TicTacToeComponent(AbstractComponent):
     def toggle_show_match_pause(self):
         self.show_match_paused = not self.show_match_paused
         self._scene.update_pause_button()
+
+    def show_next_move(self):
+        self.next_moves_to_show += 1

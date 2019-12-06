@@ -60,9 +60,6 @@ class TicTacToeScene:
         self._main_menu_button = RectangularTextFramedButton("MainMenu", self._component.back_to_menu,
                                                              app, (1040, 90), (200, 50), 3)
 
-        self._pause_button = RectangularTextFramedButton("Pause", self._component.toggle_show_match_pause,
-                                                             app, (1040, 160), (200, 50), 3)
-
         self._toggle_sounds_button = RoundFramedIconButton(
             resolve_sounds_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.SOUNDS]),
             self._component.toggle_sounds, app, (1085, 665), 32, 2)
@@ -75,9 +72,16 @@ class TicTacToeScene:
                                    self._main_menu_button,
                                    self._toggle_sounds_button,
                                    self._toggle_music_button]
+
         if self._component.spectator_mode:
-            self.update_pause_button()
-            self.navigation_buttons.append(self._pause_button)
+            self._pause_button = RoundFramedIconButton(
+                resolve_pause_button_icon_path(app.settings[Settings.COLOR], self._component.show_match_paused),
+                self._component.toggle_show_match_pause, app, (1085, 555), 32, 2)
+            self._show_next_button = RoundFramedIconButton(
+                resolve_next_button_icon_path(app.settings[Settings.COLOR]),
+                self._component.show_next_move, app, (1195, 555), 32, 2)
+            self.navigation_buttons += [self._pause_button, self._show_next_button]
+
         self.all_buttons = self.navigation_buttons + sum(self.tic_tac_toe_buttons, [])
 
     def render(self):
@@ -186,7 +190,8 @@ class TicTacToeScene:
             self._app.settings[Settings.COLOR], self._app.settings[Settings.SOUNDS]))
 
     def update_pause_button(self):
-        self._pause_button.set_text("Play" if self._component.show_match_paused else "Pause")
+        self._pause_button.set_icon(resolve_pause_button_icon_path
+                                    (self._app.settings[Settings.COLOR], self._component.show_match_paused))
 
 
 class RectangularTextFramedButton(RectangularTextButton):
@@ -303,3 +308,18 @@ def resolve_sounds_button_icon_path(color_mode, sounds_on):
     else:
         return os.path.join(resource_dir,
                             'sounds_off_white.png' if color_mode == ColorMode.DARK else 'sounds_off_black.png')
+
+
+def resolve_pause_button_icon_path(color_mode, show_match_paused):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
+    if show_match_paused:
+        return os.path.join(resource_dir,
+                            'play_white.png' if color_mode == ColorMode.DARK else 'play_black.png')
+    else:
+        return os.path.join(resource_dir,
+                            'pause_white.png' if color_mode == ColorMode.DARK else 'pause_black.png')
+
+
+def resolve_next_button_icon_path(color_mode):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
+    return os.path.join(resource_dir, 'next_white.png' if color_mode == ColorMode.DARK else 'next_black.png')

@@ -29,7 +29,7 @@ class TicTacToeLaunchMenuLogic:
                                                                  lambda: self.change_board_size(5, 3),
                                                                  app, (450, 90), (180, 100), False),
                               RectangularChoiceButtonWithSubtext("5x5", "Playing to 4",
-                                                                 lambda: self.change_board_size(4, 4),
+                                                                 lambda: self.change_board_size(5, 4),
                                                                  app, (650, 90), (180, 100), False),
                               RectangularChoiceButtonWithSubtext("10x10", "Playing to 4",
                                                                  lambda: self.change_board_size(10, 4),

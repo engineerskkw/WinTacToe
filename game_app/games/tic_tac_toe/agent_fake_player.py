@@ -39,10 +39,16 @@ def agent_fake_player(commands_queue):
             continue
 
         if isinstance(command, ActionFakePlayerCommand) and not command.component.show_match_ended:
-            time.sleep(0.4)
-            while command.component.show_match_paused and not command.component.show_match_ended:
-                time.sleep(0.2)
+            for i in range(5):
+                time.sleep(0.1)
+                if command.component.next_moves_to_show != 0:
+                    break
+            while command.component.show_match_paused and not command.component.show_match_ended \
+                    and command.component.next_moves_to_show == 0:
+                time.sleep(0.1)
             if not command.component.show_match_ended:
+                if command.component.next_moves_to_show != 0:
+                    command.component.next_moves_to_show -= 1
                 command.action()
 
 
