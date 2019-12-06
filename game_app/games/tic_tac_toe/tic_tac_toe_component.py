@@ -160,13 +160,11 @@ class TicTacToeComponent(AbstractComponent):
 
         # Fake player initialisation in spectator mode
         if self.spectator_mode:
-            self.game_ended = False
+            self.show_match_ended = False
+            self.show_match_paused = False
             self._fake_player_commands_queue = init_agent_fake_player()
             self._fake_player_agent = BaseAgent.load(
                 resolve_agent_file_path(self._player_mark, self._board_size, self.marks_required))
-            # TODO remove comments below
-            # self._fake_player_agent = BasicAgent()
-            # self._fake_player_agent.epsilon = 0.5
 
         self.asys = ActorSystem(ACTOR_SYSTEM_BASE)
 
@@ -175,7 +173,8 @@ class TicTacToeComponent(AbstractComponent):
         self.game_manager_addr = self.asys.createActor(GameManager, globalName="GameManager")
         self.match_maker_addr = self.asys.createActor(MatchMaker, globalName="MatchMaker")
         self.logger_addr = self.asys.createActor(Logger, globalName="Logger")
-        msg = InitTTTClientActorMsg(self.match_maker_addr, self.game_manager_addr, self.logger_addr, self.spectator_mode)
+        msg = InitTTTClientActorMsg(self.match_maker_addr, self.game_manager_addr, self.logger_addr,
+                                    self.spectator_mode)
         self.tell(self.client_actor_address, msg)
 
         # Training Platform initialization
@@ -257,7 +256,7 @@ class TicTacToeComponent(AbstractComponent):
                 self.set_winnings(event.new_winnings)
 
         elif event.type == MOUSEBUTTONUP:
-            buttons = self._scene.all_but_tic_tac_toe_buttons if self.spectator_mode else self._scene.all_buttons
+            buttons = self._scene.navigation_buttons if self.spectator_mode else self._scene.all_buttons
             for button in filter(lambda b: b.contains_point(event.pos), buttons):
                 button.on_pressed()
 
@@ -284,9 +283,9 @@ class TicTacToeComponent(AbstractComponent):
 
     def restart(self):
         if self.spectator_mode:
-            if self.game_ended:
+            if self.show_match_ended:
                 return
-            self.game_ended = True
+            self.show_match_ended = True
             self._fake_player_agent.restart()
             self._fake_player_commands_queue.put(RestartFakePlayerCommand(self))
         self.turn = TurnState.NOT_YOUR_TURN
@@ -298,12 +297,12 @@ class TicTacToeComponent(AbstractComponent):
 
     def back_to_menu(self):
         if self.spectator_mode:
-            self.game_ended = True
             self.kill_fake_player()
         self.server.shutdown()
         self._app.switch_component(Components.MAIN_MENU)
 
     def kill_fake_player(self):
+        self.show_match_ended = True
         self._fake_player_commands_queue.put(KillFakePlayerCommand())
 
     def play_sound_stopping_music(self, sound_file_path):
@@ -320,3 +319,7 @@ class TicTacToeComponent(AbstractComponent):
         self._app.settings[Settings.SOUNDS] = not self._app.settings[Settings.SOUNDS]
         self._scene.update_sounds_button()
         save_selected_settings(self._app.settings)
+
+    def toggle_show_match_pause(self):
+        self.show_match_paused = not self.show_match_paused
+        self._scene.update_pause_button()

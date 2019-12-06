@@ -35,12 +35,14 @@ def agent_fake_player(commands_queue):
             break
 
         if isinstance(command, RestartFakePlayerCommand):
-            command.component.game_ended = False
+            command.component.show_match_ended = False
             continue
 
-        if isinstance(command, ActionFakePlayerCommand) and not command.component.game_ended:
+        if isinstance(command, ActionFakePlayerCommand) and not command.component.show_match_ended:
             time.sleep(0.4)
-            if not command.component.game_ended:
+            while command.component.show_match_paused and not command.component.show_match_ended:
+                time.sleep(0.2)
+            if not command.component.show_match_ended:
                 command.action()
 
 

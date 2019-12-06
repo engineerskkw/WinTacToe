@@ -54,11 +54,14 @@ class TicTacToeScene:
                                                                      self._player_mark,
                                                                      self._opponent_mark))
 
-        self._restart_button = RectangularTextFramedButton("Restart", lambda: self._component.restart(),
+        self._restart_button = RectangularTextFramedButton("Restart", self._component.restart,
                                                            app, (1040, 20), (200, 50), 3)
 
-        self._main_menu_button = RectangularTextFramedButton("MainMenu", lambda: self._component.back_to_menu(),
+        self._main_menu_button = RectangularTextFramedButton("MainMenu", self._component.back_to_menu,
                                                              app, (1040, 90), (200, 50), 3)
+
+        self._pause_button = RectangularTextFramedButton("Pause", self._component.toggle_show_match_pause,
+                                                             app, (1040, 160), (200, 50), 3)
 
         self._toggle_sounds_button = RoundFramedIconButton(
             resolve_sounds_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.SOUNDS]),
@@ -68,10 +71,14 @@ class TicTacToeScene:
             resolve_music_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.MUSIC]),
             self._component.toggle_music, app, (1195, 665), 32, 2)
 
-        self.all_but_tic_tac_toe_buttons = [self._restart_button, self._main_menu_button, self._toggle_sounds_button,
-                            self._toggle_music_button]
-
-        self.all_buttons = self.all_but_tic_tac_toe_buttons + sum(self.tic_tac_toe_buttons, [])
+        self.navigation_buttons = [self._restart_button,
+                                   self._main_menu_button,
+                                   self._toggle_sounds_button,
+                                   self._toggle_music_button]
+        if self._component.spectator_mode:
+            self.update_pause_button()
+            self.navigation_buttons.append(self._pause_button)
+        self.all_buttons = self.navigation_buttons + sum(self.tic_tac_toe_buttons, [])
 
     def render(self):
         self._display_game_over_situation()
@@ -177,6 +184,9 @@ class TicTacToeScene:
     def update_sounds_button(self):
         self._toggle_sounds_button.set_icon(resolve_sounds_button_icon_path(
             self._app.settings[Settings.COLOR], self._app.settings[Settings.SOUNDS]))
+
+    def update_pause_button(self):
+        self._pause_button.set_text("Play" if self._component.show_match_paused else "Pause")
 
 
 class RectangularTextFramedButton(RectangularTextButton):
