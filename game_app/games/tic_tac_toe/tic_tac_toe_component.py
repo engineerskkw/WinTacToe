@@ -27,7 +27,6 @@ from training_platform import EnvironmentServer, AgentClient
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-from queue import SimpleQueue
 
 
 class UserEventTypes(Enum):
@@ -155,7 +154,6 @@ class TicTacToeComponent(AbstractComponent):
         self._player_mark = player_mark
         self._opponent_mark = opponent_mark
         self._difficulty = difficulty
-        self._number_of_players = 2
         self.spectator_mode = game_mode == GameMode.AgentVsAgent
 
         # Fake player initialisation in spectator mode
@@ -179,7 +177,7 @@ class TicTacToeComponent(AbstractComponent):
         self.tell(self.client_actor_address, msg)
 
         # Training Platform initialization
-        engine = TicTacToeEngine(self._number_of_players, self._board_size, self.marks_required)
+        engine = TicTacToeEngine(2, self._board_size, self.marks_required)
         self.server = EnvironmentServer(engine)
         self.log(f"Spawned server")
         players = self.server.players

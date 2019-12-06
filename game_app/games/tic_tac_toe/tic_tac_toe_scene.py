@@ -121,15 +121,14 @@ class TicTacToeScene:
             screen.blit(background, (0, 0))
             if self._game_over_situation_displayed:
                 self._display_game_over_message(self._component.winnings)
-            elif self._component.spectator_mode:
-                self._display_helper_message()
             else:
                 self._display_helper_message()
-                if self._component.turn == TurnState.NOT_YOUR_TURN:
-                    self._display_game_state_message("Agent's move", "Please, wait for your turn...")
-                else:
-                    self._display_game_state_message("Your move", "Select a field on the board",
-                                                     "to place your mark there")
+                if not self._component.spectator_mode:
+                    if self._component.turn == TurnState.NOT_YOUR_TURN:
+                        self._display_game_state_message("Agent's move", "Please, wait for your turn...")
+                    else:
+                        self._display_game_state_message("Your move", "Select a field on the board",
+                                                         "to place your mark there")
             self._background_and_messages_displayed = True
 
     def _display_helper_message(self):
@@ -313,11 +312,9 @@ def resolve_sounds_button_icon_path(color_mode, sounds_on):
 def resolve_pause_button_icon_path(color_mode, show_match_paused):
     resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
     if show_match_paused:
-        return os.path.join(resource_dir,
-                            'play_white.png' if color_mode == ColorMode.DARK else 'play_black.png')
+        return os.path.join(resource_dir, 'play_white.png' if color_mode == ColorMode.DARK else 'play_black.png')
     else:
-        return os.path.join(resource_dir,
-                            'pause_white.png' if color_mode == ColorMode.DARK else 'pause_black.png')
+        return os.path.join(resource_dir, 'pause_white.png' if color_mode == ColorMode.DARK else 'pause_black.png')
 
 
 def resolve_next_button_icon_path(color_mode):

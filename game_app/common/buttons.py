@@ -1,5 +1,6 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
@@ -151,7 +152,7 @@ class RectangularChoiceButtonWithSubtext(RectangularChoiceButton):
         return x, y
 
     def render(self, screen, mouse_position, is_mouse_pressed):
-        super().render(screen, mouse_position,  is_mouse_pressed)
+        super().render(screen, mouse_position, is_mouse_pressed)
         screen.blit(self._subtext, self._get_subtext_position())
 
 
