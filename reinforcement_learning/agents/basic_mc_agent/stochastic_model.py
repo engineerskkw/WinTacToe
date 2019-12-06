@@ -1,6 +1,6 @@
 #BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../"
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -8,11 +8,10 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 
 from graphviz import Digraph
 import numpy as np
+from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
 
-from reinforcement_learning.agents.basic_mc_agent.auxiliary_utilities import linear_map
-
-from tests.mock.mock_action import MockAction
-from tests.mock.mock_state import MockState
+from all_tests.mock.test_mock_action import MockAction
+from all_tests.mock.test_mock_state import MockState
 
 
 class StochasticModel:
@@ -78,44 +77,44 @@ class StochasticModel:
     def view(self):
         return self._get_graph().view()
 
-# if __name__ == '__main__':
-#     # Model test
-#
-#     m = StochasticModel()
-#
-#     s1 = MockState([[-1, 0], [-1, -1]])
-#     a1 = MockAction([1, 0])
-#     s2 = MockState([[-1, 0], [0, -1]])
-#     s3 = MockState([[-1, 0], [-1, 0]])
-#     m[s1, a1] = s2
-#     m[s1, a1] = s3
-#     m[s1, a1] = s3
-#     m[s1, a1] = s3
-#     m[s1, a1] = s3
-#
-#     a2 = MockAction([0, 0])
-#     s4 = MockState([[0, 0], [0, -1]])
-#     m[s2, a2] = s4
-#
-#     a4 = MockAction([1, 1])
-#     s5 = MockState([[-1, 0], [0, 0]])
-#     s6 = MockState([[-1, 0], [-1, 0]])
-#     s7 = MockState([[-1, -1], [-1, -1]])
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s5
-#     m[s2, a4] = s6
-#     m[s2, a4] = s6
-#     m[s2, a4] = s6
-#     m[s2, a4] = s6
-#     m[s2, a4] = s6
-#     m[s2, a4] = s7
-#     m[s2, a4] = s7
-#     m[s2, a4] = s7
-#
-#     m.view()
+if __name__ == '__main__':
+    # Model test
+
+    m = StochasticModel()
+
+    s1 = MockState([[-1, 0], [-1, -1]])
+    a1 = MockAction([1, 0])
+    s2 = MockState([[-1, 0], [0, -1]])
+    s3 = MockState([[-1, 0], [-1, 0]])
+    m[s1, a1] = s2
+    m[s1, a1] = s3
+    m[s1, a1] = s3
+    m[s1, a1] = s3
+    m[s1, a1] = s3
+
+    a2 = MockAction([0, 0])
+    s4 = MockState([[0, 0], [0, -1]])
+    m[s2, a2] = s4
+
+    a4 = MockAction([1, 1])
+    s5 = MockState([[-1, 0], [0, 0]])
+    s6 = MockState([[-1, 0], [-1, 0]])
+    s7 = MockState([[-1, -1], [-1, -1]])
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s5
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s6
+    m[s2, a4] = s7
+    m[s2, a4] = s7
+    m[s2, a4] = s7
+
+    m.view()

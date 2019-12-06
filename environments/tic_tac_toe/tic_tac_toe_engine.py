@@ -1,6 +1,6 @@
 #BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../../../../"
+REL_PROJECT_ROOT_PATH = "./../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -12,6 +12,8 @@ from itertools import cycle
 from environments.tic_tac_toe.gather_winnings_strategies import *
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import *
 from environments.base.base_engine import BaseEngine
+
+from utils.common_utils import return_deepcopy
 
 
 class _Board:
@@ -42,6 +44,7 @@ class _Board:
         return self._marks_placed[-1] if self._marks_placed else None
 
     @property
+    @return_deepcopy
     def raw_board(self):
         return self._board
 
@@ -54,7 +57,7 @@ class _Board:
                 if self._board[row, col] == -1:
                     unoccupied_fields.append((row, col))
 
-        return unoccupied_fields
+        return tuple(unoccupied_fields)
 
     def place_mark(self, row, col, mark):
         if self._board[row][col] == -1 and mark in self._marks:
@@ -167,7 +170,7 @@ class TicTacToeEngine(BaseEngine):
         list[Player]
             A list of player objects representing players.
         """
-        return self._players
+        return tuple(self._players)
 
     @property
     def current_state(self):
@@ -187,10 +190,10 @@ class TicTacToeEngine(BaseEngine):
 
         Returns
         -------
-        list[Winnings]
+        set[Winnings]
             A list of current winnings.
         """
-        return list(self._winnings)
+        return tuple(self._winnings)
 
     @property
     def allowed_actions(self):

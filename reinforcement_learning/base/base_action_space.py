@@ -8,8 +8,10 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 
 
+@dataclass(frozen=True)
 class BaseActionSpace(ABC):
     """
     Action space is an object that can be used for determining if given action

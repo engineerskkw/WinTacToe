@@ -1,22 +1,20 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
+
 REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
-import numpy as np
-import copy
-
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import bucketify
 
 
 class QLearningAgent(BaseAgent):
     def __init__(self, step_size, epsilon, discount):
+        super().__init__()
         self.step_size = step_size
         self.epsilon = epsilon
         self.discount = discount
@@ -29,10 +27,7 @@ class QLearningAgent(BaseAgent):
         self._prev_reward = None
         self._current_episode_return = 0
 
-        self._all_episodes_returns = []
-
     def take_action(self, state, allowed_actions):
-        state = copy.copy(state)
         if self._prev_state:
             self._update(state)
 
@@ -48,14 +43,11 @@ class QLearningAgent(BaseAgent):
 
     def exit(self, terminal_state):
         self._update(terminal_state)
-        self._all_episodes_returns.append(self._current_episode_return)
+        self.all_episodes_returns.append(self._current_episode_return)
         self._reset_episode_info()
 
     def restart(self):
         self._reset_episode_info()
-
-    def get_performance(self, no_of_buckets):
-        return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
 
     def _update(self, new_state):
         prev_action_value = self.action_value[self._prev_state, self._prev_action]

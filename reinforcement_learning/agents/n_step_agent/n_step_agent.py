@@ -1,6 +1,7 @@
 # BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
 import sys, os
-REL_PROJECT_ROOT_PATH = "./../"
+
+REL_PROJECT_ROOT_PATH = "./../../../"
 ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
 ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
 sys.path.append(ABS_PROJECT_ROOT_PATH)
@@ -11,11 +12,12 @@ import numpy as np
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import safe_return, bucketify
+from reinforcement_learning.agents.common.agent_utils import safe_return
 
 
 class NStepAgent(BaseAgent):
     def __init__(self, n, step_size, epsilon, discount):
+        super().__init__()
         self.n = n
         self.step_size = step_size
         self.epsilon = epsilon
@@ -29,8 +31,6 @@ class NStepAgent(BaseAgent):
         self._state_history = []
         self._action_history = []
         self._reward_history = [0]  # There is no R0 according to Sutton notation
-
-        self._all_episodes_returns = []
 
     def take_action(self, state, allowed_actions):
         self._state_history.append(state)
@@ -52,14 +52,11 @@ class NStepAgent(BaseAgent):
         for tau in range(self._current_time_step - self.n, self._final_time_step):
             self._update(tau)
 
-        self._all_episodes_returns.append(np.sum(self._reward_history))
+        self.all_episodes_returns.append(np.sum(self._reward_history))
         self._reset_episode_info()
 
     def restart(self):
         self._reset_episode_info()
-
-    def get_performance(self, no_of_buckets):
-        return bucketify(self._all_episodes_returns, no_of_buckets, np.mean)
 
     def _update(self, tau):
         if tau < 0:
@@ -67,12 +64,12 @@ class NStepAgent(BaseAgent):
 
         updated_state = self._state_history[tau]
         updated_action = self._action_history[tau]
-        prev_action_value = self.action_value[updated_action, updated_state]
+        prev_action_value = self.action_value[updated_state, updated_action]
 
         estimated_return = self._calculate_estimated_return(tau)
         error = self.step_size * (estimated_return - prev_action_value)
 
-        self.action_value[updated_action, updated_state] = prev_action_value + error
+        self.action_value[updated_state, updated_action] = prev_action_value + error
 
     def _calculate_estimated_return(self, tau):
         high_bound = min(tau + self.n, self._final_time_step)
