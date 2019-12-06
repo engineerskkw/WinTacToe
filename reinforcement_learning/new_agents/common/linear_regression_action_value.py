@@ -62,7 +62,7 @@ class LinearRegressionActionValue(BaseActionValue):
         final_features = np.concatenate((x, additional_features, [1])).reshape(-1, 1)
         norm = np.linalg.norm(final_features)
 
-        return  final_features / norm
+        return final_features / norm
 
     def __init_weights(self, feature_size):
         tmp = np.zeros(feature_size) if self.init_weights_zeros else np.random.uniform(-0.01, 0.01, feature_size)
