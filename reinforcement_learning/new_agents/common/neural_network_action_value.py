@@ -26,19 +26,22 @@ class NeuralNetworkActionValue(BaseActionValue):
         self.model = None
 
     def __getitem__(self, key: tuple):
+        start = time.time()
         assert len(key) == 2, f"Invalid key: {key}, should be tuple(BaseState, BaseAction)..."
         state, action = key
         features = self.__get_features(state, action)
 
         # Lazy model initialization
         if self.model is None:
-            print("initialization")
             self.model = self.__init_model(features.size)
 
-        return self.model.predict(np.array([features]))[0, 0]
+        prediction = self.model.predict(np.array([features]))[0, 0]
+        end = time.time()
+        print(f"getitem time: {end - start}")
+        return prediction
 
     def sample_update(self, **kwargs):
-        # print("update")
+        start = time.time()
         state = kwargs['state']
         action = kwargs['action']
         step_size = kwargs['step_size']
@@ -48,7 +51,6 @@ class NeuralNetworkActionValue(BaseActionValue):
 
         # Lazy model initialization
         if self.model is None:
-            print("initialization")
             self.model = self.__init_model(features.size)
 
         # Stochastic gradient descent
@@ -56,8 +58,7 @@ class NeuralNetworkActionValue(BaseActionValue):
         single_example_dataset_y = np.array([target])
 
         tf.keras.backend.set_value(self.model.optimizer.lr, step_size)
-        start = time.time()
-        self.model.fit(single_example_dataset_x, single_example_dataset_y, verbose=0, epochs=1)
+        self.model.train_on_batch(single_example_dataset_x, single_example_dataset_y)
         end = time.time()
         print(f"update time: {end-start}")
 
@@ -65,10 +66,10 @@ class NeuralNetworkActionValue(BaseActionValue):
         model = tf.keras.models.Sequential([
                 tf.keras.layers.Dense(15, input_dim=feature_size, activation='relu'),
                 tf.keras.layers.Dropout(0.2),
-                tf.keras.layers.Dense(200, activation='relu'),
-                tf.keras.layers.Dropout(0.2),
-                tf.keras.layers.Dense(150, activation='relu'),
-                tf.keras.layers.Dropout(0.2),
+                # tf.keras.layers.Dense(200, activation='relu'),
+                # tf.keras.layers.Dropout(0.2),
+                # tf.keras.layers.Dense(150, activation='relu'),
+                # tf.keras.layers.Dropout(0.2),
                 tf.keras.layers.Dense(1)
             ])
         model.compile(optimizer='adam',
