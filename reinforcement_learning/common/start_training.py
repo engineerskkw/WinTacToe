@@ -18,7 +18,10 @@ from reinforcement_learning.new_agents.common.linear_regression_action_value imp
 from reinforcement_learning.new_agents.common.neural_network_action_value import NeuralNetworkActionValue
 from reinforcement_learning.common.simple_training import SimpleTraining
 
+from reinforcement_learning.agents.common.agent_utils import bucketify
+
 from reinforcement_learning.base.base_agent import BaseAgent
+import numpy as np
 
 import matplotlib.pyplot as plt
 
@@ -32,15 +35,18 @@ if __name__ == '__main__':
     # agents_file_paths = [agent_0_file_path, agent_1_file_path]
     # agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
 
-    agents = [QLearningAgent(0.3, 0.1, 0.9, action_value=NeuralNetworkActionValue()),
+    agents = [QLearningAgent(0.3, 0.1, 1, action_value=NeuralNetworkActionValue()),
               RandomAgent()]
 
     # Training is as simple as it:
-    number_of_episodes = 100
+    number_of_episodes = 1000
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
     agents[0].visualize()
+    plt.plot(bucketify(agents[0].action_value.train_loss_results, 100, np.mean))
+    plt.show()
+
     # At the end you can save your trained agents
     # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
