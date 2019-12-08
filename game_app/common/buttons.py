@@ -238,7 +238,7 @@ class RoundIconButtonWithDescription(RoundIconButton):
         super().__init__(icon_path, action, app, center_position, radius)
         pygame.font.init()
         self._description_color = (230, 230, 230) if app.settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
-        self._description_font = pygame.font.Font(None, 20)
+        self._description_font = pygame.font.Font(None, 21)
         self._description = self._description_font.render(description, True, self._description_color)
         self._description_rendered = False
 
@@ -262,7 +262,7 @@ class RoundMutedIconButtonWithDescription(RoundIconButtonWithDescription):
 
     def _get_sub_description_position(self):
         x = self._center_position[0] - self._sub_description.get_width() // 2
-        y = self._center_position[1] + self._radius + self._description.get_height() * 2
+        y = self._center_position[1] + self._radius + self._description.get_height() * 8 // 5
         return x, y
 
     def render(self, screen, mouse_position, is_mouse_pressed):
