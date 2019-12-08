@@ -221,8 +221,8 @@ class RoundIconButton(RoundButton):
         self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, icon_path))
 
     def _get_icon_position(self):
-        x = self._center_position[0] - self._icon.get_size()[0] / 2
-        y = self._center_position[1] - self._icon.get_size()[1] / 2
+        x = self._center_position[0] - self._icon.get_size()[0] // 2
+        y = self._center_position[1] - self._icon.get_size()[1] // 2
         return x, y
 
     def render(self, screen, mouse_position, is_mouse_pressed):
@@ -231,3 +231,45 @@ class RoundIconButton(RoundButton):
 
     def set_icon(self, new_icon_path):
         self._icon = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, new_icon_path))
+
+
+class RoundIconButtonWithDescription(RoundIconButton):
+    def __init__(self, icon_path, description, action, app, center_position, radius):
+        super().__init__(icon_path, action, app, center_position, radius)
+        pygame.font.init()
+        self._description_color = (230, 230, 230) if app.settings[Settings.COLOR] == ColorMode.DARK else (25, 25, 25)
+        self._description_font = pygame.font.Font(None, 20)
+        self._description = self._description_font.render(description, True, self._description_color)
+        self._description_rendered = False
+
+    def _get_description_position(self):
+        x = self._center_position[0] - self._description.get_width() // 2
+        y = self._center_position[1] + self._radius + self._description.get_height() // 2
+        return x, y
+
+    def render(self, screen, mouse_position, is_mouse_pressed):
+        super().render(screen, mouse_position, is_mouse_pressed)
+        if not self._description_rendered:
+            screen.blit(self._description, self._get_description_position())
+            self._description_rendered = True
+
+
+class RoundMutedIconButtonWithDescription(RoundIconButtonWithDescription):
+    def __init__(self, icon_path, description, sub_description, action, app, center_position, radius):
+        super().__init__(icon_path, description, action, app, center_position, radius)
+        self._sub_description = self._description_font.render(sub_description, True, self._description_color)
+        self._sub_description_rendered = False
+
+    def _get_sub_description_position(self):
+        x = self._center_position[0] - self._sub_description.get_width() // 2
+        y = self._center_position[1] + self._radius + self._description.get_height() * 2
+        return x, y
+
+    def render(self, screen, mouse_position, is_mouse_pressed):
+        super().render(screen, mouse_position, is_mouse_pressed)
+        if not self._sub_description_rendered:
+            screen.blit(self._sub_description, self._get_sub_description_position())
+            self._sub_description_rendered = True
+
+    def on_pressed(self):
+        self._action()
