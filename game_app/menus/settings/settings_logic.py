@@ -112,15 +112,15 @@ def save_selected_settings(settings):
 def resolve_back_arrow_icon_path(color_mode):
     resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     return os.path.join(resource_dir,
-                        'left_arrow_white.png' if color_mode == ColorMode.DARK else 'left_arrow_black.png')
+                        'back_arrow_white.png' if color_mode == ColorMode.DARK else 'back_arrow_black.png')
 
 
 def resolve_color_mode_button_text_and_icon_path(color_mode):
     resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings')
     if color_mode == ColorMode.DARK:
-        return "Switch to light mode", os.path.join(resource_dir, 'moon.png')
+        return "Switch to light mode", os.path.join(resource_dir, 'moon_white.png')
     else:
-        return "Switch to dark mode", os.path.join(resource_dir, 'sun.png')
+        return "Switch to dark mode", os.path.join(resource_dir, 'sun_black.png')
 
 
 def resolve_music_button_text_and_icon_path(color_mode, music_on):
