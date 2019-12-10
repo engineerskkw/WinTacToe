@@ -7,7 +7,7 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 #-------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 import pygame
-from game_app.common_helper import Settings, ColorMode
+from game_app.common.common_helper import Settings, ColorMode
 
 
 class MainMenuScene:
