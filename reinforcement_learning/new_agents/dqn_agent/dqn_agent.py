@@ -19,6 +19,7 @@ from bidict import bidict
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeActionSpace
 import random
+from collections import deque
 
 @dataclass
 class MemoryElement:
@@ -27,16 +28,18 @@ class MemoryElement:
     update_target: float
 
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon, discount, fit_period, batch_size):
+    def __init__(self, step_size, epsilon, discount, fit_period, batch_size, max_memory_size):
         super().__init__()
         self.step_size = step_size
         self.epsilon = epsilon
         self.discount = discount
         self._current_episode_return = 0
-        self.memory = []  # Contains memory elements
+        self.memory = deque([], max_memory_size)  # Contains memory elements
         self.model = tf.keras.models.Sequential([
             tf.keras.layers.Input(9),
-            tf.keras.layers.Dense(500, activation='relu'),
+            tf.keras.layers.Dense(50, activation='relu'),
+            tf.keras.layers.Dense(50, activation='relu'),
+            tf.keras.layers.Dense(50, activation='relu'),
             tf.keras.layers.Dense(9)
         ])
         self.model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=step_size),
@@ -85,29 +88,34 @@ class DQNAgent(BaseAgent):
     def restart(self):
         self._reset_episode_info()
 
-    def __max(self, state, action_space):
-        if action_space is None:
-            return 0.
+    def __store(self, state, action, update_target):
+        self.memory.append(MemoryElement(state, action, update_target))
 
-        features = self.__get_features(state)
-        all_action_values = self.model(features)
+        if self.iter % self.fit_period == 0 and len(self.memory) >= self.batch_size:
+            self.__fit_batch()
 
-        available_action_indices = [self.action_index_dict.inverse[action] for action in action_space.actions]
-        return np.max(all_action_values[available_action_indices])
+    def __fit_batch(self):
+        # print("FIT BATCH")
+        chosen_elements = random.sample(self.memory, self.batch_size)
+        # print(f"chosen elements: {chosen_elements}")
 
-    def __argmax(self, state, action_space):
-        features = self.__get_features(state)
-        all_action_values = self.model(features)
+        batch_X = np.array([self.__get_features(element.state) for element in chosen_elements])
+        # print(f"batch_X: {batch_X}")
+        predictions = self.model(batch_X).numpy()
+        # print(f"predictions: {predictions}")
+        #
+        # print("Replacing")
+        for i in range(len(chosen_elements)):
+            # print(f"i: {i}")
+            action_index = self.action_index_dict.inverse[chosen_elements[i].action]
+            # print(f"action_index: {action_index}")
+            # print(f"old predictions[i][action_index]: {predictions[i][action_index]}")
+            predictions[i][action_index] = chosen_elements[i].update_target
+            # print(f"new predictions[i][action_index]: {predictions[i][action_index]}")
 
-        available_action_indices = [self.action_index_dict.inverse[action] for action in action_space.actions]
+        batch_Y = predictions
 
-        max_action_value = self.__max(state, action_space)
-        return {self.action_index_dict[available_index] for available_index in available_action_indices
-                if np.isclose(all_action_values[available_index], max_action_value)}
-
-    def __get_features(self, state):
-        not_normalized_features = state.flatten()
-        return not_normalized_features / np.linalg.norm(not_normalized_features)
+        self.model.fit(batch_X, batch_Y, verbose=0, epochs=1)
 
     def __epsilon_greedy(self, state, action_space):
         if random.random() > self.epsilon:  # Choose action in the epsilon-greedy way
@@ -118,25 +126,32 @@ class DQNAgent(BaseAgent):
 
         return action_space.random_action  # Otherwise (in each case) get a random action
 
-    def __store(self, state, action, update_target):
-        self.memory.append(MemoryElement(state, action, update_target))
+    def __argmax(self, state, action_space):
+        features = self.__get_features(state)
+        all_action_values = self.model(features.reshape(1, -1)).numpy()[0]
 
-        if self.iter % self.fit_period == 0 and len(self.memory) >= self.batch_size:
-            self.__fit_batch()
+        available_action_indices = [self.action_index_dict.inverse[action] for action in action_space.actions]
 
-    def __fit_batch(self):
-        chosen_elements = random.sample(self.memory, self.batch_size)
+        max_action_value = self.__max(state, action_space)
+        result = {self.action_index_dict[available_index] for available_index in available_action_indices
+                if np.isclose(all_action_values[available_index], max_action_value)}
 
-        batch_X = np.array([self.__get_features(element.state) for element in chosen_elements])
-        predictions = self.model(batch_X)
+        return result
 
-        for i in range(len(chosen_elements)):
-            action_index = self.action_index_dict.inverse(chosen_elements[i].action)
-            predictions[i][action_index] = chosen_elements[i].update_target
+    def __max(self, state, action_space):
+        if action_space is None:
+            return 0.
 
-        batch_Y = predictions
+        features = self.__get_features(state)
+        all_action_values = self.model(features.reshape(1, -1)).numpy()[0]
 
-        self.model.fit(batch_X, batch_Y, verbose=0, epochs=1)
+        available_action_indices = [self.action_index_dict.inverse[action] for action in action_space.actions]
+        result = np.max(all_action_values[available_action_indices])
+        return result
+
+    def __get_features(self, state):
+        not_normalized_features = state.flatten()
+        return not_normalized_features / np.linalg.norm(not_normalized_features)
 
     def _reset_episode_info(self):
         self._current_episode_return = 0
