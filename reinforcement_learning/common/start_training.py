@@ -17,13 +17,12 @@ from reinforcement_learning.new_agents.common.lazy_tabular_action_value import L
 from reinforcement_learning.new_agents.common.linear_regression_action_value import LinearRegressionActionValue
 from reinforcement_learning.new_agents.common.neural_network_action_value import NeuralNetworkActionValue
 from reinforcement_learning.common.simple_training import SimpleTraining
-
+from reinforcement_learning.new_agents.dqn_agent.dqn_agent import DQNAgent
 from reinforcement_learning.agents.common.agent_utils import bucketify
-
 from reinforcement_learning.base.base_agent import BaseAgent
 import numpy as np
-
 import matplotlib.pyplot as plt
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 if __name__ == '__main__':
     # To start a training you need an engine:
@@ -34,19 +33,29 @@ if __name__ == '__main__':
     # agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
     # agents_file_paths = [agent_0_file_path, agent_1_file_path]
     # agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
-
-    agents = [QLearningAgent(0.3, 0.1, 1, action_value=NeuralNetworkActionValue()),
+    agents = [DQNAgent(step_size=0.01,
+                       epsilon=0.3,
+                       discount=1,
+                       fit_period=16,
+                       batch_size=16,
+                       max_memory_size=16),
               RandomAgent()]
 
     # Training is as simple as it:
-    number_of_episodes = 1000
+    number_of_episodes = 10000
+    with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
+        # assignment is necessary, because training doesn't modify agents provided in constructor
+        agents = st.train(number_of_episodes)
+
+    agents[0].epsilon = 0.0
+    number_of_episodes = 2000
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
     agents[0].visualize()
-    plt.plot(bucketify(agents[0].action_value.train_loss_results, 100, np.mean))
-    plt.show()
+    # plt.plot(bucketify(agents[0].action_value.train_loss_results, 100, np.mean))
+    # plt.show()
 
     # At the end you can save your trained agents
     # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
