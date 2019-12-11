@@ -57,7 +57,7 @@ class SimpleTraining:
         with IncrementalBar("Training", max=episodes_no, suffix='%(percent)d%%') as bar:
             start = time.time()
             for i in range(episodes_no):
-                print(i) if i % 100 == 0 else None
+                print(f"episode {i}") if i % 100 == 0 else None
                 self._server.start()
                 bar.next()
             end = time.time()

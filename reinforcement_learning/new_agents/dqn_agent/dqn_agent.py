@@ -21,33 +21,41 @@ from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeActionSpa
 import random
 from collections import deque
 
+
 @dataclass
 class MemoryElement:
     state: BaseState
     action: BaseAction
     update_target: float
 
+
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon, discount, fit_period, batch_size, max_memory_size):
+    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size, board_size):
         super().__init__()
         self.step_size = step_size
-        self.epsilon = epsilon
+        self.epsilon_iter = epsilon_iter
+        self.current_epsilon = next(self.epsilon_iter)
         self.discount = discount
         self._current_episode_return = 0
         self.memory = deque([], max_memory_size)  # Contains memory elements
+
+        self.board_size = board_size
+
         self.model = tf.keras.models.Sequential([
-            tf.keras.layers.Input(9),
+            tf.keras.layers.Input(int(np.power(self.board_size, 2))),
             tf.keras.layers.Dense(50, activation='relu'),
             tf.keras.layers.Dense(50, activation='relu'),
             tf.keras.layers.Dense(50, activation='relu'),
-            tf.keras.layers.Dense(9)
+            tf.keras.layers.Dense(int(np.power(self.board_size, 2)))
         ])
+
         self.model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=step_size),
                            loss=tf.keras.losses.mean_squared_error,
                            metric=['accuracy'])
 
-        self.n = 3
-        self.action_index_dict = bidict({self.n * i + j:TicTacToeAction(i, j) for i in range(self.n) for j in range(self.n)})
+        self.action_index_dict = bidict({self.board_size*i+j: TicTacToeAction(i, j)
+                                         for i in range(self.board_size)
+                                         for j in range(self.board_size)})
 
         self.prev_state = None
         self.prev_action = None
@@ -56,7 +64,6 @@ class DQNAgent(BaseAgent):
         self.iter = 0
         self.fit_period = fit_period
         self.batch_size = batch_size
-
 
     def take_action(self, state, allowed_actions):
         self.iter += 1
@@ -95,30 +102,21 @@ class DQNAgent(BaseAgent):
             self.__fit_batch()
 
     def __fit_batch(self):
-        # print("FIT BATCH")
         chosen_elements = random.sample(self.memory, self.batch_size)
-        # print(f"chosen elements: {chosen_elements}")
 
         batch_X = np.array([self.__get_features(element.state) for element in chosen_elements])
-        # print(f"batch_X: {batch_X}")
         predictions = self.model(batch_X).numpy()
-        # print(f"predictions: {predictions}")
-        #
-        # print("Replacing")
+
         for i in range(len(chosen_elements)):
-            # print(f"i: {i}")
             action_index = self.action_index_dict.inverse[chosen_elements[i].action]
-            # print(f"action_index: {action_index}")
-            # print(f"old predictions[i][action_index]: {predictions[i][action_index]}")
             predictions[i][action_index] = chosen_elements[i].update_target
-            # print(f"new predictions[i][action_index]: {predictions[i][action_index]}")
 
         batch_Y = predictions
 
-        self.model.fit(batch_X, batch_Y, verbose=0, epochs=1)
+        self.model.train_on_batch(batch_X, batch_Y)
 
     def __epsilon_greedy(self, state, action_space):
-        if random.random() > self.epsilon:  # Choose action in the epsilon-greedy way
+        if random.random() > self.current_epsilon:  # Choose action in the epsilon-greedy way
             greedy_actions = self.__argmax(state, action_space)
 
             if greedy_actions:  # Check if there are any chosen possibilities
@@ -134,7 +132,7 @@ class DQNAgent(BaseAgent):
 
         max_action_value = self.__max(state, action_space)
         result = {self.action_index_dict[available_index] for available_index in available_action_indices
-                if np.isclose(all_action_values[available_index], max_action_value)}
+                  if np.isclose(all_action_values[available_index], max_action_value)}
 
         return result
 
@@ -159,6 +157,7 @@ class DQNAgent(BaseAgent):
         self.prev_action = None
         self.tmp_reward = None
 
-
-if __name__ == "__main__":
-    print('a')
+        try:
+            self.current_epsilon = next(self.epsilon_iter)
+        except StopIteration:
+            self.current_epsilon = 0.
