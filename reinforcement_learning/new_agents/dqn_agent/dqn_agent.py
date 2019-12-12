@@ -21,6 +21,9 @@ from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeActionSpa
 import random
 from collections import deque
 
+import pickle
+from copy import deepcopy
+
 
 @dataclass
 class MemoryElement:
@@ -30,40 +33,28 @@ class MemoryElement:
 
 
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size, board_size):
+    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size):
         super().__init__()
         self.step_size = step_size
         self.epsilon_iter = epsilon_iter
         self.current_epsilon = next(self.epsilon_iter)
         self.discount = discount
-        self._current_episode_return = 0
-        self.memory = deque([], max_memory_size)  # Contains memory elements
+        self.fit_period = fit_period
+        self.batch_size = batch_size
+        self.memory = deque([], max_memory_size)
 
-        self.board_size = board_size
+        # Lazy init
+        self.model = None
+        self.action_index_dict = None
 
-        self.model = tf.keras.models.Sequential([
-            tf.keras.layers.Input(int(np.power(self.board_size, 2))),
-            tf.keras.layers.Dense(50, activation='relu'),
-            tf.keras.layers.Dense(50, activation='relu'),
-            tf.keras.layers.Dense(50, activation='relu'),
-            tf.keras.layers.Dense(int(np.power(self.board_size, 2)))
-        ])
-
-        self.model.compile(optimizer=tf.keras.optimizers.RMSprop(learning_rate=step_size),
-                           loss=tf.keras.losses.mean_squared_error,
-                           metric=['accuracy'])
-
-        self.action_index_dict = bidict({self.board_size*i+j: TicTacToeAction(i, j)
-                                         for i in range(self.board_size)
-                                         for j in range(self.board_size)})
-
+        # Temporary prev state variables
         self.prev_state = None
         self.prev_action = None
         self.tmp_reward = None
 
+        # Iteration state variables
         self.iter = 0
-        self.fit_period = fit_period
-        self.batch_size = batch_size
+        self._current_episode_return = 0
 
     def take_action(self, state, allowed_actions):
         self.iter += 1
@@ -94,6 +85,29 @@ class DQNAgent(BaseAgent):
 
     def restart(self):
         self._reset_episode_info()
+
+    def update_epsilon(self, epsilon):
+        self.epsilon = epsilon
+
+    def save(self, agent_file_path, **kwargs):
+        network_file_path = kwargs['network_file_path']
+        self.model.save(network_file_path)
+        self.model = None
+
+        with open(agent_file_path, 'wb') as file:
+            pickle.dump(self, file)
+
+        self.model = tf.keras.models.load_model(network_file_path)
+
+    @staticmethod
+    def load(agent_file_path, **kwargs):
+        network_file_path = kwargs['network_file_path']
+
+        with open(agent_file_path, 'rb') as file:
+            agent = pickle.load(file)
+
+        agent.model = tf.keras.models.load_model(network_file_path)
+        return agent
 
     def __store(self, state, action, update_target):
         self.memory.append(MemoryElement(state, action, update_target))
@@ -126,26 +140,28 @@ class DQNAgent(BaseAgent):
 
     def __argmax(self, state, action_space):
         features = self.__get_features(state)
-        all_action_values = self.model(features.reshape(1, -1)).numpy()[0]
 
+        if self.model is None:
+            self.__lazy_init_info(features.size)
+
+        all_action_values = self.model(features.reshape(1, -1)).numpy()[0]
         available_action_indices = [self.action_index_dict.inverse[action] for action in action_space.actions]
 
         max_action_value = self.__max(state, action_space)
-        result = {self.action_index_dict[available_index] for available_index in available_action_indices
-                  if np.isclose(all_action_values[available_index], max_action_value)}
 
-        return result
+        return {self.action_index_dict[available_index] for available_index in available_action_indices
+                if np.isclose(all_action_values[available_index], max_action_value)}
 
     def __max(self, state, action_space):
-        if action_space is None:
-            return 0.
-
         features = self.__get_features(state)
-        all_action_values = self.model(features.reshape(1, -1)).numpy()[0]
 
+        if self.model is None:
+            self.__lazy_init_info(features.size)
+
+        all_action_values = self.model(features.reshape(1, -1)).numpy()[0]
         available_action_indices = [self.action_index_dict.inverse[action] for action in action_space.actions]
-        result = np.max(all_action_values[available_action_indices])
-        return result
+
+        return np.max(all_action_values[available_action_indices])
 
     def __get_features(self, state):
         not_normalized_features = state.flatten()
@@ -161,3 +177,20 @@ class DQNAgent(BaseAgent):
             self.current_epsilon = next(self.epsilon_iter)
         except StopIteration:
             self.current_epsilon = 0.
+
+    def __lazy_init_info(self, features_size):
+        self.model = tf.keras.models.Sequential([
+                tf.keras.layers.Input(features_size),
+                tf.keras.layers.Dense(50, activation='relu'),
+                tf.keras.layers.Dense(50, activation='relu'),
+                tf.keras.layers.Dense(50, activation='relu'),
+                tf.keras.layers.Dense(features_size)
+        ])
+
+        self.model.compile(optimier='rmsprop', loss=tf.losses.mean_squared_error, metrics=['accuracy'])
+
+        # Beta dictionary TODO: delete it or move it elsewhere
+        board_size = int(np.sqrt(features_size))
+        self.action_index_dict = bidict({board_size*i+j: TicTacToeAction(i, j)
+                                         for i in range(board_size)
+                                         for j in range(board_size)})

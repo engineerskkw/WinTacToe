@@ -76,13 +76,13 @@ class BaseAgent(ABC):
         """
         pass
 
-    def save(self, file_path):
-        with open(file_path, 'wb') as file:
+    def save(self, agent_file_path, **kwargs):
+        with open(agent_file_path, 'wb') as file:
             pickle.dump(self, file)
 
     @staticmethod
-    def load(file_path):
-        with open(file_path, 'rb') as file:
+    def load(agent_file_path, **kwargs):
+        with open(agent_file_path, 'rb') as file:
             return pickle.load(file)
 
     def _repr_svg_(self):

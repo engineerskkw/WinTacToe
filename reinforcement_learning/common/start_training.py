@@ -22,44 +22,59 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 from reinforcement_learning.base.base_agent import BaseAgent
 import numpy as np
 import matplotlib.pyplot as plt
+import pickle
+from keras_pickle_wrapper import KerasPickleWrapper
+
+from copy import deepcopy
+
+import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 if __name__ == '__main__':
-    # # To start a training you need an engine:
-    engine = TicTacToeEngine(2, 10, 5)
+    # To start a training you need an engine:
+    engine = TicTacToeEngine(2, 3, 3)
 
     # # You can also load previously saved agents from files:
-    # agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
-    # agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
-    # agents_file_paths = [agent_0_file_path, agent_1_file_path]
-    # agents = [BaseAgent.load(file_path) for file_path in agents_file_paths]
+    agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
+    agent_0_network_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0_network.h5")
+    agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
+    agent_1_network_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1_network.h5")
+
+    # agents = [DQNAgent.load(agent_0_file_path, network_file_path=agent_0_network_path),
+    #           DQNAgent.load(agent_1_file_path, network_file_path=agent_1_network_path)]
 
     number_of_episodes = 10000
 
-    hyper_epislon_decay_training_percent = 0.7
+    hyper_epsilon_decay_training_percent = 0.7
     hyper_epsilon_starting_value = 0.3
-    final_epsilon_episode = hyper_epislon_decay_training_percent * number_of_episodes
+    final_epsilon_episode = hyper_epsilon_decay_training_percent * number_of_episodes
     x = np.linspace(0, final_epsilon_episode, int(final_epsilon_episode))
     y = (np.sqrt(np.power(final_epsilon_episode, 2) - np.power(x, 2)) / final_epsilon_episode) \
         * hyper_epsilon_starting_value
 
     example_epsilon_iterator = iter(y)
 
-    agents = [DQNAgent(step_size=0.01,
+    agents = [QLearningAgent(0.1, deepcopy(example_epsilon_iterator), 1, action_value=LazyTabularActionValue()),
+              DQNAgent(step_size=0.01,
                        epsilon_iter=example_epsilon_iterator,
                        discount=1,
                        fit_period=16,
                        batch_size=16,
-                       max_memory_size=16,
-                       board_size=10),
-              RandomAgent()]
+                       max_memory_size=16)
+    ]
+
+    # agents[0].epsilon_iter = example_epsilon_iterator
+    # agents[1].epsilon_iter = deepcopy(example_epsilon_iterator)
 
     # Training is as simple as it:
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
-    agents[0].visualize()
+    # agents[0].visualize()
+    agents[1].visualize()
 
     # At the end you can save your trained agents
     # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
+    # agents[0].save(agent_0_file_path, network_file_path=agent_0_network_path)
+    agents[1].save(agent_1_file_path, network_file_path=agent_1_network_path)

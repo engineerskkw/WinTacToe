@@ -13,10 +13,11 @@ from reinforcement_learning.new_agents.common.lazy_tabular_action_value import L
 
 
 class QLearningAgent(BaseAgent):
-    def __init__(self, step_size, epsilon, discount, action_value=LazyTabularActionValue()):
+    def __init__(self, step_size, epsilon_iter, discount, action_value=LazyTabularActionValue()):
         super().__init__()
         self.step_size = step_size
-        self.epsilon = epsilon
+        self.epsilon_iter = epsilon_iter
+        self.current_epsilon = next(self.epsilon_iter)
         self.discount = discount
 
         self.action_value = action_value
@@ -31,7 +32,7 @@ class QLearningAgent(BaseAgent):
         if self._prev_state:
             self._update(state, allowed_actions)
 
-        action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
+        action = self.policy.epsilon_greedy(state, allowed_actions, self.current_epsilon)
         self._prev_action = action
         self._prev_state = state
 
@@ -46,6 +47,11 @@ class QLearningAgent(BaseAgent):
         self._update(terminal_state, None)
         self.all_episodes_returns.append(self._current_episode_return)
         self._reset_episode_info()
+
+        try:
+            self.current_epsilon = next(self.epsilon_iter)
+        except StopIteration:
+            self.current_epsilon = 0.
 
     def restart(self):
         self._reset_episode_info()
