@@ -24,6 +24,7 @@ from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
 from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.new_agents.dqn_agent.dqn_agent import DQNAgent
 
 
 class UserEventTypes(Enum):
@@ -171,8 +172,11 @@ class TicTacToeComponent(AbstractComponent):
 
         # Opponent joining
         agent_player = players[self._opponent_mark]
-        agent = BaseAgent.load(resolve_agent_file_path(self._opponent_mark, self._board_size, self.marks_required))
-        agent.epsilon = 0.0 if self._difficulty == Difficulty.HARD else 0.2
+        # agent = BaseAgent.load(resolve_agent_file_path(self._opponent_mark, self._board_size, self.marks_required))
+        agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
+        agent_0_network_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0_network.h5")
+        agent = DQNAgent.load(agent_0_file_path, network_file_path=agent_0_network_path)
+        # agent.epsilon = 0.0 if self._difficulty == Difficulty.HARD else 0.2
         agent_client = AgentClient(agent)
         self.server.join(agent_client, agent_player)
         self.log(f"Joined opponent")
