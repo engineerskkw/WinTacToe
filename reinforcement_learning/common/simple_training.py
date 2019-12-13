@@ -50,7 +50,7 @@ class SimpleTraining:
         self._server.shutdown()
         print("Training platform has been shutdown!")
 
-    def train(self, episodes_no):
+    def train(self, episodes_no, saving_period):
         if self._server is None:
             raise InvalidUsage(self)
 
@@ -58,6 +58,10 @@ class SimpleTraining:
             start = time.time()
             for i in range(episodes_no):
                 print(f"episode {i}") if i % 100 == 0 else None
+                if i % saving_period == 0 and not i == 0:
+                    print("Alfa zapisuję")
+                    for agent in self.agents:
+                        agent.save(agent.agent_path, network_file_path=agent.network_path)
                 self._server.start()
                 bar.next()
             end = time.time()
