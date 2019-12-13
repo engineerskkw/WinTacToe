@@ -18,6 +18,8 @@ import numpy as np
 from bidict import bidict
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeActionSpace
+
+from reinforcement_learning.agents.common.agent_utils import gen_tempfile_path
 import random
 from collections import deque
 
@@ -33,7 +35,7 @@ class MemoryElement:
 
 
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size, agent_path, network_path):
+    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size):
         super().__init__()
         self.step_size = step_size
         self.epsilon_iter = epsilon_iter
@@ -55,10 +57,6 @@ class DQNAgent(BaseAgent):
         # Iteration state variables
         self.iter = 0
         self._current_episode_return = 0
-
-        # Paths
-        self.agent_path = agent_path
-        self.network_path = network_path
 
     def take_action(self, state, allowed_actions):
         self.iter += 1
@@ -93,25 +91,38 @@ class DQNAgent(BaseAgent):
     def update_epsilon(self, epsilon):
         self.epsilon = epsilon
 
-    def save(self, agent_file_path, **kwargs):
-        network_file_path = kwargs['network_file_path']
-        self.model.save(network_file_path)
-        self.model = None
+    def save(self, agent_file_path):
+        # Obtain temp file path
+        temp_model_path = gen_tempfile_path(agent_file_path)
 
+        # convert model from h5/tf to bytes
+        self.model.save(temp_model_path)
+        with open(temp_model_path, 'rb') as file:
+            self.model = file.read()
+
+        # Save agent with raw bytes model
         with open(agent_file_path, 'wb') as file:
             pickle.dump(self, file)
 
-        self.model = tf.keras.models.load_model(network_file_path)
+        # Restoring object-like model
+        self.model = tf.keras.models.load_model(temp_model_path)
 
-    @staticmethod
-    def load(agent_file_path, **kwargs):
-        network_file_path = kwargs['network_file_path']
+        # Removing temp file
+        os.remove(temp_model_path)
 
-        with open(agent_file_path, 'rb') as file:
-            agent = pickle.load(file)
+    def additional_load_handling(self, agent_file_path):
+        temp_model_path = gen_tempfile_path(agent_file_path)
 
-        agent.model = tf.keras.models.load_model(network_file_path)
-        return agent
+        # convert model from bytes to h5/tf
+        with open(temp_model_path, 'wb') as file:
+            file.write(self.model)
+
+        # Load model object into agent
+        self.model = tf.keras.models.load_model(temp_model_path)
+
+        # Remove temp file
+        os.remove(temp_model_path)
+
 
     def __store(self, state, action, update_target):
         self.memory.append(MemoryElement(state, action, update_target))
