@@ -50,6 +50,11 @@ class TestAgentsSavingAndLoading(TestCase):
         agent.save(self.agent_path)
         loaded_agent = BaseAgent.load(self.agent_path)
         self.assertTrue(np.all(np.isclose(loaded_agent.all_episodes_returns, agent.all_episodes_returns)))
+        original_weights = loaded_agent.model.get_weights()
+        loaded_weights = agent.model.get_weights()
+        self.assertEqual(len(original_weights), len(loaded_weights))
+        for i in range(len(original_weights)):
+            self.assertTrue(np.all(np.isclose(original_weights[i], loaded_weights[i])))
 
     def test_saving_and_loading_for_agent_without_model(self):
         agents = [NStepAgent(5, 0.1, 0.2, 1),
