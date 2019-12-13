@@ -24,6 +24,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pickle
 
+from reinforcement_learning.new_agents.common.epsilon_strategy import ConstantEpsilonStrategy, CircleEpsilonStrategy, DecayingSinusEpsilonStrategy
+
 from copy import deepcopy
 
 import tensorflow as tf
@@ -39,37 +41,16 @@ if __name__ == '__main__':
     agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1.ai")
     agent_1_network_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1_network.h5")
 
-    # agents = [DQNAgent.load(agent_0_file_path, network_file_path=agent_0_network_path),
-    #       DQNAgent.load(agent_1_file_path, network_file_path=agent_1_network_path)]
+    # agents = (BaseAgent.load(agent_0_file_path), BaseAgent.load(agent_1_file_path))
 
-    agents = (BaseAgent.load(agent_0_file_path), BaseAgent.load(agent_1_file_path))
+    number_of_episodes = 1000
 
-    number_of_episodes = 50000
-
-    hyper_epsilon_starting_value = 0.3
-    # x = np.linspace(0, final_epsilon_episode, int(final_epsilon_episode))
-    x = np.linspace(0, 10*np.pi, int(0.9*number_of_episodes))
-    # x = np.arange(1, int(final_epsilon_episode))
-    # y = (np.sqrt(np.power(final_epsilon_episode, 2) - np.power(x, 2)) / final_epsilon_episode) \
-    #     * hyper_epsilon_starting_value
-
-    y = np.abs((np.sin(x)/x)) * hyper_epsilon_starting_value
-    # y = np.sin(x)
-    plt.plot(x, y)
-    plt.show()
-    # sys.exit()
-
-    example_epsilon_iterator0 = iter(y)
-    example_epsilon_iterator1 = iter(y)
-
-    agents = [NStepAgent(5, 0.1, 0.2, 1),
-              NStepAgent(5, 0.1, 0.2, 1)
+    agents = [
+        NStepAgent(5, 0.1, DecayingSinusEpsilonStrategy(0.3, 0.7), 1),
+        NStepAgent(5, 0.1, ConstantEpsilonStrategy(0.2),  1)
     ]
 
-    # agents[0].epsilon_iter = example_epsilon_iterator
-    # agents[1].epsilon_iter = deepcopy(example_epsilon_iterator)
-
-    # Training is as simple as it:
+    # Training is as simple as this:
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes, 10000)
@@ -77,7 +58,7 @@ if __name__ == '__main__':
     agents[0].visualize()
     # agents[1].visualize()
 
-    # At the end you can save your trained agents
-    # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
-    agents[0].save(agent_0_file_path, network_file_path=agent_0_network_path)
-    agents[1].save(agent_1_file_path, network_file_path=agent_1_network_path)
+    # # At the end you can save your trained agents
+    # # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
+    # agents[0].save(agent_0_file_path, network_file_path=agent_0_network_path)
+    # agents[1].save(agent_1_file_path, network_file_path=agent_1_network_path)

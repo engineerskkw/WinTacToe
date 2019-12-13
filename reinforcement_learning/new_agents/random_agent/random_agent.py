@@ -12,7 +12,7 @@ from reinforcement_learning.base.base_agent import BaseAgent
 
 class RandomAgent(BaseAgent):
     def __init__(self):
-        super().__init__()
+        super().__init__(None)
         self._current_episode_return = 0
 
     def take_action(self, state, allowed_actions):
@@ -30,3 +30,7 @@ class RandomAgent(BaseAgent):
 
     def _reset_episode_info(self):
         self._current_episode_return = 0
+
+    # For compatibility with other agents
+    def update_epsilon(self):
+        pass

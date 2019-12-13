@@ -19,9 +19,15 @@ from utils.common_utils import return_deepcopy
 import matplotlib.ticker as mtick
 
 class BaseAgent(ABC):
-    def __init__(self):
+    def __init__(self, epsilon_strategy):
         self.episodes_actions_times = [[]]
         self.all_episodes_returns = []
+
+        self.epsilon_strategy = epsilon_strategy
+        self.current_epsilon = None
+
+    def update_epsilon(self):
+        self.current_epsilon = next(self.epsilon_strategy)
 
     @abstractmethod
     @return_deepcopy
