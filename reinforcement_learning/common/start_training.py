@@ -23,7 +23,6 @@ from reinforcement_learning.base.base_agent import BaseAgent
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
-from keras_pickle_wrapper import KerasPickleWrapper
 
 from copy import deepcopy
 
@@ -41,26 +40,30 @@ if __name__ == '__main__':
     agent_1_network_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent1_network.h5")
 
     # agents = [DQNAgent.load(agent_0_file_path, network_file_path=agent_0_network_path),
-    #           DQNAgent.load(agent_1_file_path, network_file_path=agent_1_network_path)]
+    #       DQNAgent.load(agent_1_file_path, network_file_path=agent_1_network_path)]
 
-    number_of_episodes = 10000
+    agents = (BaseAgent.load(agent_0_file_path), BaseAgent.load(agent_1_file_path))
 
-    hyper_epsilon_decay_training_percent = 0.7
+    number_of_episodes = 50000
+
     hyper_epsilon_starting_value = 0.3
-    final_epsilon_episode = hyper_epsilon_decay_training_percent * number_of_episodes
-    x = np.linspace(0, final_epsilon_episode, int(final_epsilon_episode))
-    y = (np.sqrt(np.power(final_epsilon_episode, 2) - np.power(x, 2)) / final_epsilon_episode) \
-        * hyper_epsilon_starting_value
+    # x = np.linspace(0, final_epsilon_episode, int(final_epsilon_episode))
+    x = np.linspace(0, 10*np.pi, int(0.9*number_of_episodes))
+    # x = np.arange(1, int(final_epsilon_episode))
+    # y = (np.sqrt(np.power(final_epsilon_episode, 2) - np.power(x, 2)) / final_epsilon_episode) \
+    #     * hyper_epsilon_starting_value
 
-    example_epsilon_iterator = iter(y)
+    y = np.abs((np.sin(x)/x)) * hyper_epsilon_starting_value
+    # y = np.sin(x)
+    plt.plot(x, y)
+    plt.show()
+    # sys.exit()
 
-    agents = [QLearningAgent(0.1, deepcopy(example_epsilon_iterator), 1, action_value=LazyTabularActionValue()),
-              DQNAgent(step_size=0.01,
-                       epsilon_iter=example_epsilon_iterator,
-                       discount=1,
-                       fit_period=16,
-                       batch_size=16,
-                       max_memory_size=16)
+    example_epsilon_iterator0 = iter(y)
+    example_epsilon_iterator1 = iter(y)
+
+    agents = [NStepAgent(5, 0.1, 0.2, 1),
+              NStepAgent(5, 0.1, 0.2, 1)
     ]
 
     # agents[0].epsilon_iter = example_epsilon_iterator
@@ -69,12 +72,12 @@ if __name__ == '__main__':
     # Training is as simple as it:
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
-        agents = st.train(number_of_episodes)
+        agents = st.train(number_of_episodes, 10000)
 
-    # agents[0].visualize()
-    agents[1].visualize()
+    agents[0].visualize()
+    # agents[1].visualize()
 
     # At the end you can save your trained agents
     # [agent.save(file_path) for (agent, file_path) in zip(agents, agents_file_paths)]
-    # agents[0].save(agent_0_file_path, network_file_path=agent_0_network_path)
+    agents[0].save(agent_0_file_path, network_file_path=agent_0_network_path)
     agents[1].save(agent_1_file_path, network_file_path=agent_1_network_path)
