@@ -55,8 +55,14 @@ class SimpleTraining:
             raise InvalidUsage(self)
 
         # with IncrementalBar("Training", max=episodes_no, suffix='%(percent)d%%') as bar:
+        for agent in self.agents:
+            agent.epsilon_strategy.init_no_of_episodes(episodes_no)
+
         start = time.time()
         for i in range(episodes_no):
+            for agent in self.agents:
+                agent.update_epsilon()
+
             print(f"episode {i}") if i % 100 == 0 else None
             if saving_period is not None and i % saving_period == 0 and not i == 0:
                 for agent in self.agents:

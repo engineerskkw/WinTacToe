@@ -16,11 +16,10 @@ from reinforcement_learning.new_agents.common.agent_utils import safe_return
 
 
 class NStepAgent(BaseAgent):
-    def __init__(self, n, step_size, epsilon, discount, action_value=LazyTabularActionValue()):
-        super().__init__()
+    def __init__(self, n, step_size, epsilon_strategy, discount, action_value=LazyTabularActionValue()):
+        super().__init__(epsilon_strategy)
         self.n = n
         self.step_size = step_size
-        self.epsilon = epsilon
         self.discount = discount
 
         self.action_value = action_value
@@ -34,7 +33,7 @@ class NStepAgent(BaseAgent):
 
     def take_action(self, state, allowed_actions):
         self._state_history.append(state)
-        action = self.policy.epsilon_greedy(state, allowed_actions, self.epsilon)
+        action = self.policy.epsilon_greedy(state, allowed_actions, self.current_epsilon)
         self._action_history.append(action)
 
         self._update(self._current_time_step - self.n)

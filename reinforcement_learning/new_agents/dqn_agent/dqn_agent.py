@@ -36,11 +36,9 @@ class MemoryElement:
 
 
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size):
-        super().__init__()
+    def __init__(self, step_size, epsilon_strategy, discount, fit_period, batch_size, max_memory_size, agent_path, network_path):
+        super().__init__(epsilon_strategy)
         self.step_size = step_size
-        self.epsilon_iter = epsilon_iter
-        self.current_epsilon = next(self.epsilon_iter)
         self.discount = discount
         self.fit_period = fit_period
         self.batch_size = batch_size
@@ -88,9 +86,6 @@ class DQNAgent(BaseAgent):
 
     def restart(self):
         self._reset_episode_info()
-
-    def update_epsilon(self, epsilon):
-        self.epsilon = epsilon
 
     def __store(self, state, action, update_target):
         self.memory.append(MemoryElement(state, action, update_target))
@@ -155,11 +150,6 @@ class DQNAgent(BaseAgent):
         self.prev_state = None
         self.prev_action = None
         self.tmp_reward = None
-
-        try:
-            self.current_epsilon = next(self.epsilon_iter)
-        except StopIteration:
-            self.current_epsilon = 0.
 
     def __lazy_init_info(self, features_size):
         self.model = tf.keras.models.Sequential([

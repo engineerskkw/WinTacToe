@@ -22,42 +22,34 @@ from reinforcement_learning.agents.common.agent_utils import bucketify
 from reinforcement_learning.base.base_agent import BaseAgent
 import numpy as np
 import matplotlib.pyplot as plt
+from reinforcement_learning.new_agents.common.epsilon_strategy import ConstantEpsilonStrategy, CircleEpsilonStrategy, DecayingSinusEpsilonStrategy
 
+from copy import deepcopy
+
+import tensorflow as tf
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 if __name__ == '__main__':
     # To start a training you need an engine:
     engine = TicTacToeEngine(2, 3, 3)
 
-    # # You can also load previously saved agents from files:
     agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.ai")
     agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent1.ai")
     agents_file_paths = [agent_0_file_path, agent_1_file_path]
+    agents = (BaseAgent.load(agent_0_file_path), BaseAgent.load(agent_1_file_path))
 
-    # Loading agents from file
-    # agents = [BaseAgent.load(agent_file_path) for agent_file_path in agents_file_paths]
-
-    number_of_episodes = 500
-
-    # Workaround version of epsilon strategy
-    hyper_epsilon_starting_value = 0.3
-    x = np.linspace(0, 10*np.pi, int(0.9*number_of_episodes))
-    y = np.abs((np.sin(x)/x)) * hyper_epsilon_starting_value
-    example_epsilon_iterator0 = iter(y)
-    example_epsilon_iterator1 = iter(y)
-
-    # Creating agents
-    agents = [NStepAgent(5, 0.1, 0.2, 1),
-              NStepAgent(5, 0.1, 0.2, 1)
+    agents = [
+        NStepAgent(5, 0.1, CircleEpsilonStrategy(0.1, 0.7), 1),
+        RandomAgent()
     ]
 
-    # Training is as simple as it:
+    number_of_episodes = 10000
     with SimpleTraining(engine, agents) as st:  # using "with statement" is encouraged
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(number_of_episodes)
 
     agents[0].visualize()
-    agents[1].visualize()
+    # agents[1].visualize()
 
     # At the end you can save your trained agents
     [agent.save(agent_file_path) for (agent, agent_file_path) in zip(agents, agents_file_paths)]

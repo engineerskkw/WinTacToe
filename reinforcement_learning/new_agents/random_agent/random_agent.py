@@ -8,11 +8,13 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.new_agents.common.epsilon_strategy import ConstantEpsilonStrategy
 
 
 class RandomAgent(BaseAgent):
     def __init__(self):
-        super().__init__()
+        super().__init__(ConstantEpsilonStrategy(0.1)) # For training compatibility
+
         self._current_episode_return = 0
 
     def take_action(self, state, allowed_actions):
