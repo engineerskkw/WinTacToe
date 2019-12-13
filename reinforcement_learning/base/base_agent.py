@@ -14,9 +14,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.gridspec as gridspec
 
-from reinforcement_learning.agents.common.agent_utils import bucketify
+from reinforcement_learning.agents.common.agent_utils import bucketify, gen_tempfile_path
 from utils.common_utils import return_deepcopy
-import matplotlib.ticker as mtick
 
 class BaseAgent(ABC):
     def __init__(self, epsilon_strategy):
@@ -82,14 +81,23 @@ class BaseAgent(ABC):
         """
         pass
 
-    def save(self, agent_file_path, **kwargs):
+    def save(self, agent_file_path):
         with open(agent_file_path, 'wb') as file:
             pickle.dump(self, file)
 
     @staticmethod
-    def load(agent_file_path, **kwargs):
+    def load(agent_file_path):
+        # Load concrete instance of an agent
         with open(agent_file_path, 'rb') as file:
-            return pickle.load(file)
+            agent = pickle.load(file)
+
+        # Give a control of loading process to the concrete class of the agent
+        agent.additional_load_handling(agent_file_path)
+
+        return agent
+
+    def additional_load_handling(self, agent_file_path):
+        pass
 
     def _repr_svg_(self):
         # TODO seamlessly integrate matplotlib plot with ipython _repr_svg_

@@ -173,9 +173,8 @@ class TicTacToeComponent(AbstractComponent):
         # Opponent joining
         agent_player = players[self._opponent_mark]
         # agent = BaseAgent.load(resolve_agent_file_path(self._opponent_mark, self._board_size, self.marks_required))
-        agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0.ai")
-        agent_0_network_path = os.path.join(ABS_PROJECT_ROOT_PATH, "training_platform", "examples", "agent0_network.h5")
-        agent = DQNAgent.load(agent_0_file_path, network_file_path=agent_0_network_path)
+        agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.ai")
+        agent = BaseAgent.load(agent_0_file_path)
         # agent.epsilon = 0.0 if self._difficulty == Difficulty.HARD else 0.2
         agent_client = AgentClient(agent)
         self.server.join(agent_client, agent_player)
