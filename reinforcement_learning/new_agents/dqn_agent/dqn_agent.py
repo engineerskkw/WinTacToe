@@ -33,7 +33,7 @@ class MemoryElement:
 
 
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size):
+    def __init__(self, step_size, epsilon_iter, discount, fit_period, batch_size, max_memory_size, agent_path, network_path):
         super().__init__()
         self.step_size = step_size
         self.epsilon_iter = epsilon_iter
@@ -55,6 +55,10 @@ class DQNAgent(BaseAgent):
         # Iteration state variables
         self.iter = 0
         self._current_episode_return = 0
+
+        # Paths
+        self.agent_path = agent_path
+        self.network_path = network_path
 
     def take_action(self, state, allowed_actions):
         self.iter += 1
