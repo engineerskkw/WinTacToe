@@ -50,21 +50,20 @@ class SimpleTraining:
         self._server.shutdown()
         print("Training platform has been shutdown!")
 
-    def train(self, episodes_no, saving_period):
+    def train(self, episodes_no, saving_period=None):
         if self._server is None:
             raise InvalidUsage(self)
 
-        with IncrementalBar("Training", max=episodes_no, suffix='%(percent)d%%') as bar:
-            start = time.time()
-            for i in range(episodes_no):
-                print(f"episode {i}") if i % 100 == 0 else None
-                if i % saving_period == 0 and not i == 0:
-                    print("Alfa zapisuję")
-                    for agent in self.agents:
-                        agent.save(agent.agent_path, network_file_path=agent.network_path)
-                self._server.start()
-                bar.next()
-            end = time.time()
+        # with IncrementalBar("Training", max=episodes_no, suffix='%(percent)d%%') as bar:
+        start = time.time()
+        for i in range(episodes_no):
+            print(f"episode {i}") if i % 100 == 0 else None
+            if saving_period is not None and i % saving_period == 0 and not i == 0:
+                for agent in self.agents:
+                    agent.save(agent.agent_path)
+            self._server.start()
+            # bar.next()
+        end = time.time()
         print(f"Finished {episodes_no} episodes in {end-start}")
 
         return [client.agent for client in self._clients]
