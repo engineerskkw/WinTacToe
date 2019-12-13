@@ -19,6 +19,7 @@ from bidict import bidict
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeActionSpace
 
+import io
 from reinforcement_learning.agents.common.agent_utils import gen_tempfile_path
 import random
 from collections import deque
@@ -90,39 +91,6 @@ class DQNAgent(BaseAgent):
 
     def update_epsilon(self, epsilon):
         self.epsilon = epsilon
-
-    def save(self, agent_file_path):
-        # Obtain temp file path
-        temp_model_path = gen_tempfile_path(agent_file_path)
-
-        # convert model from h5/tf to bytes
-        self.model.save(temp_model_path)
-        with open(temp_model_path, 'rb') as file:
-            self.model = file.read()
-
-        # Save agent with raw bytes model
-        with open(agent_file_path, 'wb') as file:
-            pickle.dump(self, file)
-
-        # Restoring object-like model
-        self.model = tf.keras.models.load_model(temp_model_path)
-
-        # Removing temp file
-        os.remove(temp_model_path)
-
-    def additional_load_handling(self, agent_file_path):
-        temp_model_path = gen_tempfile_path(agent_file_path)
-
-        # convert model from bytes to h5/tf
-        with open(temp_model_path, 'wb') as file:
-            file.write(self.model)
-
-        # Load model object into agent
-        self.model = tf.keras.models.load_model(temp_model_path)
-
-        # Remove temp file
-        os.remove(temp_model_path)
-
 
     def __store(self, state, action, update_target):
         self.memory.append(MemoryElement(state, action, update_target))
@@ -209,3 +177,40 @@ class DQNAgent(BaseAgent):
         self.action_index_dict = bidict({board_size*i+j: TicTacToeAction(i, j)
                                          for i in range(board_size)
                                          for j in range(board_size)})
+
+    def __getstate__(self):
+        # Obtain temp file path
+        agent_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "placeholder")
+        temp_model_path = gen_tempfile_path(agent_file_path)
+
+        # convert model object to bytes
+        self.model.save(temp_model_path)
+        with open(temp_model_path, 'rb') as file:
+            self.model = file.read()
+
+        # Dumps agent with raw bytes model
+        state = self.__dict__.copy()
+
+        # Restoring object-like model
+        self.model = tf.keras.models.load_model(temp_model_path)
+
+        # Removing temp file
+        os.remove(temp_model_path)
+
+        return state
+
+    def __setstate__(self, state):
+        # Restore instance attributes
+        self.__dict__.update(state)
+
+        # Obtain temp file path
+        agent_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "placeholder")
+        temp_model_path = gen_tempfile_path(agent_file_path)
+
+        # Convert model bytes to the model object
+        with open(temp_model_path, 'wb') as file:
+            file.write(self.model)
+        self.model = tf.keras.models.load_model(temp_model_path)
+
+        # Remove temp file
+        os.remove(temp_model_path)

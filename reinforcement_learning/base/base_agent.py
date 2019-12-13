@@ -81,17 +81,9 @@ class BaseAgent(ABC):
 
     @staticmethod
     def load(agent_file_path):
-        # Load concrete instance of an agent
         with open(agent_file_path, 'rb') as file:
             agent = pickle.load(file)
-
-        # Give a control of loading process to the concrete class of the agent
-        agent.additional_load_handling(agent_file_path)
-
         return agent
-
-    def additional_load_handling(self, agent_file_path):
-        pass
 
     def _repr_svg_(self):
         # TODO seamlessly integrate matplotlib plot with ipython _repr_svg_
