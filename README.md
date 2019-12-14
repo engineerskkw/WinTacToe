@@ -155,16 +155,43 @@ Make sure that you have following configuration of traing platform config.ini:
 actorsystembase = simpleSystemBase
 logging = 0
 ```
-In TicTacToeComponent in ```# Oponnent joing``` section:
+For now, an opponent is loaded as last agent that satisfy mark, board size and marks required.
+If you want load specific agent from database in TicTacToeComponent in ```# Oponnent joing``` section change
 ```python
-# Opponent joining
-p1 = players[self._opponent_mark]
-c1 = AgentClient(BasicAgent())
-self.server.join(c1, p1)
-self.log(f"Joined opponent")
+matching_agents = AgentsDB.load(player=self._opponent_mark,
+                                        board_size=self._board_size,
+                                        marks_required=self.marks_required)  # List of all agents that satisfy criteria
+
+        # TODO: Make convenient select agent function (maybe in GUI)
+        # For now it's just last agent
+        def agent_select(agents):
+            if not agents:
+                raise ValueError("There are now agents satisfying given criteria in the Agents Database")
+            return agents[-1]
+        agent = agent_select(matching_agents)
 ```
-change ```BasicAgent()``` to ```BaseAgent.load(file_path)```
-where ```file_path``` is path to the file containing your saved RL agent.
+to
+```python
+matching_agents = AgentsDB.load(arbitral_subset_of_criterias)
+def agent_select(agents):
+  if not agents:
+      raise ValueError("There are now agents satisfying given criteria in the Agents Database")
+  # Some your agent choosing implementation
+agent = agent_select(matching_agents)
+```
+or if you whant use more sophisticated sql query
+```python
+rows = AgentsDB.command(sql_query_string)
+def some_rows_postprocessing(rows):
+  # Some your implementation of rows postprocessing
+agent = some_rows_postprocessing(rows)
+```
+
+Another way is to load agent from file:
+```python
+agent = BaseAgent.load(agent_file_path)
+```
+
 To start a game run launch_application.py typing in console started in project root:
 ```bash
 python game_app/launch_application.py
