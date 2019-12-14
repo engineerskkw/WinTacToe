@@ -56,7 +56,7 @@ if __name__ == '__main__':
     agents = [BaseAgent.load(agent_file_path) for agent_file_path in agents_file_paths]
 
     # You can also save them to the agents database:
-    # First call AgentsDB.setup() if you want to work on the new agents database
+    # Firstly call AgentsDB.setup() if you want to work on the new agents database
     AgentsDB.setup()
 
     # Secondly save your agents in database
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     AgentsDB.reset()
 
     # For more sophisticated use of agents database you can use AgentsDB.command method
-    AgentsDB.command("select * from agents")
+    AgentsDB.command("SELECT * from AGENTS")
 
     # You can also connect any other db client (e.g. DataGrip) to the agents database
 
