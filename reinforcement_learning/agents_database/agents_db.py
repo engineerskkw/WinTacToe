@@ -14,7 +14,7 @@ import datetime
 
 
 class AgentsDB:
-    database_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "db.sqlite")
+    database_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "agents_database", "agents_db.sqlite")
     conn = sqlite3.connect(database_path)
     cur = conn.cursor()
     create_agents_table_command = """
