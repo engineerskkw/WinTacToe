@@ -20,7 +20,7 @@ class AgentsDB:
     create_agents_table_command = """
     CREATE TABLE agents (
         id INTEGER,
-        class TEXT,
+        class_name TEXT,
         player INTEGER,
         board_size INTEGER,
         marks_required INTEGER,
@@ -31,7 +31,7 @@ class AgentsDB:
     """
 
     insert_agent_command = """
-    INSERT INTO agents (class, player, board_size, marks_required, description, agent, savetime) VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO agents (class_name, player, board_size, marks_required, description, agent, savetime) VALUES (?, ?, ?, ?, ?, ?, ?)
     """
 
     @staticmethod
@@ -41,13 +41,9 @@ class AgentsDB:
         AgentsDB.conn.commit()
 
     @staticmethod
-    def save(agent, **kwargs):
+    def save(agent, player, board_size, marks_required, description=""):
         class_name = agent.__class__.__name__.split(".")[-1]
         agent = pickle.dumps(agent)
-        player = kwargs.get("player", None)
-        board_size = kwargs.get("board_size", None)
-        marks_required = kwargs.get("marks_required", None)
-        description = kwargs.get("description", None)
         savetime = datetime.datetime.now()
 
         AgentsDB.cur.execute(AgentsDB.insert_agent_command,
@@ -55,6 +51,26 @@ class AgentsDB:
         AgentsDB.conn.commit()
 
     @staticmethod
-    def load(id):
-        AgentsDB.cur.execute("SELECT * FROM agents WHERE id = ?", (id,))
-        return pickle.loads(AgentsDB.cur.fetchone()[6])
+    def load(**kwargs):
+        parameters = []
+        if not kwargs.items():
+            query_command = "SELECT * FROM agents"
+        else:
+            wheres_list = ""
+
+            for column_name, value in kwargs.items():
+                wheres_list += f" {column_name} = ?"
+                parameters.append(value)
+            query_command = f"SELECT * FROM agents WHERE{wheres_list}"
+        parameters = tuple(parameters)
+        print(query_command)
+        print(parameters)
+        AgentsDB.cur.execute(query_command, parameters)
+        rows = AgentsDB.cur.fetchall()
+        print(rows)
+        return [pickle.loads(row[6]) for row in rows]
+
+    @staticmethod
+    def query(query_command):
+        AgentsDB.cur.execute(query_command)
+        return AgentsDB.cur.fetchall()
