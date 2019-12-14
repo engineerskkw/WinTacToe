@@ -40,6 +40,8 @@ class AgentsDB:
         AgentsDB.cur.executescript(AgentsDB.create_agents_table_command)
         AgentsDB.conn.commit()
 
+    reset = setup
+
     @staticmethod
     def save(agent, player, board_size, marks_required, description=""):
         class_name = agent.__class__.__name__.split(".")[-1]
@@ -58,19 +60,23 @@ class AgentsDB:
         else:
             wheres_list = ""
 
+            first = True
             for column_name, value in kwargs.items():
+                if not first:
+                    wheres_list += " AND"
+                else:
+                    first = False
                 wheres_list += f" {column_name} = ?"
                 parameters.append(value)
             query_command = f"SELECT * FROM agents WHERE{wheres_list}"
         parameters = tuple(parameters)
-        print(query_command)
-        print(parameters)
+        print(f"query_command: {query_command}")
+        print(f"parameters: {parameters}")
         AgentsDB.cur.execute(query_command, parameters)
         rows = AgentsDB.cur.fetchall()
-        print(rows)
         return [pickle.loads(row[6]) for row in rows]
 
     @staticmethod
-    def query(query_command):
+    def command(query_command):
         AgentsDB.cur.execute(query_command)
         return AgentsDB.cur.fetchall()
