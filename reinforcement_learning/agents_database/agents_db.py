@@ -70,8 +70,6 @@ class AgentsDB:
                 parameters.append(value)
             query_command = f"SELECT * FROM agents WHERE{wheres_list}"
         parameters = tuple(parameters)
-        print(f"query_command: {query_command}")
-        print(f"parameters: {parameters}")
         AgentsDB.cur.execute(query_command, parameters)
         rows = AgentsDB.cur.fetchall()
         return [pickle.loads(row[6]) for row in rows]
