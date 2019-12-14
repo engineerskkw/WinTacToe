@@ -169,23 +169,25 @@ class DQNAgent(BaseAgent):
                                          for j in range(board_size)})
 
     def __getstate__(self):
-        # Obtain temp file path
-        agent_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "placeholder")
-        temp_model_path = gen_tempfile_path(agent_file_path)
+        if self.model is not None:
+            # Obtain temp file path
+            agent_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "placeholder")
+            temp_model_path = gen_tempfile_path(agent_file_path)
 
-        # convert model object to bytes
-        self.model.save(temp_model_path)
-        with open(temp_model_path, 'rb') as file:
-            self.model = file.read()
+            # convert model object to bytes
+            self.model.save(temp_model_path)
+            with open(temp_model_path, 'rb') as file:
+                self.model = file.read()
 
         # Dumps agent with raw bytes model
         state = self.__dict__.copy()
 
         # Restoring object-like model
-        self.model = tf.keras.models.load_model(temp_model_path)
+        if self.model is not None:
+            self.model = tf.keras.models.load_model(temp_model_path)
 
-        # Removing temp file
-        os.remove(temp_model_path)
+            # Removing temp file
+            os.remove(temp_model_path)
 
         return state
 
@@ -193,14 +195,15 @@ class DQNAgent(BaseAgent):
         # Restore instance attributes
         self.__dict__.update(state)
 
-        # Obtain temp file path
-        agent_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "placeholder")
-        temp_model_path = gen_tempfile_path(agent_file_path)
+        if self.model is not None:
+            # Obtain temp file path
+            agent_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "placeholder")
+            temp_model_path = gen_tempfile_path(agent_file_path)
 
-        # Convert model bytes to the model object
-        with open(temp_model_path, 'wb') as file:
-            file.write(self.model)
-        self.model = tf.keras.models.load_model(temp_model_path)
+            # Convert model bytes to the model object
+            with open(temp_model_path, 'wb') as file:
+                file.write(self.model)
+            self.model = tf.keras.models.load_model(temp_model_path)
 
-        # Remove temp file
-        os.remove(temp_model_path)
+            # Remove temp file
+            os.remove(temp_model_path)
