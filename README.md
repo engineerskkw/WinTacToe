@@ -68,8 +68,8 @@ agents = [NStepAgent(n=5,
 ```
 Agents can be manually saved to files:
 ```python
-agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.ai")
-agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent1.ai")
+agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.rl_agent")
+agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent1.rl_agent")
 agents_file_paths = [agent_0_file_path, agent_1_file_path]
 
 [agent.save(agent_file_path) for (agent, agent_file_path) in zip(agents, agents_file_paths)]
