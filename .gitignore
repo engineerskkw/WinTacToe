@@ -5,3 +5,4 @@ training_platform/examples/agent1.ai
 game_app/settings.cfg
 .ipynb_checkpoints/
 reinforcement_learning/agents/basic_mc_agent/Digraph.gv
+reinforcement_learning/agents_database/agents_db.sqlite
