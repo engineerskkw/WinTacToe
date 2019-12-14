@@ -25,6 +25,7 @@ from training_platform import EnvironmentServer, AgentClient
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
 from reinforcement_learning.base.base_agent import BaseAgent
 from reinforcement_learning.new_agents.dqn_agent.dqn_agent import DQNAgent
+from reinforcement_learning.agents_database.agents_db import AgentsDB
 
 
 class UserEventTypes(Enum):
@@ -172,9 +173,19 @@ class TicTacToeComponent(AbstractComponent):
 
         # Opponent joining
         agent_player = players[self._opponent_mark]
-        # agent = BaseAgent.load(resolve_agent_file_path(self._opponent_mark, self._board_size, self.marks_required))
-        agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.ai")
-        agent = BaseAgent.load(agent_0_file_path)
+        matching_agents = AgentsDB.load(player=self._opponent_mark,
+                                        board_size=self._board_size,
+                                        marks_required=self.marks_required)  # List of all agents that satisfy criteria
+
+        # TODO: Make convenient select agent function (maybe in GUI)
+        # For now it's just last agent
+        def agent_select(agents):
+            if not agents:
+                raise ValueError("There are now agents satisfying given criteria in the Agents Database")
+            return agents[-1]
+        agent = agent_select(matching_agents)
+
+        # TODO: implement proper difficulty level handling
         # agent.epsilon = 0.0 if self._difficulty == Difficulty.HARD else 0.2
         agent_client = AgentClient(agent)
         self.server.join(agent_client, agent_player)
