@@ -80,7 +80,8 @@ agents = [BaseAgent.load(agent_file_path) for agent_file_path in agents_file_pat
 ```
 
 You can also save them to the agents database:
-First call AgentsDB.setup() if you want to work on the new agents database
+
+Firstly call AgentsDB.setup() if you want to work on the new agents database
 ```python
 AgentsDB.setup()
 ```
@@ -130,23 +131,26 @@ with SimpleTraining(engine=engine, agents=agents) as st:
     agents = st.train(episodes_no=episodes_no,
                       auto_saving=100,
                       saving_description=["Trained agent", "Trained agent"])
-    # episodes_no: number of episodes to play
-    # auto_saving:
-    #     if None or False-> nothing is saved
-    #     if True -> All agents are saved at the and of the training
-    #     if Integer -> All agents are saved every auto_saving episodes
-    # saving_description:
-    #     if None -> All agents are saved with the same standard description: "{episodes_no} episodes"
-    #     if string -> This string is used as description for saving for all agents
-    #     if list(string) -> Each agent is saved with his own description from list
+```
+SimpleTraining train method parameters description
+- episodes_no: number of episodes to play
+- auto_saving:
+if None or False-> nothing is saved:
+  - if True -> All agents are saved at the and of the training
+  - if Integer -> All agents are saved every auto_saving episodes
+- saving_description:
+  - if None -> All agents are saved with the same standard description: "{episodes_no} episodes"
+  - if string -> This string is used as description for saving for all agents
+  - if list(string) -> Each agent is saved with his own description from list
 
-# Agents can be visualized
+Agents can be visualized
+```python
 [agent.visualize() for agent in agents]
 ```
 
 ### Start a player vs bot game wih any engine
 Make sure that you have following configuration of traing platform config.ini:
-```
+```ini
 [TRAINING PLATFORM PARAMETERS]
 actorsystembase = simpleSystemBase
 logging = 0
@@ -162,7 +166,7 @@ self.log(f"Joined opponent")
 change ```BasicAgent()``` to ```BaseAgent.load(file_path)```
 where ```file_path``` is path to the file containing your saved RL agent.
 To start a game run launch_application.py typing in console started in project root:
-```
+```bash
 python game_app/launch_application.py
 ```
 
