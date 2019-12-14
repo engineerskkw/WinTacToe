@@ -46,8 +46,8 @@ if __name__ == '__main__':
                        max_memory_size=64)]
 
     # Agents can be manually saved to files:
-    agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.ai")
-    agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent1.ai")
+    agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent0.rl_agent")
+    agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "common", "trained_agents", "agent1.rl_agent")
     agents_file_paths = [agent_0_file_path, agent_1_file_path]
 
     [agent.save(agent_file_path) for (agent, agent_file_path) in zip(agents, agents_file_paths)]
@@ -90,11 +90,11 @@ if __name__ == '__main__':
     # You can also connect any other db client (e.g. DataGrip) to the agents database
 
     # Training is as simple as this:
-    episodes_no = 1000
+    episodes_no = 100
     with SimpleTraining(engine=engine, agents=agents) as st:
         # assignment is necessary, because training doesn't modify agents provided in constructor
         agents = st.train(episodes_no=episodes_no,
-                          auto_saving=100,
+                          auto_saving=10,
                           saving_description=["Trained agent", "Trained agent"])
         # episodes_no: number of episodes to play
         # auto_saving:
