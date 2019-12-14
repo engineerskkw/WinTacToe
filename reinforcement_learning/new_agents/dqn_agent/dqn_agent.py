@@ -36,7 +36,7 @@ class MemoryElement:
 
 
 class DQNAgent(BaseAgent):
-    def __init__(self, step_size, epsilon_strategy, discount, fit_period, batch_size, max_memory_size, agent_path, network_path):
+    def __init__(self, step_size, epsilon_strategy, discount, fit_period, batch_size, max_memory_size):
         super().__init__(epsilon_strategy)
         self.step_size = step_size
         self.discount = discount
