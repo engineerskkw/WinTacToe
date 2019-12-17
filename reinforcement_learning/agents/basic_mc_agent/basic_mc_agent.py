@@ -19,8 +19,8 @@ from reinforcement_learning.agents.basic_mc_agent.stochastic_model import Stocha
 
 
 class BasicAgent(BaseAgent):
-    def __init__(self, epsilon=0.1, discount=0.9):
-        super().__init__()
+    def __init__(self, epsilon_strategy, epsilon=0.1, discount=0.9):
+        super().__init__(epsilon_strategy)
         # parameters
         self.epsilon = epsilon
         self.discount = discount

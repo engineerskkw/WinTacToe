@@ -11,7 +11,6 @@ import numpy as np
 from dataclasses import dataclass
 from typing import List, Tuple, Set
 
-
 from reinforcement_learning.base.base_state import BaseState
 from reinforcement_learning.base.base_action import BaseAction
 from reinforcement_learning.base.base_action_space import BaseActionSpace
@@ -76,7 +75,7 @@ class Winning(BaseWinning):
 
 
 @dataclass(frozen=True)
-class TicTacToeState:
+class TicTacToeState(BaseState):
     board: np.ndarray
 
     def __post_init__(self):
@@ -102,19 +101,25 @@ class TicTacToeState:
                 representation += '\n'
         return representation
 
+    def flatten(self):
+        return np.array(self.board.flatten(), dtype=np.float32)
+
     def __hash__(self):
         return hash(self.board.data.tobytes())
 
     def __eq__(self, other):
-        if not isinstance(other, TicTacToeState):
-            return False
-        return hash(self) == hash(other)
+        if isinstance(other, TicTacToeState):
+            return hash(self) == hash(other)
+        return False
 
 
 @dataclass(frozen=True)
-class TicTacToeAction:
+class TicTacToeAction(BaseAction):
     row: int
     col: int
+
+    def flatten(self):
+        return np.array([self.row, self.col], dtype=np.float32)
 
 
 @dataclass(frozen=True)

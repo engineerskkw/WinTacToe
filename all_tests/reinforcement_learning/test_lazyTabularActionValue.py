@@ -7,21 +7,22 @@ sys.path.append(ABS_PROJECT_ROOT_PATH)
 # -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
 
 from unittest import TestCase
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.new_agents.common.lazy_tabular_action_value import LazyTabularActionValue
 from all_tests.mock.test_mock_action import MockAction
 from all_tests.mock.test_mock_state import MockState
+import numpy as np
 
 
 class TestLazyTabularActionValue(TestCase):
     def setUp(self):
         self.action_value = LazyTabularActionValue()
-        self.mock_state1 = MockState([1, 2, 3, 4, 5])
-        self.mock_state2 = MockState([6, 5, 4, 3])
-        self.mock_action1 = MockAction([1, 2, 3])
-        self.mock_action2 = MockAction([2, 3, 4])
-        self.mock_action3 = MockAction([5, 6, 7])
+        self.mock_state1 = MockState(np.array([1, 2, 3, 4, 5]))
+        self.mock_state2 = MockState(np.array([6, 5, 4, 3]))
+        self.mock_action1 = MockAction(1, 2)
+        self.mock_action2 = MockAction(5, 6)
+        self.mock_action3 = MockAction(7, 8)
 
-        self.mock_state1_copy = MockState([1, 2, 3, 4, 5])
+        self.mock_state1_copy = MockState(np.array([1, 2, 3, 4, 5]))
 
     def test_get_and_set_item(self):
         # Default value
@@ -56,7 +57,7 @@ class TestLazyTabularActionValue(TestCase):
         self.action_value[self.mock_state1, self.mock_action3] = 2.0
 
         self.assertEqual(self.action_value.argmax(self.mock_state1),
-                         {MockAction([1, 2, 3]), MockAction([5, 6, 7])})
+                         {self.mock_action1, self.mock_action3})
 
         # For empty state
         self.assertFalse(self.action_value.argmax(self.mock_state2))
@@ -67,7 +68,28 @@ class TestLazyTabularActionValue(TestCase):
         self.action_value[self.mock_state1, self.mock_action3] = 2.0
 
         self.assertEqual(self.action_value.action_returns(self.mock_state1),
-                         {MockAction([1, 2, 3]): 2.0, MockAction([2, 3, 4]): 1.0, MockAction([5, 6, 7]): 2.0})
+                         {self.mock_action1: 2.0, self.mock_action2: 1.0, self.mock_action3: 2.0})
 
         # For empty state
         self.assertFalse(self.action_value.action_returns(self.mock_state2))
+
+    def test_sample_update(self):
+
+        self.action_value.sample_update(
+            state=self.mock_state1,
+            action=self.mock_action1,
+            target=2,
+            step_size=0.5
+        )
+
+        self.assertEqual(self.action_value[self.mock_state1, self.mock_action1], 1)
+
+        self.action_value.sample_update(
+            state=self.mock_state1,
+            action=self.mock_action1,
+            target=5,
+            step_size=0.8
+        )
+
+        self.assertEqual(self.action_value[self.mock_state1, self.mock_action1], 4.2)
+
