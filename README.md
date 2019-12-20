@@ -148,7 +148,7 @@ Agents can be visualized
 [agent.visualize() for agent in agents]
 ```
 
-### Start a player vs bot game wih any engine
+### Start a player vs bot TicTacToe game
 Make sure that you have following configuration of traing platform config.ini:
 ```ini
 [TRAINING PLATFORM PARAMETERS]
