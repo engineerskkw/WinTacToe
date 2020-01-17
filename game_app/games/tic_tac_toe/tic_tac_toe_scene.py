@@ -12,10 +12,8 @@ import pygame
 from itertools import product
 from pygame.rect import Rect
 from pygame.mixer import Sound
-from game_app.common_helper import TurnState, Settings, ColorMode
+from game_app.common.common_helper import TurnState, Settings, ColorMode, GameMode
 from game_app.common.buttons import RectangularTextButton, RoundIconButton
-
-#TODO
 from pygame import gfxdraw
 
 symbols = {
@@ -41,24 +39,25 @@ class TicTacToeScene:
         self._game_over_situation_displayed = False
         self._background_and_messages_displayed = False
 
+        self._opponent_sound_on = self._component.spectator_mode
         self._square_size = 720 // self._board_size
-        self._tic_tac_toe_buttons = []
+        self.tic_tac_toe_buttons = []
         for row in range(self._board_size):
-            self._tic_tac_toe_buttons.append([])
+            self.tic_tac_toe_buttons.append([])
             for column in range(self._board_size):
                 position = (280 + column * self._square_size, row * self._square_size)
-                self._tic_tac_toe_buttons[row].append(TicTacToeButton(app,
-                                                                      position,
-                                                                      self._square_size,
-                                                                      self._component,
-                                                                      (row, column),
-                                                                      self._player_mark,
-                                                                      self._opponent_mark))
+                self.tic_tac_toe_buttons[row].append(TicTacToeButton(app,
+                                                                     position,
+                                                                     self._square_size,
+                                                                     self._component,
+                                                                     (row, column),
+                                                                     self._player_mark,
+                                                                     self._opponent_mark))
 
-        self._restart_button = RectangularTextFramedButton("Restart", lambda: self._component.restart(),
+        self._restart_button = RectangularTextFramedButton("Restart", self._component.restart,
                                                            app, (1040, 20), (200, 50), 3)
 
-        self._main_menu_button = RectangularTextFramedButton("MainMenu", lambda: self._component.back_to_menu(),
+        self._main_menu_button = RectangularTextFramedButton("MainMenu", self._component.back_to_menu,
                                                              app, (1040, 90), (200, 50), 3)
 
         self._toggle_sounds_button = RoundFramedIconButton(
@@ -69,8 +68,21 @@ class TicTacToeScene:
             resolve_music_button_icon_path(app.settings[Settings.COLOR], app.settings[Settings.MUSIC]),
             self._component.toggle_music, app, (1195, 665), 32, 2)
 
-        self.all_buttons = [self._restart_button, self._main_menu_button, self._toggle_sounds_button,
-                            self._toggle_music_button] + sum(self._tic_tac_toe_buttons, [])
+        self.navigation_buttons = [self._restart_button,
+                                   self._main_menu_button,
+                                   self._toggle_sounds_button,
+                                   self._toggle_music_button]
+
+        if self._component.spectator_mode:
+            self._pause_button = RoundFramedIconButton(
+                resolve_pause_button_icon_path(app.settings[Settings.COLOR], self._component.show_match_paused),
+                self._component.toggle_show_match_pause, app, (1085, 555), 32, 2)
+            self._show_next_button = RoundFramedIconButton(
+                resolve_next_button_icon_path(app.settings[Settings.COLOR]),
+                self._component.show_next_move, app, (1195, 555), 32, 2)
+            self.navigation_buttons += [self._pause_button, self._show_next_button]
+
+        self.all_buttons = self.navigation_buttons + sum(self.tic_tac_toe_buttons, [])
 
     def render(self):
         self._display_game_over_situation()
@@ -83,10 +95,13 @@ class TicTacToeScene:
             if self._component.winnings == -1:
                 self._play_game_over_sound(0)
             else:
-                [button.set_disabled() for button in sum(self._tic_tac_toe_buttons, [])]
+                [button.set_disabled() for button in sum(self.tic_tac_toe_buttons, [])]
                 for winning in self._component.winnings:
-                    [self._tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
-                self._play_game_over_sound(1 if self._component.winnings[0].mark == self._player_mark else 2)
+                    [self.tic_tac_toe_buttons[x][y].set_winning() for (x, y) in winning.points_included]
+                if self._component.spectator_mode:
+                    self._play_game_over_sound(0)
+                else:
+                    self._play_game_over_sound(1 if self._component.winnings[0].mark == self._player_mark else 2)
             self._background_and_messages_displayed = False
             self._game_over_situation_displayed = True
 
@@ -108,18 +123,25 @@ class TicTacToeScene:
                 self._display_game_over_message(self._component.winnings)
             else:
                 self._display_helper_message()
-                if self._component.turn == TurnState.NOT_YOUR_TURN:
-                    self._display_game_state_message("Agent's move", "Please, wait for your turn...")
-                else:
-                    self._display_game_state_message("Your move", "Select a field on the board",
-                                                     "to place your mark there")
+                if not self._component.spectator_mode:
+                    if self._component.turn == TurnState.NOT_YOUR_TURN:
+                        self._display_game_state_message("Agent's move", "Please, wait for your turn...")
+                    else:
+                        self._display_game_state_message("Your move", "Select a field on the board",
+                                                         "to place your mark there")
             self._background_and_messages_displayed = True
 
     def _display_helper_message(self):
-        self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (20, 655))
-        self._screen.blit(self._message_font.render(symbols[self._player_mark], True, self._message_color), (173, 646))
-        self._screen.blit(self._sub_message_font.render("Connect %d marks to win" % self._component.marks_required,
-                                                        True, self._message_color), (20, 683))
+        if self._component.spectator_mode:
+            self._screen.blit(self._sub_message_font.render("Spectating", True, self._message_color), (20, 655))
+            self._screen.blit(self._sub_message_font.render("Playing to %d" % self._component.marks_required,
+                                                            True, self._message_color), (20, 683))
+        else:
+            player_symbol = symbols[self._player_mark]
+            self._screen.blit(self._sub_message_font.render("You're playing as:", True, self._message_color), (20, 655))
+            self._screen.blit(self._message_font.render(player_symbol, True, self._message_color), (173, 646))
+            self._screen.blit(self._sub_message_font.render("Connect %d marks to win" % self._component.marks_required,
+                                                            True, self._message_color), (20, 683))
 
     def _display_game_state_message(self, text1, text2='', text3=''):
         self._screen.blit(self._message_font.render(text1, True, self._message_color), (20, 20))
@@ -127,12 +149,20 @@ class TicTacToeScene:
         self._screen.blit(self._sub_message_font.render(text3, True, self._message_color), (20, 95))
 
     def _display_game_over_message(self, winnings):
-        if winnings == -1:
-            self._display_game_state_message("It's a tie!", "Nice try")
-        elif winnings[0].mark == self._player_mark:
-            self._display_game_state_message("You win!", "Congratulations")
+        if self._component.spectator_mode:
+            if winnings == -1:
+                self._display_game_state_message("It's a tie!")
+            elif winnings[0].mark == 0:
+                self._display_game_state_message("Crosses win!")
+            else:
+                self._display_game_state_message("Naughts win!")
         else:
-            self._display_game_state_message("You lose!", "Better luck next time")
+            if winnings == -1:
+                self._display_game_state_message("It's a tie!", "Nice try")
+            elif winnings[0].mark == self._player_mark:
+                self._display_game_state_message("You win!", "Congratulations")
+            else:
+                self._display_game_state_message("You lose!", "Better luck next time")
 
     def _render_buttons(self):
         for button in self.all_buttons:
@@ -141,11 +171,11 @@ class TicTacToeScene:
     def handle_state_changed(self, new_game_state):
         new_game_board = new_game_state.board
         for row, col in product(list(range(self._board_size)), repeat=2):
-            if not new_game_board[row, col] == self._tic_tac_toe_buttons[row][col].mark:
+            if not new_game_board[row, col] == self.tic_tac_toe_buttons[row][col].mark:
                 if new_game_board[row, col] == -1:
-                    self._tic_tac_toe_buttons[row][col].set_unmarked()
+                    self.tic_tac_toe_buttons[row][col].set_unmarked()
                 else:
-                    self._tic_tac_toe_buttons[row][col].set_marked_by_opponent()
+                    self.tic_tac_toe_buttons[row][col].set_marked_by_opponent(self._opponent_sound_on)
 
     def handle_turn_changed(self):
         self._background_and_messages_displayed = False
@@ -157,6 +187,10 @@ class TicTacToeScene:
     def update_sounds_button(self):
         self._toggle_sounds_button.set_icon(resolve_sounds_button_icon_path(
             self._app.settings[Settings.COLOR], self._app.settings[Settings.SOUNDS]))
+
+    def update_pause_button(self):
+        self._pause_button.set_icon(resolve_pause_button_icon_path
+                                    (self._app.settings[Settings.COLOR], self._component.show_match_paused))
 
 
 class RectangularTextFramedButton(RectangularTextButton):
@@ -223,9 +257,11 @@ class TicTacToeButton(RectangularTextFramedButton):
         self.set_text(symbols[self._player_mark])
         self._component.step(self._game_position)
 
-    def set_marked_by_opponent(self):
+    def set_marked_by_opponent(self, play_sound=False):
         if self._is_disabled:
             return
+        if play_sound and self._app.settings[Settings.SOUNDS]:
+            self._click_sound.play()
         self.set_text(symbols[self._opponent_mark])
         self.mark = self._opponent_mark
         self.set_disabled()
@@ -271,3 +307,16 @@ def resolve_sounds_button_icon_path(color_mode, sounds_on):
     else:
         return os.path.join(resource_dir,
                             'sounds_off_white.png' if color_mode == ColorMode.DARK else 'sounds_off_black.png')
+
+
+def resolve_pause_button_icon_path(color_mode, show_match_paused):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
+    if show_match_paused:
+        return os.path.join(resource_dir, 'play_white.png' if color_mode == ColorMode.DARK else 'play_black.png')
+    else:
+        return os.path.join(resource_dir, 'pause_white.png' if color_mode == ColorMode.DARK else 'pause_black.png')
+
+
+def resolve_next_button_icon_path(color_mode):
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
+    return os.path.join(resource_dir, 'next_white.png' if color_mode == ColorMode.DARK else 'next_black.png')

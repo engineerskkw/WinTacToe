@@ -15,6 +15,11 @@ from threading import Thread
 from queue import SimpleQueue
 
 
+class GameMode(Enum):
+    PlayerVsAgent = 0
+    AgentVsAgent = 1
+
+
 class Difficulty(Enum):
     MEDIUM = 0
     HARD = 1
@@ -30,6 +35,7 @@ class Components(Enum):
     TIC_TAC_TOE_LAUNCH_MENU = 2
     TIC_TAC_TOE = 3
     SETTINGS = 4
+    CREDITS = 5
 
 
 class Settings(Enum):
