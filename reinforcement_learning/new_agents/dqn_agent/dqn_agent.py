@@ -160,7 +160,7 @@ class DQNAgent(BaseAgent):
                 tf.keras.layers.Dense(features_size)
         ])
 
-        self.model.compile(optimier='rmsprop', loss=tf.losses.mean_squared_error, metrics=['accuracy'])
+        self.model.compile(optimizer='rmsprop', loss=tf.losses.mean_squared_error, metrics=['accuracy'])
 
         # Beta dictionary TODO: delete it or move it elsewhere
         board_size = int(np.sqrt(features_size))
