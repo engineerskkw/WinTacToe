@@ -1,4 +1,4 @@
-![](https://github.com/engineerskkw/WinTacToe/workflows/Python%20Application/badge.svg)
+![Python application](https://github.com/engineerskkw/WinTacToe/workflows/Python%20application/badge.svg)
 
 # WinTacToe
 WinTacToe is a system for training **reinforcement learning** agents to play tic-tac-toe-related games.
