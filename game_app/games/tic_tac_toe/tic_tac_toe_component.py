@@ -1,17 +1,8 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-
-REL_PROJECT_ROOT_PATH = "./../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
 import pygame
 from pygame.locals import MOUSEBUTTONUP
 from thespian.actors import *
 from game_app.common.abstract_component import AbstractComponent
-from game_app.common.common_helper import TurnState, Components, Settings, Difficulty, GameMode
+from game_app.common.common_helper import TurnState, Components, Settings, GameMode
 from game_app.games.tic_tac_toe.tic_tac_toe_scene import TicTacToeScene
 from game_app.games.tic_tac_toe.agent_file_path_resolver import resolve_agent_file_path
 from game_app.games.tic_tac_toe.agent_fake_player import init_agent_fake_player, ActionFakePlayerCommand, \
@@ -26,8 +17,6 @@ from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
 from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.basic_mc_agent.basic_mc_agent import BasicAgent
-from reinforcement_learning.new_agents.dqn_agent.dqn_agent import DQNAgent
 from reinforcement_learning.agents_database.agents_db import AgentsDB
 
 
@@ -217,7 +206,7 @@ class TicTacToeComponent(AbstractComponent):
         self.winnings = None
 
         self._app.switch_music(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"))
+            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/SneakyAdventure.mp3"))
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if not LOGGING:
@@ -326,7 +315,7 @@ class TicTacToeComponent(AbstractComponent):
     def toggle_music(self):
         self._app.settings[Settings.MUSIC] = not self._app.settings[Settings.MUSIC]
         self._app.switch_music(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakyAdventure.mp3"))
+            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/SneakyAdventure.mp3"))
         self._scene.update_music_button()
         save_selected_settings(self._app.settings)
 

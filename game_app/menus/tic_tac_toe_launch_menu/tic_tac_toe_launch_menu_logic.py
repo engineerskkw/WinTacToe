@@ -1,11 +1,5 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-
-REL_PROJECT_ROOT_PATH = "./../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+import os
+from global_constants import ABS_PROJECT_ROOT_PATH
 
 from pygame.locals import *
 from game_app.common.common_helper import Components, ColorMode, Settings, Difficulty, GameMode
@@ -124,6 +118,6 @@ class TicTacToeLaunchMenuLogic:
 
 
 def resolve_back_arrow_image_path(color_mode):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common')
     return os.path.join(resource_dir,
                         'back_arrow_white.png' if color_mode == ColorMode.DARK else 'back_arrow_black.png')

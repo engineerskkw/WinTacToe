@@ -1,19 +1,10 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-
-REL_PROJECT_ROOT_PATH = "./../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
 from graphviz import Digraph
 from collections import defaultdict
 
 from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
 from reinforcement_learning.base.base_action_value import BaseActionValue
-from all_tests.mock.test_mock_state import MockState
-from all_tests.mock.test_mock_action import MockAction
+from tests.mock.test_mock_state import MockState
+from tests.mock.test_mock_action import MockAction
 
 
 class LazyTabularActionValue(BaseActionValue):
@@ -57,6 +48,18 @@ class LazyTabularActionValue(BaseActionValue):
             Default value of the action-value table cell.
         """
         return float(0)
+
+    def sample_update(self, **kwargs):
+        state = kwargs['state']
+        action = kwargs['action']
+        step_size = kwargs['step_size']
+        target = kwargs['target']
+
+        self[state, action] = self[state, action] + step_size * (target - self[state, action])
+
+        # print(state)
+        # print(action)
+        # print(target)
 
     # Needed for pickle...
     def _default_action_value(self):

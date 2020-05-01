@@ -1,12 +1,5 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-
-REL_PROJECT_ROOT_PATH = "./../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
+import os
+from global_constants import ABS_PROJECT_ROOT_PATH
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
 import pygame
 import pickle
@@ -33,7 +26,7 @@ class Application:
         self.screen = None
         self._size = 1280, 720
         self._block_events = False
-        with open(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/settings.cfg"), 'rb') as settings_file:
+        with open(os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/settings.cfg"), 'rb') as settings_file:
             self.settings = pickle.load(settings_file)
         self._music_player_commands_queue = init_music_player()
 
@@ -41,7 +34,7 @@ class Application:
         pygame.mixer.init(buffer=256)
         pygame.init()
 
-        logo = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/images/common/logo.png"))
+        logo = pygame.image.load(os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/images/common/logo.png"))
         pygame.display.set_icon(logo)
 
         pygame.display.set_caption("WinTacToe")

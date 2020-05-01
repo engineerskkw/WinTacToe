@@ -1,10 +1,5 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-REL_PROJECT_ROOT_PATH = "./../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+import os
+from global_constants import ABS_PROJECT_ROOT_PATH
 
 
 def resolve_agent_file_path(agents_mark, board_size, marks_required):
@@ -15,4 +10,4 @@ def resolve_agent_file_path(agents_mark, board_size, marks_required):
     else:
         raise Exception("Invalid opponent mark")
 
-    return os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "agents", agent_file_name)
+    return os.path.join(ABS_PROJECT_ROOT_PATH, "test_reinforcement_learning", "agents", agent_file_name)

@@ -1,22 +1,11 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-
-from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
-
-REL_PROJECT_ROOT_PATH = "./../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
 import random
 from graphviz import Digraph
 from scipy.special import softmax
 from reinforcement_learning.base.base_policy import BasePolicy
 from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
 
-from all_tests.mock.test_mock_action import MockAction
-from all_tests.mock.test_mock_state import MockState
+from tests.mock.test_mock_action import MockAction
+from tests.mock.test_mock_state import MockState
 
 
 class ActionValueDerivedPolicy(BasePolicy):
@@ -40,7 +29,7 @@ class ActionValueDerivedPolicy(BasePolicy):
 
     def epsilon_greedy(self, state, action_space, epsilon=0.1):
         if random.random() > epsilon:  # Choose action in the epsilon-greedy way
-            greedy_actions = list(self.action_value.argmax(state))
+            greedy_actions = list(self.action_value.argmax(state, action_space))
 
             if greedy_actions:  # Check if there are any chosen possibilities
                 action = random.choice(greedy_actions)  # Random drawback settlement
