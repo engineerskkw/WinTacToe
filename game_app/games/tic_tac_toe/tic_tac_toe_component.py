@@ -16,7 +16,7 @@ from training_platform.common import LOGGING
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from training_platform import EnvironmentServer, AgentClient
 from training_platform.clients.agent_client import MatchMakerUninitializedError, InvalidPlayer
-from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.base_agent import BaseAgent
 from reinforcement_learning.agents_database.agents_db import AgentsDB
 
 
@@ -206,7 +206,7 @@ class TicTacToeComponent(AbstractComponent):
         self.winnings = None
 
         self._app.switch_music(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/SneakyAdventure.mp3"))
+            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/SneakyAdventure.mp3"))
 
     def log(self, text, logging_level=LoggingLevel.GAME_EVENTS):
         if not LOGGING:
@@ -315,7 +315,7 @@ class TicTacToeComponent(AbstractComponent):
     def toggle_music(self):
         self._app.settings[Settings.MUSIC] = not self._app.settings[Settings.MUSIC]
         self._app.switch_music(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/SneakyAdventure.mp3"))
+            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/SneakyAdventure.mp3"))
         self._scene.update_music_button()
         save_selected_settings(self._app.settings)
 

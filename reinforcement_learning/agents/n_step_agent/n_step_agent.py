@@ -1,9 +1,9 @@
 import numpy as np
 
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.agent_utils import safe_return
+from reinforcement_learning.agents.base_agent import BaseAgent
+from reinforcement_learning.agents.common_building_blocks.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.agents.common_building_blocks.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.auxiliary_utilities import safe_return
 
 
 class NStepAgent(BaseAgent):

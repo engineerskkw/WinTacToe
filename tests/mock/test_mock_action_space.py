@@ -1,4 +1,4 @@
-from reinforcement_learning.base.base_action_space import BaseActionSpace
+from reinforcement_learning.agents.common_building_blocks.base.base_action_space import BaseActionSpace
 from random import choice, randrange, sample
 from typing import Set
 

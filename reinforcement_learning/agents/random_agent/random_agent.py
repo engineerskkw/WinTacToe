@@ -1,5 +1,5 @@
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.epsilon_strategy import ConstantEpsilonStrategy
+from reinforcement_learning.agents.base_agent import BaseAgent
+from reinforcement_learning.agents.common_building_blocks.epsilon_strategy import ConstantEpsilonStrategy
 
 
 class RandomAgent(BaseAgent):

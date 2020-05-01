@@ -4,11 +4,11 @@ import os
 from global_constants import ABS_PROJECT_ROOT_PATH
 
 from reinforcement_learning.agents.dqn_agent.dqn_agent import DQNAgent
-from reinforcement_learning.common.simple_training import SimpleTraining
+from reinforcement_learning.simple_training import SimpleTraining
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.epsilon_strategy import CircleEpsilonStrategy
+from reinforcement_learning.agents.base_agent import BaseAgent
+from reinforcement_learning.agents.common_building_blocks.epsilon_strategy import CircleEpsilonStrategy
 
 
 class TestAgentsSavingAndLoading(TestCase):

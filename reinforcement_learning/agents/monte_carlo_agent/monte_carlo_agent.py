@@ -1,11 +1,11 @@
 import numpy as np
 
-from reinforcement_learning.base.base_agent import BaseAgent
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.monte_carlo_agent.episode import Episode
-from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.agents.base_agent import BaseAgent
+from reinforcement_learning.agents.common_building_blocks.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common_building_blocks.episode import Episode
+from reinforcement_learning.agents.common_building_blocks.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.monte_carlo_agent.mdp import MDP
-from reinforcement_learning.agents.monte_carlo_agent.returns import Returns
+from reinforcement_learning.agents.common_building_blocks.returns import Returns
 from reinforcement_learning.agents.monte_carlo_agent.stochastic_model import StochasticModel
 
 

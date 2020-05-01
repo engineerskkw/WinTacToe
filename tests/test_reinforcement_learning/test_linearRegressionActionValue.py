@@ -1,5 +1,5 @@
 from unittest import TestCase
-from reinforcement_learning.agents.common.linear_regression_action_value import LinearRegressionActionValue
+from reinforcement_learning.agents.common_building_blocks.linear_regression_action_value import LinearRegressionActionValue
 from tests.mock.test_mock_action import MockAction
 from tests.mock.test_mock_state import MockState
 from tests.mock.test_mock_action_space import MockActionSpace
