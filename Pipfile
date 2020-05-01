@@ -13,7 +13,7 @@ numpy = "*"
 pygame = "*"
 # Learning platform communication library
 thespian = "*"
-# OpenAI gym environments
+# OpenAI gym test_environments
 gym = "*"
 # Jupyter notebook for fast invent -> test -> fix cycle
 jupyter = "*"

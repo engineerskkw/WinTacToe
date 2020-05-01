@@ -1,20 +1,11 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys
-import os
-
-REL_PROJECT_ROOT_PATH = "./../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
 import sqlite3
 import pickle
 import datetime
+import os
 
 
 class AgentsDB:
-    database_path = os.path.join(ABS_PROJECT_ROOT_PATH, "reinforcement_learning", "agents_database", "agents_db.sqlite")
+    database_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "agents_db.sqlite")
     conn = sqlite3.connect(database_path)
     cur = conn.cursor()
     create_agents_table_command = """

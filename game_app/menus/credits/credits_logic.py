@@ -1,11 +1,5 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys, os
-
-REL_PROJECT_ROOT_PATH = "./../../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
+import os
+from global_constants import ABS_PROJECT_ROOT_PATH
 
 from pygame.locals import *
 from pygame.mixer import Sound
@@ -14,13 +8,13 @@ from game_app.common.buttons import RoundIconButton, RoundIconButtonWithDescript
 from game_app.common.common_helper import Settings, ColorMode
 import webbrowser
 
-common_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
-settings_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings')
-tic_tac_toe_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
-credits_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/credits')
+common_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common')
+settings_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/settings')
+tic_tac_toe_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/tic_tac_toe')
+credits_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/credits')
 
-tic_tac_toe_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/sounds/tic_tac_toe')
-common_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/sounds/common')
+tic_tac_toe_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/sounds/tic_tac_toe')
+common_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/sounds/common')
 
 
 class CreditsLogic:

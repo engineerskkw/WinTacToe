@@ -1,20 +1,10 @@
-# BEGIN--------------------PROJECT-ROOT-PATH-APPENDING-------------------------#
-import sys
-import os
-
-REL_PROJECT_ROOT_PATH = "./../../"
-ABS_FILE_DIR = os.path.dirname(os.path.abspath(__file__))
-ABS_PROJECT_ROOT_PATH = os.path.normpath(os.path.join(ABS_FILE_DIR, REL_PROJECT_ROOT_PATH))
-sys.path.append(ABS_PROJECT_ROOT_PATH)
-# -------------------------PROJECT-ROOT-PATH-APPENDING----------------------END#
-
 from abc import ABC, abstractmethod
 import pickle
 import matplotlib.pyplot as plt
 import numpy as np
 import matplotlib.gridspec as gridspec
 
-from reinforcement_learning.agents.common.agent_utils import bucketify, gen_tempfile_path
+from reinforcement_learning.agents.common.agent_utils import bucketify
 from utils.common_utils import return_deepcopy
 
 class BaseAgent(ABC):
