@@ -1,7 +1,7 @@
 from unittest import TestCase
 
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
-from reinforcement_learning.agents.common.action_value_derived_policy import ActionValueDerivedPolicy
+from reinforcement_learning.agents.common_building_blocks.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common_building_blocks.action_value_derived_policy import ActionValueDerivedPolicy
 
 from tests.mock.test_mock_state import MockState
 from tests.mock.test_mock_action import MockAction

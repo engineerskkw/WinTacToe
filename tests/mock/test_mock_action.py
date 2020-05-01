@@ -1,8 +1,6 @@
-import numpy as np
-from reinforcement_learning.base.base_action import BaseAction
+from reinforcement_learning.agents.common_building_blocks.base.base_action import BaseAction
 
 from dataclasses import dataclass
-import numpy as np
 
 
 @dataclass(frozen=True)

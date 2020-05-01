@@ -8,13 +8,13 @@ from game_app.common.buttons import RoundIconButton, RoundIconButtonWithDescript
 from game_app.common.common_helper import Settings, ColorMode
 import webbrowser
 
-common_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common')
+common_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
 settings_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/settings')
 tic_tac_toe_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/tic_tac_toe')
 credits_image_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/credits')
 
 tic_tac_toe_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/sounds/tic_tac_toe')
-common_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/sounds/common')
+common_sounds_resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/sounds/common_building_blocks')
 
 
 class CreditsLogic:

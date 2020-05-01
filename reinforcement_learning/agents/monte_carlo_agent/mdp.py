@@ -1,7 +1,7 @@
 from graphviz import Digraph
 import numpy as np
 
-from reinforcement_learning.agents.common.auxiliary_utilities import linear_map
+from reinforcement_learning.agents.auxiliary_utilities import linear_map
 
 
 class MDP:

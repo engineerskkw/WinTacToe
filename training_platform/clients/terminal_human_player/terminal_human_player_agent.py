@@ -1,6 +1,6 @@
 from parse import parse
 
-from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.base_agent import BaseAgent
 from environments.tic_tac_toe.tic_tac_toe_engine_utils import TicTacToeAction
 
 

@@ -18,7 +18,7 @@ class AbstractButton(ABC):
         self._hovered_color = (60, 60, 60) if self._dark_mode_on else (170, 170, 170)
         self._pressed_color = (50, 50, 50) if self._dark_mode_on else (155, 155, 155)
         self._click_sound = Sound(os.path.join(
-            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/button_click_sound.wav"))
+            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/button_click_sound.wav"))
 
     @abstractmethod
     def contains_point(self, point):
@@ -85,7 +85,7 @@ class DisableableRectangularTextButton(RectangularTextButton):
         self._enabled_text = enabled_text
         self._disabled_text = disabled_text
         self._disabled_click_sound = Sound(os.path.join(
-            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/disabled_button_sound.wav"))
+            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/disabled_button_sound.wav"))
 
     def _get_color(self, mouse_position, is_mouse_pressed):
         if self._disabled:
@@ -157,7 +157,7 @@ class RectangularDisableableChoiceButton(RectangularChoiceButton):
 
         self.disabled_color = (52, 52, 52) if self._dark_mode_on else (215, 215, 215)
         self._disabled_click_sound = Sound(os.path.join(
-            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common/disabled_button_sound.wav"))
+            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/disabled_button_sound.wav"))
 
     def _get_color(self, mouse_position, is_mouse_pressed):
         if self._enabled:

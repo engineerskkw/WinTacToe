@@ -1,5 +1,5 @@
 from unittest import TestCase
-from reinforcement_learning.agents.common.lazy_tabular_action_value import LazyTabularActionValue
+from reinforcement_learning.agents.common_building_blocks.lazy_tabular_action_value import LazyTabularActionValue
 from tests.mock.test_mock_action import MockAction
 from tests.mock.test_mock_state import MockState
 import numpy as np

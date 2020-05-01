@@ -1,6 +1,7 @@
 import signal
 from parse import parse
 from thespian.actors import *
+import sys
 
 from training_platform.common import *
 from training_platform.clients.terminal_human_player.terminal_human_player_agent import HumanPlayerAgent

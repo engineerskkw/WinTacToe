@@ -23,16 +23,16 @@ Futhermore WinTacToe allows to analyse agents
 from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 
 #Agents
-from reinforcement_learning.base.base_agent import BaseAgent
+from reinforcement_learning.agents.base_agent import BaseAgent
 from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
 from reinforcement_learning.agents.random_agent.random_agent import RandomAgent
 from reinforcement_learning.agents.dqn_agent.dqn_agent import DQNAgent
 
 # Agents building blocks
-from reinforcement_learning.agents.common.epsilon_strategy import ConstantEpsilonStrategy, CircleEpsilonStrategy, DecayingSinusEpsilonStrategy
+from reinforcement_learning.agents.common_building_blocks.epsilon_strategy import ConstantEpsilonStrategy, CircleEpsilonStrategy, DecayingSinusEpsilonStrategy
 
 # Training
-from reinforcement_learning.common.simple_training import SimpleTraining
+from reinforcement_learning.simple_training import SimpleTraining
 
 # Agents Database
 from reinforcement_learning.agents_database.agents_db import AgentsDB
@@ -62,8 +62,8 @@ agents = [NStepAgent(n=5,
 ```
 Agents can be manually saved to files:
 ```python
-agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "test_reinforcement_learning", "common", "trained_agents", "agent0.rl_agent")
-agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "test_reinforcement_learning", "common", "trained_agents", "agent1.rl_agent")
+agent_0_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "test_reinforcement_learning", "common_building_blocks", "trained_agents", "agent0.rl_agent")
+agent_1_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "test_reinforcement_learning", "common_building_blocks", "trained_agents", "agent1.rl_agent")
 agents_file_paths = [agent_0_file_path, agent_1_file_path]
 
 [agent.save(agent_file_path) for (agent, agent_file_path) in zip(agents, agents_file_paths)]

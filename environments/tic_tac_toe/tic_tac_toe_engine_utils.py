@@ -3,9 +3,9 @@ import numpy as np
 from dataclasses import dataclass
 from typing import List, Tuple, Set
 
-from reinforcement_learning.base.base_state import BaseState
-from reinforcement_learning.base.base_action import BaseAction
-from reinforcement_learning.base.base_action_space import BaseActionSpace
+from reinforcement_learning.agents.common_building_blocks.base.base_state import BaseState
+from reinforcement_learning.agents.common_building_blocks.base.base_action import BaseAction
+from reinforcement_learning.agents.common_building_blocks.base.base_action_space import BaseActionSpace
 from environments.base.base_engine_utils import BasePlayer, BaseWinning
 
 

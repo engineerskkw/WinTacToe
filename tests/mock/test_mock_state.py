@@ -1,5 +1,5 @@
 import numpy as np
-from reinforcement_learning.base.base_state import BaseState
+from reinforcement_learning.agents.common_building_blocks.base.base_state import BaseState
 from dataclasses import dataclass
 
 @dataclass(frozen=True)

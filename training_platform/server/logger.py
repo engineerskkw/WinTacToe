@@ -1,5 +1,3 @@
-
-
 from thespian.actors import *
 from training_platform.common import *
 
