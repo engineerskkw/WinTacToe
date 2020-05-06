@@ -1,5 +1,6 @@
 import time
 from progress.bar import IncrementalBar
+import numpy as np
 
 from training_platform import EnvironmentServer
 from training_platform import AgentClient
@@ -18,6 +19,22 @@ class InvalidUsage(Exception):
     def __str__(self):
         return f"This object: {self.object} should be used with the python's 'with statement' " \
                f"as it need some cleanup."
+
+
+class SimpleTrainingProgressBar(IncrementalBar):
+    def __init__(self, *args, **kwargs):
+        super(IncrementalBar, self).__init__(*args, **kwargs)
+        self.agents = kwargs['agents']
+
+    @property
+    def performance(self):
+        string = "Performance:"
+        for i in range(len(self.agents)):
+            perf = np.mean((np.array(self.agents[i].all_episodes_returns[-100:]) + 1) / 2.0) * 100
+            string += f" agent {i} ({self.agents[i].__class__.__name__}) {perf:.2f}%"
+            if i < len(self.agents)-1:
+                string += ','
+        return string
 
 
 class SimpleTraining:
@@ -61,10 +78,6 @@ class SimpleTraining:
         if self._server is None:
             raise InvalidUsage(self)
 
-        # with IncrementalBar("Training", max=episodes_no, suffix='%(percent)d%%') as bar:
-        for agent in self.agents:
-            agent.epsilon_strategy.init_no_of_episodes(episodes_no)
-
         # Description(s) handling
         if auto_saving is not None and saving_description is not None:
             if isinstance(saving_description, str):
@@ -80,31 +93,38 @@ class SimpleTraining:
         else:
             saving_descriptions = [f"{episodes_no} episodes" for _ in range(len(self.agents))]
 
-        start = time.time()
-        for i in range(episodes_no):
-            # Epsilon updating
+        with SimpleTrainingProgressBar("Training",
+                                       max=episodes_no,
+                                       suffix='%(percent)d%% - ETA: %(eta)ds - %(performance)s',
+                                       agents=self.agents) as bar:
             for agent in self.agents:
-                agent.update_epsilon()
+                agent.epsilon_strategy.init_no_of_episodes(episodes_no)
 
-            # Pseudo progress bar
-            print(f"episode {i}") if i % 100 == 0 else None
+            start = time.time()
+            for i in range(episodes_no):
+                # Epsilon updating
+                for agent in self.agents:
+                    agent.update_epsilon()
 
-            # Periodic saving
-            if isinstance(auto_saving, int) and not isinstance(auto_saving, bool) and \
-                i % auto_saving == 0 and not i == 0:
-                [AgentsDB.save(self.agents[i],
-                               i,
-                               self.engine._board_size,
-                               self.engine._marks_required,
-                               saving_descriptions[i]) for i in range(len(self.agents))]
+                # # Pseudo progress bar
+                # print(f"episode {i}") if i % 100 == 0 else None
 
-            # Start episode
-            self._server.start()
-            # bar.next()
-        end = time.time()
+                # Periodic saving
+                if isinstance(auto_saving, int) and not isinstance(auto_saving, bool) and \
+                        i % auto_saving == 0 and not i == 0:
+                    [AgentsDB.save(self.agents[i],
+                                   i,
+                                   self.engine._board_size,
+                                   self.engine._marks_required,
+                                   saving_descriptions[i]) for i in range(len(self.agents))]
+
+                # Start episode
+                self._server.start()
+                bar.next()
+            end = time.time()
 
         # Finish log
-        print(f"Finished {episodes_no} episodes in {end-start}")
+        print(f"Finished {episodes_no} episodes in {end - start}")
 
         # Saving at the end
         if auto_saving:

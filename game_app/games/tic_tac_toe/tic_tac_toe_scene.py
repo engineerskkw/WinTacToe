@@ -99,7 +99,7 @@ class TicTacToeScene:
             self._game_over_situation_displayed = True
 
     def _play_game_over_sound(self, game_over_state):
-        directory = os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/tic_tac_toe")
+        directory = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe")
         if game_over_state == 0:
             self._component.play_sound_stopping_music(os.path.join(directory, "moderate_applause.wav"))
         elif game_over_state == 1:
@@ -233,9 +233,9 @@ class TicTacToeButton(RectangularTextFramedButton):
         self._winning_color = (100, 100, 100) if self._dark_mode_on else (230, 230, 230)
         self._mark_color = (230, 230, 230) if self._dark_mode_on else (25, 25, 25)
         self._click_sound = Sound(
-            os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/tic_tac_toe/move_sound.wav"))
+            os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/tic_tac_toe/move_sound.wav"))
         self._disabled_click_sound = Sound(os.path.join(
-            ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/disabled_button_sound.wav"))
+            ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/disabled_button_sound.wav"))
 
     def on_pressed(self):
         if self._is_disabled or self._component.turn == TurnState.NOT_YOUR_TURN:
@@ -283,7 +283,7 @@ class TicTacToeButton(RectangularTextFramedButton):
 
 
 def resolve_music_button_icon_path(color_mode, music_on):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     if music_on:
         return os.path.join(resource_dir,
                             'music_on_white.png' if color_mode == ColorMode.DARK else 'music_on_black.png')
@@ -293,7 +293,7 @@ def resolve_music_button_icon_path(color_mode, music_on):
 
 
 def resolve_sounds_button_icon_path(color_mode, sounds_on):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     if sounds_on:
         return os.path.join(resource_dir,
                             'sounds_on_white.png' if color_mode == ColorMode.DARK else 'sounds_on_black.png')
@@ -303,7 +303,7 @@ def resolve_sounds_button_icon_path(color_mode, sounds_on):
 
 
 def resolve_pause_button_icon_path(color_mode, show_match_paused):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/tic_tac_toe')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
     if show_match_paused:
         return os.path.join(resource_dir, 'play_white.png' if color_mode == ColorMode.DARK else 'play_black.png')
     else:
@@ -311,5 +311,5 @@ def resolve_pause_button_icon_path(color_mode, show_match_paused):
 
 
 def resolve_next_button_icon_path(color_mode):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/tic_tac_toe')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/tic_tac_toe')
     return os.path.join(resource_dir, 'next_white.png' if color_mode == ColorMode.DARK else 'next_black.png')

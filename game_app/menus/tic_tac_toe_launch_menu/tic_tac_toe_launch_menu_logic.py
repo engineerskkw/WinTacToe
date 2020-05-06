@@ -118,6 +118,6 @@ class TicTacToeLaunchMenuLogic:
 
 
 def resolve_back_arrow_image_path(color_mode):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     return os.path.join(resource_dir,
                         'back_arrow_white.png' if color_mode == ColorMode.DARK else 'back_arrow_black.png')

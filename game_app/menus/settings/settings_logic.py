@@ -15,7 +15,7 @@ class SettingsLogic:
         self._marks_required = 3
         self._mark = 0
         self._initialize_buttons()
-        self._music_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/resources/sounds/common_building_blocks/SneakySnitch.mp3")
+        self._music_file_path = os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/resources/sounds/common/SneakySnitch.mp3")
 
     def _initialize_buttons(self):
         self._settings_buttons = [
@@ -99,18 +99,18 @@ class SettingsLogic:
 
 
 def save_selected_settings(settings):
-    with open(os.path.join(ABS_PROJECT_ROOT_PATH, "test_game_app/settings.cfg"), 'wb') as settings_file:
+    with open(os.path.join(ABS_PROJECT_ROOT_PATH, "game_app/settings.cfg"), 'wb') as settings_file:
         pickle.dump(settings, settings_file, protocol=pickle.HIGHEST_PROTOCOL)
 
 
 def resolve_back_arrow_icon_path(color_mode):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     return os.path.join(resource_dir,
                         'back_arrow_white.png' if color_mode == ColorMode.DARK else 'back_arrow_black.png')
 
 
 def resolve_color_mode_button_text_and_icon_path(color_mode):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/settings')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings')
     if color_mode == ColorMode.DARK:
         return "Switch to light mode", os.path.join(resource_dir, 'moon_white.png')
     else:
@@ -118,7 +118,7 @@ def resolve_color_mode_button_text_and_icon_path(color_mode):
 
 
 def resolve_music_button_text_and_icon_path(color_mode, music_on):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     if music_on:
         return "Switch music off", os.path.join(resource_dir,
                                                 'music_on_white.png' if color_mode == ColorMode.DARK
@@ -130,7 +130,7 @@ def resolve_music_button_text_and_icon_path(color_mode, music_on):
 
 
 def resolve_sounds_button_text_and_icon_path(color_mode, sounds_on):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/common_building_blocks')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/common')
     if sounds_on:
         return "Switch sounds off", os.path.join(resource_dir,
                                                  'sounds_on_white.png' if color_mode == ColorMode.DARK
@@ -142,6 +142,6 @@ def resolve_sounds_button_text_and_icon_path(color_mode, sounds_on):
 
 
 def resolve_reset_icon_path(color_mode):
-    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'test_game_app/resources/images/settings')
+    resource_dir = os.path.join(ABS_PROJECT_ROOT_PATH, 'game_app/resources/images/settings')
     return os.path.join(resource_dir,
                         'reset_icon_white.png' if color_mode == ColorMode.DARK else 'reset_icon_black.png')
