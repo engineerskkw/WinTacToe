@@ -4,6 +4,7 @@ from environments.tic_tac_toe.tic_tac_toe_engine import TicTacToeEngine
 #Agents
 from reinforcement_learning.agents.monte_carlo_agent.monte_carlo_agent import MonteCarloAgent
 from reinforcement_learning.agents.n_step_agent.n_step_agent import NStepAgent
+from reinforcement_learning.agents.dyna_n_step_agent.dyna_n_step_agent import DynaNStepAgent
 from reinforcement_learning.agents.dqn_agent.dqn_agent import DQNAgent
 
 # Agents building blocks
@@ -36,7 +37,7 @@ if __name__ == '__main__':
                          step_size=0.1,
                          epsilon_strategy=CircleEpsilonStrategy(starting_epsilon_value=0.1, exploration_part=0.7),
                          discount=1),
-              NStepAgent(n=5,
+              DynaNStepAgent(n=5,
                          step_size=0.1,
                          epsilon_strategy=CircleEpsilonStrategy(starting_epsilon_value=0.1, exploration_part=0.7),
                          discount=1)]

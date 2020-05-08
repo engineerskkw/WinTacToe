@@ -6,7 +6,7 @@ from reinforcement_learning.agents.common_building_blocks.episode import Episode
 from reinforcement_learning.agents.common_building_blocks.action_value_derived_policy import ActionValueDerivedPolicy
 from reinforcement_learning.agents.monte_carlo_agent.mdp import MDP
 from reinforcement_learning.agents.common_building_blocks.returns import Returns
-from reinforcement_learning.agents.monte_carlo_agent.stochastic_model import StochasticModel
+from reinforcement_learning.agents.common_building_blocks.stochastic_tabular_model import StochasticTabularModel
 
 
 class MonteCarloAgent(BaseAgent):
@@ -21,7 +21,7 @@ class MonteCarloAgent(BaseAgent):
         self.policy = ActionValueDerivedPolicy(self.action_value)
         self.returns = Returns()
         self.last_episode = Episode()
-        self.model = StochasticModel()
+        self.model = StochasticTabularModel()
 
         # Auxiliary attributes
         self.last_state = None
@@ -109,7 +109,7 @@ class MonteCarloAgent(BaseAgent):
         self.last_action = None
 
     def reset_model(self):
-        self.model = StochasticModel()
+        self.model = StochasticTabularModel()
         self.last_state = None
         self.last_action = None
 
