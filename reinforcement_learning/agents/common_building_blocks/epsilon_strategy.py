@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from abc import ABC, abstractmethod
 from copy import deepcopy
-
+from bokeh.plotting import figure, show
 
 class BaseEpsilonStrategy(ABC):
     def __init__(self, starting_epsilon_value, exploration_part):
@@ -23,9 +23,18 @@ class BaseEpsilonStrategy(ABC):
     def init_no_of_episodes(self, no_of_episodes):
         pass
 
+    def get_figure(self):
+        f = figure(title='Epsilon',
+                   x_axis_label=f"Episodes",
+                   y_axis_label='Epsilon value',
+                   plot_width=900,
+                   plot_height=300,
+                   toolbar_location=None)
+        f.line(range(len(self.x)), np.array(self.y), color='blue')
+        return f
+
     def visualize(self):
-        plt.plot(self.x, self.y)
-        plt.show()
+        show(self.get_figure())
 
     def normalize(self, base_shape_x, base_shape_y):
         first_part_x = deepcopy(base_shape_x)
@@ -73,15 +82,17 @@ class CircleEpsilonStrategy(BaseEpsilonStrategy):
 
 
 class DecayingSinusEpsilonStrategy(BaseEpsilonStrategy):
-    def __init__(self, starting_epsilon_value, exploration_part):
+    def __init__(self, starting_epsilon_value, exploration_part, periods_no=20, convex_factor=0.3):
         super().__init__(starting_epsilon_value, exploration_part)
+        self.periods_no = periods_no
+        self.convex_factor = convex_factor
 
     def init_no_of_episodes(self, no_of_episodes):
         self.no_of_episodes = no_of_episodes
 
         starting_base_x = 1.1
-        ending_base_x = 30 * np.pi
-        convex_factor = 1
+        ending_base_x = self.periods_no * np.pi
+        convex_factor = self.convex_factor
 
         base_shape_x = np.linspace(starting_base_x, ending_base_x, int(self.exploration_part * self.no_of_episodes))
         base_shape_y = np.sin(base_shape_x) ** 2 / (base_shape_x ** convex_factor)

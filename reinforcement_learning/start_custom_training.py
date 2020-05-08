@@ -34,7 +34,7 @@ if __name__ == '__main__':
 
     agents = [NStepAgent(n=5,
                          step_size=0.1,
-                         epsilon_strategy=CircleEpsilonStrategy(starting_epsilon_value=0.1, exploration_part=0.7),
+                         epsilon_strategy=DecayingSinusEpsilonStrategy(starting_epsilon_value=0.1, exploration_part=0.7),
                          discount=1),
               NStepAgent(n=5,
                          step_size=0.1,
@@ -46,11 +46,11 @@ if __name__ == '__main__':
     #           MonteCarloAgent(epsilon_strategy=ConstantEpsilonStrategy(0.1),
     #                           discount=1)]
 
-    episodes_no = 1000
+    episodes_no = 10000
     with SimpleTraining(engine=engine, agents=agents) as st:
         agents = st.train(episodes_no=episodes_no,
                           auto_saving=True,
                           saving_description="MonteCarloAgent vs MonteCarloAgent from scratch, "
-                                             "sConstantEpsilonStrategy(0.1), discount=1")
+                                             "ConstantEpsilonStrategy(0.1), discount=1")
 
     [agent.visualize() for agent in agents]
