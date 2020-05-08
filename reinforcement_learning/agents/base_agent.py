@@ -160,7 +160,7 @@ class BaseAgent(ABC):
 
         action_times_f.line(range(len(action_times)), np.array(action_times)*10**3, color='blue')
 
-        show(column(performance_f, action_times_f))
+        show(column(performance_f, action_times_f, self.epsilon_strategy.get_figure()))
 
         # print(f"Number of played episodes: {er_n}")
         print(f"Mean reward: {'{0:0.6f}'.format(mean_reward)}")
