@@ -5,6 +5,16 @@ from training_platform.server.logger import Logger
 from training_platform.common import LOGGING
 import time
 
+from tornado.ioloop import IOLoop
+from bokeh.server.server import Server
+from bokeh.application import Application
+from bokeh.application.handlers.function import FunctionHandler
+from bokeh.plotting import figure, ColumnDataSource
+
+import threading
+import numpy as np
+from bokeh.models import NumeralTickFormatter
+
 
 class ServiceNotLaunchedError(Exception):
     """Raised when client tries to join uninitialized server"""
@@ -41,6 +51,23 @@ class AgentMsg:
         self.agent = agent
 
 
+class InitEpsilonMsg:
+    def __init__(self, episodes_no):
+        self.episodes_no = episodes_no
+
+
+class EpsilonInitializedMsg:
+    pass
+
+
+class UpdateEpsilonMsg:
+    pass
+
+
+class EpsilonUpdatedMsg:
+    pass
+
+
 class AgentClientActor(Actor):
     def __init__(self):
         super().__init__()
@@ -61,6 +88,8 @@ class AgentClientActor(Actor):
             self.logger_addr = msg.logger_addr
             self.client_endpoint = sender
             self.send(self.client_endpoint, AgentClientActorInitializedMsg())
+            self.start_dashboard()
+
 
         # Joining server
         elif isinstance(msg, JoinMsg):
@@ -111,6 +140,18 @@ class AgentClientActor(Actor):
         elif isinstance(msg, ActorExitRequest):
             self.log("Exiting")
 
+        # SimpleTraining utilities
+        elif isinstance(msg, InitEpsilonMsg):
+            self.agent.epsilon_strategy.init_no_of_episodes(msg.episodes_no)
+            self.log(f"Epsilon initialized with episodes number: {msg.episodes_no}")
+            self.send(self.client_endpoint, EpsilonInitializedMsg())
+
+        elif isinstance(msg, UpdateEpsilonMsg):
+            self.agent.update_epsilon()
+            self.log(f"Epsilon updated")
+            self.send(self.client_endpoint, EpsilonUpdatedMsg())
+
+        # Error handling
         else:
             raise UnexpectedMessageError(msg)
 
@@ -123,6 +164,54 @@ class AgentClientActor(Actor):
     def send(self, target_address, message):
         super().send(target_address, message)
         self.log(f"Sent {message} to {target_address}", LoggingLevel.PLATFORM_COMMUNICATION_MESSAGES)
+
+    def start_dashboard(self):
+        def make_document(doc):
+            source = ColumnDataSource({'episodes': [], 'returns': []})
+
+            class Update:
+                def __init__(self, agent):
+                    self.old_all_episodes_returns = []
+                    self.agent = agent
+
+                def __call__(self, *args, **kwargs):
+                    new_all_episodes_returns = self.agent.all_episodes_returns
+                    new_elements_number = len(new_all_episodes_returns) - len(self.old_all_episodes_returns)
+
+                    new_data_episodes = list(np.arange(len(self.old_all_episodes_returns), len(new_all_episodes_returns)))
+                    new_data_returns = new_all_episodes_returns[-new_elements_number:]
+
+                    new_data_returns = list((np.array(new_data_returns) + 1)/2.0)
+
+                    source.stream({'episodes': new_data_episodes, 'returns': new_data_returns})
+
+                    self.old_all_episodes_returns = list(new_all_episodes_returns)
+
+            doc.add_periodic_callback(Update(self.agent), 100)
+
+            performance_f = figure(title='Performance',
+                                   x_axis_label=f"Episodes",
+                                   y_axis_label='Percentage of winnings',
+                                   plot_width=900,
+                                   plot_height=300,
+                                   toolbar_location=None,
+                                   y_range=(-0.1, 1.1))
+            performance_f.yaxis.bounds = (0, 1)
+            performance_f.yaxis.formatter = NumeralTickFormatter(format='0 %')
+            performance_f.scatter(x='episodes', y='returns', color='red', source=source)
+            performance_f.line(x='episodes', y='returns', color='grey', alpha=0.5, source=source)
+
+            doc.title = "Now with live updating!"
+            doc.add_root(performance_f)
+
+        apps = {'/': Application(FunctionHandler(make_document))}
+        io_loop = IOLoop.current()
+        port = 0
+        server = Server(applications=apps, io_loop=io_loop, port=port)
+        server.start()
+        server.show('/')
+        t = threading.Thread(name='child procs', target=io_loop.start)
+        t.start()
 
 
 class AgentClient:
@@ -144,6 +233,16 @@ class AgentClient:
         if isinstance(response, AgentMsg):
             return response.agent
         raise UnexpectedMessageError(response)
+
+    def init_epsilon(self, episodes_no):
+        response = self.ask(self.client_actor_address, InitEpsilonMsg(episodes_no))
+        if not isinstance(response, EpsilonInitializedMsg):
+            raise UnexpectedMessageError(response)
+
+    def update_epsilon(self):
+        response = self.ask(self.client_actor_address, UpdateEpsilonMsg())
+        if not isinstance(response, EpsilonUpdatedMsg):
+            raise UnexpectedMessageError(response)
 
     def join(self, player):
         if self.joined:

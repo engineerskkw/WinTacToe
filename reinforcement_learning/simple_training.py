@@ -6,6 +6,9 @@ from training_platform import EnvironmentServer
 from training_platform import AgentClient
 from reinforcement_learning.agents_database.agents_db import AgentsDB
 
+import signal
+import sys
+
 
 class AgentsNumberNotMatchPlayersNumber(Exception):
     def __str__(self):
@@ -24,15 +27,15 @@ class InvalidUsage(Exception):
 class SimpleTrainingProgressBar(IncrementalBar):
     def __init__(self, *args, **kwargs):
         super(IncrementalBar, self).__init__(*args, **kwargs)
-        self.agents = kwargs['agents']
+        self.clients = kwargs['clients']
 
     @property
     def performance(self):
         string = "Performance:"
-        for i in range(len(self.agents)):
-            perf = np.mean((np.array(self.agents[i].all_episodes_returns[-100:]) + 1) / 2.0) * 100
-            string += f" agent {i} ({self.agents[i].__class__.__name__}) {perf:.2f}%"
-            if i < len(self.agents)-1:
+        for i in range(len(self.clients)):
+            perf = np.mean((np.array(self.clients[i].agent.all_episodes_returns[-100:]) + 1) / 2.0) * 100
+            string += f" agent {i} ({self.clients[i].agent.__class__.__name__}) {perf:.2f}%"
+            if i < len(self.clients)-1:
                 string += ','
         return string
 
@@ -40,15 +43,15 @@ class SimpleTrainingProgressBar(IncrementalBar):
 class SimpleTraining:
     def __init__(self, engine, agents):
         self.engine = engine
-        self.agents = agents
         self._server = None
-        self._clients = [AgentClient(agent) for agent in self.agents]
+        self._clients = [AgentClient(agent) for agent in agents]
 
     def __enter__(self):
         self._server = EnvironmentServer(self.engine)
+        # signal.signal(signal.SIGINT, self.signal_handler)
         print("Training platform has started!")
         players = self._server.players
-        if not len(players) == len(self.agents):
+        if not len(players) == len(self._clients):
             raise AgentsNumberNotMatchPlayersNumber
         [self._server.join(client, player) for (client, player) in zip(self._clients, players)]
         print("Clients have joined server!")
@@ -57,6 +60,14 @@ class SimpleTraining:
     def __exit__(self, exc_type, exc_val, exc_tb):
         self._server.shutdown()
         print("Training platform has been shutdown!")
+
+    def signal_handler(self, sig, frame):
+        print('Training stopped manually')
+        # if self._server is not None:
+        #     print('df')
+        self._server.shutdown()
+        print("Training platform has been shutdown!")
+        raise KeyboardInterrupt
 
     def train(self, episodes_no, auto_saving=None, saving_description=None):
         """
@@ -81,9 +92,9 @@ class SimpleTraining:
         # Description(s) handling
         if auto_saving is not None and saving_description is not None:
             if isinstance(saving_description, str):
-                saving_descriptions = [saving_description for _ in range(len(self.agents))]
+                saving_descriptions = [saving_description for _ in range(len(self._clients))]
             elif isinstance(saving_description, list) or isinstance(saving_description, tuple):
-                if len(saving_description) == len(self.agents):
+                if len(saving_description) == len(self._clients):
                     saving_descriptions = saving_description
                 else:
                     raise ValueError(
@@ -91,20 +102,26 @@ class SimpleTraining:
             else:
                 raise ValueError("Invalid saving_description parameter")
         else:
-            saving_descriptions = [f"{episodes_no} episodes" for _ in range(len(self.agents))]
+            saving_descriptions = [f"{episodes_no} episodes" for _ in range(len(self._clients))]
+
+        # Dashboard starting
+        # for client in self._clients:
+        #     client.start_dashboard()
+        # self._clients[0].start_dashboard()
+
 
         with SimpleTrainingProgressBar("Training",
                                        max=episodes_no,
-                                       suffix='%(percent)d%% - ETA: %(eta)ds - %(performance)s',
-                                       agents=self.agents) as bar:
-            for agent in self.agents:
-                agent.epsilon_strategy.init_no_of_episodes(episodes_no)
+                                       suffix='%(percent)d%% - Elapsed: %(elapsed)ds - ETA: %(eta)ds - %(performance)s',
+                                       clients=self._clients) as bar:
+            for client in self._clients:
+                client.init_epsilon(episodes_no)
 
             start = time.time()
             for i in range(episodes_no):
                 # Epsilon updating
-                for agent in self.agents:
-                    agent.update_epsilon()
+                for client in self._clients:
+                    client.update_epsilon()
 
                 # # Pseudo progress bar
                 # print(f"episode {i}") if i % 100 == 0 else None
@@ -112,11 +129,11 @@ class SimpleTraining:
                 # Periodic saving
                 if isinstance(auto_saving, int) and not isinstance(auto_saving, bool) and \
                         i % auto_saving == 0 and not i == 0:
-                    [AgentsDB.save(self.agents[i],
+                    [AgentsDB.save(self._clients[i].agent,
                                    i,
                                    self.engine._board_size,
                                    self.engine._marks_required,
-                                   saving_descriptions[i]) for i in range(len(self.agents))]
+                                   saving_descriptions[i]) for i in range(len(self._clients))]
 
                 # Start episode
                 self._server.start()
@@ -128,11 +145,11 @@ class SimpleTraining:
 
         # Saving at the end
         if auto_saving:
-            [AgentsDB.save(self.agents[i],
+            [AgentsDB.save(self._clients[i].agent,
                            i,
                            self.engine._board_size,
                            self.engine._marks_required,
-                           saving_descriptions[i]) for i in range(len(self.agents))]
+                           saving_descriptions[i]) for i in range(len(self._clients))]
 
         return [client.agent for client in self._clients]
 

@@ -46,7 +46,7 @@ if __name__ == '__main__':
     #           MonteCarloAgent(epsilon_strategy=ConstantEpsilonStrategy(0.1),
     #                           discount=1)]
 
-    episodes_no = 10000
+    episodes_no = 1000
     with SimpleTraining(engine=engine, agents=agents) as st:
         agents = st.train(episodes_no=episodes_no,
                           auto_saving=True,
