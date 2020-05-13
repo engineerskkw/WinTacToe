@@ -14,7 +14,7 @@ from bokeh.server.server import Server
 from bokeh.application import Application
 from bokeh.application.handlers.function import FunctionHandler
 from bokeh.plotting import figure, ColumnDataSource
-import copy
+from bokeh.models import Button, Slider
 import threading
 
 
@@ -260,11 +260,14 @@ class BaseAgent(ABC):
             performance_figure, action_times_figure = self.performance_figure(doc, period_milliseconds, bucketing)
             epsilon_figure = self.epsilon_figure(doc, period_milliseconds)
 
+            button = Button(label="Take control", button_type="success")
+            slider = Slider(start=0, end=1, value=0.1, step=0.01, title="Epsilon")
+
             figures = [performance_figure, action_times_figure, epsilon_figure]
 
             doc.add_root(column(figures))
-
-
+            doc.add_root(button)
+            doc.add_root(slider)
 
         apps = {'/': Application(FunctionHandler(make_document))}
         io_loop = IOLoop.current()
