@@ -105,10 +105,8 @@ class SimpleTraining:
             saving_descriptions = [f"{episodes_no} episodes" for _ in range(len(self._clients))]
 
         # Dashboard starting
-        # for client in self._clients:
-        #     client.start_dashboard()
-        # self._clients[0].start_dashboard()
-
+        for client in self._clients:
+            client.start_dashboard()
 
         with SimpleTrainingProgressBar("Training",
                                        max=episodes_no,
