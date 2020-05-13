@@ -23,10 +23,13 @@ class DynaNStepAgent(BaseAgent):
         self._action_history = []
         self._reward_history = [0]  # There is no R0 according to Sutton notation
 
-        self.model = StochasticTabularModel(self.action_value)
+        self.model = StochasticTabularModel(self)
 
     def take_action(self, state, allowed_actions):
-        self.model.plan(100)
+        self.model.count_state(state)
+        return self._take_action(state, allowed_actions)
+
+    def _take_action(self, state, allowed_actions):
         self._state_history.append(state)
         action = self.policy.epsilon_greedy(state, allowed_actions, self.current_epsilon)
         self._action_history.append(action)
@@ -36,8 +39,7 @@ class DynaNStepAgent(BaseAgent):
         return action
 
     def receive_reward(self, reward):
-        self._current_time_step += 1
-        self._reward_history.append(reward)
+        self._receive_reward(reward)
 
         # Model update
         if len(self._state_history) >= 2:
@@ -46,7 +48,15 @@ class DynaNStepAgent(BaseAgent):
             next_state = self._state_history[-1]
             self.model[state, action] = next_state, reward
 
+    def _receive_reward(self, reward):
+        self._current_time_step += 1
+        self._reward_history.append(reward)
+
     def exit(self, terminal_state):
+        self._exit(terminal_state)
+        self.model.plan(100)
+
+    def _exit(self, terminal_state):
         self._state_history.append(terminal_state)
         self._final_time_step = self._current_time_step
 
