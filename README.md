@@ -12,10 +12,6 @@ Futhermore WinTacToe allows to analyse agents
 
 
 ## Beginners guide
-### Preambula
-```python
-
-```
 
 ### Imports
 ```python
